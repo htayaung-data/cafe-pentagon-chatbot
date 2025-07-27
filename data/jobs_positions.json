@@ -1,0 +1,123 @@
+{
+  "company_info": {
+      "name": "Café Restaurant",
+      "name_mm": "ကဖေးစားသောက်ဆိုင်",
+    "industry": "Hospitality & Food Service",
+    "location": "North Dagon Township, Yangon",
+    "contact_email": "hr@caferestaurant.com",
+    "contact_phone": "+959979732781"
+  },
+  "positions": [
+    {
+      "position_id": "waiter_001",
+      "title_en": "Waiter/Waitress",
+      "title_mm": "စားပွဲထိုး",
+      "department": "service",
+      "employment_type": "full_time",
+      "vacancies": 3,
+      "urgent": true,
+      "salary_range": {
+        "min": 300000,
+        "max": 500000,
+        "currency": "MMK",
+        "period": "monthly"
+      },
+      "requirements": {
+        "experience": "1+ years in hospitality preferred",
+        "languages": ["English", "Burmese"],
+        "skills": ["customer_service", "communication", "teamwork"],
+        "education": "High school or equivalent"
+      },
+      "responsibilities": [
+        "Take orders and serve customers promptly",
+        "Maintain cleanliness of dining area",
+        "Handle customer inquiries and complaints"
+      ],
+      "benefits": ["health_insurance", "meal_allowance", "overtime_pay"],
+      "application_deadline": "2024-12-31",
+      "status": "open"
+    },
+    {
+      "position_id": "kitchen_001",
+      "title_en": "Kitchen Staff/Cook",
+      "title_mm": "မီးဖိုချောင်ဝန်ထမ်း/ချက်ပြုတ်သူ",
+      "department": "kitchen",
+      "employment_type": "full_time",
+      "vacancies": 2,
+      "urgent": true,
+      "salary_range": {
+        "min": 400000,
+        "max": 700000,
+        "currency": "MMK",
+        "period": "monthly"
+      },
+      "requirements": {
+        "experience": "2+ years in restaurant kitchen",
+        "languages": ["Burmese", "Basic English"],
+        "skills": ["food_preparation", "cooking_techniques", "kitchen_safety"]
+      },
+      "responsibilities": [
+        "Prepare and cook menu items according to recipes",
+        "Maintain kitchen cleanliness and food safety standards",
+        "Monitor food quality and presentation"
+      ],
+      "benefits": ["health_insurance", "meal_allowance", "overtime_pay"],
+      "application_deadline": "2024-12-31",
+      "status": "open"
+    },
+    {
+      "position_id": "barista_001",
+      "title_en": "Barista",
+      "title_mm": "ကော်ဖီချက်သူ",
+      "department": "beverage",
+      "employment_type": "full_time",
+      "vacancies": 1,
+      "salary_range": {
+        "min": 350000,
+        "max": 550000,
+        "currency": "MMK",
+        "period": "monthly"
+      },
+      "requirements": {
+        "experience": "1+ years as barista preferred",
+        "languages": ["English", "Burmese"],
+        "skills": ["coffee_preparation", "latte_art", "customer_service"]
+      },
+      "responsibilities": [
+        "Prepare and serve coffee beverages",
+        "Create latte art and decorative coffee drinks",
+        "Maintain coffee equipment and cleanliness"
+      ],
+      "benefits": ["health_insurance", "meal_allowance", "coffee_training"],
+      "application_deadline": "2024-12-31",
+      "status": "open"
+    },
+    {
+      "position_id": "manager_001",
+      "title_en": "Restaurant Manager",
+      "title_mm": "စားသောက်ဆိုင်မန်နေဂျာ",
+      "department": "management",
+      "employment_type": "full_time",
+      "vacancies": 1,
+      "salary_range": {
+        "min": 800000,
+        "max": 1200000,
+        "currency": "MMK",
+        "period": "monthly"
+      },
+      "requirements": {
+        "experience": "5+ years in restaurant management",
+        "languages": ["English", "Burmese"],
+        "skills": ["leadership", "team_management", "financial_management"]
+      },
+      "responsibilities": [
+        "Oversee daily restaurant operations",
+        "Manage staff scheduling and performance",
+        "Handle customer complaints and feedback"
+      ],
+      "benefits": ["health_insurance", "performance_bonus", "management_training"],
+      "application_deadline": "2024-12-31",
+      "status": "open"
+    }
+  ]
+} 

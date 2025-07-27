@@ -1,0 +1,4065 @@
+[
+  {
+    "id": 1,
+    "category": "breakfast",
+    "english_name": "Omelete (European)",
+    "myanmar_name": "ကြက်ဉလိပ်ကြော်",
+    "price": 6500,
+    "currency": "MMK",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg",
+    "ingredients": [
+      "Egg",
+      "Whipping Cream",
+      "Milk",
+      "salt",
+      "Black Pepper",
+      "Capsicum(G/Y/R)",
+      "Yellow Onion",
+      "Unsalted Butter",
+      "chedder cheese"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "dairy",
+      "eggs"
+    ],
+    "description_en": "Delicious omelete (european) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ဉလိပ်ကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes"
+  },
+  {
+    "id": 2,
+    "category": "breakfast",
+    "english_name": "Healthy Omelete",
+    "myanmar_name": "သီးရွက်စုံ ကြက်ဉလိပ်ကြော်",
+    "price": 5500,
+    "currency": "MMK",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg",
+    "ingredients": [
+      "Egg",
+      "Green Capsicum",
+      "Carrot",
+      "Baby Corn",
+      "Lettuce (local)",
+      "Milk",
+      "Whipping Cream",
+      "Salt",
+      "Pepper",
+      "Parmesan Cheese",
+      "Unsalted Butter"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "dairy",
+      "eggs"
+    ],
+    "description_en": "Delicious healthy omelete prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် သီးရွက်စုံ ကြက်ဉလိပ်ကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes"
+  },
+  {
+    "id": 3,
+    "category": "breakfast",
+    "english_name": "Ham & Cheese Egg Roll",
+    "myanmar_name": "၀က်သားပြား ချိစ်ကြက်ဉလိပ်",
+    "price": 6500,
+    "currency": "MMK",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg",
+    "ingredients": [
+      "Toast Bread",
+      "Egg",
+      "chive",
+      "ham",
+      "chedder cheese",
+      "Unsalted Butter"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "dairy",
+      "eggs",
+      "gluten"
+    ],
+    "description_en": "Delicious ham & cheese egg roll prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ၀က်သားပြား ချိစ်ကြက်ဉလိပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes"
+  },
+  {
+    "id": 4,
+    "category": "breakfast",
+    "english_name": "Mexican Style Egg Roll",
+    "myanmar_name": "ကြက်ဉ အမဲသားလိပ်",
+    "price": 6000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious mexican style egg roll prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ဉ အမဲသားလိပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 5,
+    "category": "main_course",
+    "english_name": "Salmon Tar Tar",
+    "myanmar_name": "သုံးရောင်ခြည် ဆယ်လ်မွန်သုပ်",
+    "price": 20500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious salmon tar tar prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် သုံးရောင်ခြည် ဆယ်လ်မွန်သုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 6,
+    "category": "main_course",
+    "english_name": "Fish and Chips",
+    "myanmar_name": "ငါးအသားပြားနှင့် အာလူးကြော်",
+    "price": 19000,
+    "currency": "MMK",
+    "ingredients": [
+      "Seabass",
+      "Egg",
+      "Breadcrumb",
+      "Tempura Flour",
+      "Salt",
+      "Black Pepper",
+      "Lemon",
+      "vegetable oil",
+      "french fries",
+      "Tar tar sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "fish"
+    ],
+    "description_en": "Delicious fish and chips prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ငါးအသားပြားနှင့် အာလူးကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 7,
+    "category": "main_course",
+    "english_name": "Prawn Tempura",
+    "myanmar_name": "ပုဇွန်တန်ပူရာကြော်",
+    "price": 13500,
+    "currency": "MMK",
+    "ingredients": [
+      "Tiger prawn",
+      "Egg",
+      "Breadcrumb",
+      "Flour",
+      "Salt",
+      "Black pepper",
+      "Sesame oil",
+      "Lime Juice",
+      "vegetable oil",
+      "thousand island"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "shellfish",
+      "sesame"
+    ],
+    "description_en": "Delicious prawn tempura prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပုဇွန်တန်ပူရာကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 8,
+    "category": "main_course",
+    "english_name": "Prawn Mayonaise",
+    "myanmar_name": "ပုဇွန်မရောနိစ်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [
+      "Tiger prawn",
+      "Mayonaise",
+      "Orange juice",
+      "Black Sesame Seed",
+      "vegetable oil",
+      "Egg White"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "shellfish",
+      "sesame"
+    ],
+    "description_en": "Delicious prawn mayonaise prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပုဇွန်မရောနိစ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 9,
+    "category": "appetizers_sides",
+    "english_name": "French Fries (normal / Spicy)",
+    "myanmar_name": "အာလူးချောင်းကြော် (ပုံမှန် / အစပ်) ",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious french fries (normal / spicy) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အာလူးချောင်းကြော် (ပုံမှန် / အစပ်) ",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 10,
+    "category": "appetizers_sides",
+    "english_name": "Fried Cashew nuts",
+    "myanmar_name": "သီဟိုစေ့ကြော်",
+    "price": 7500,
+    "currency": "MMK",
+    "ingredients": [
+      "Cashew nut",
+      "salt",
+      "Black pepper",
+      "vegetable oil"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "nuts"
+    ],
+    "description_en": "Delicious fried cashew nuts prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် သီဟိုစေ့ကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 11,
+    "category": "appetizers_sides",
+    "english_name": "French Fries (Mala)",
+    "myanmar_name": "အာလူးချောင်းကြော် (မာလာ)",
+    "price": 7500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious french fries (mala) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အာလူးချောင်းကြော် (မာလာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 12,
+    "category": "appetizers_sides",
+    "english_name": "Chicken Nuggets",
+    "myanmar_name": "ကြက်သားပြား ပါးလွှာကြော်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Egg",
+      "Breadcrumb",
+      "Flour",
+      "Salt",
+      "Black pepper",
+      "Lemon",
+      "vegetable oil",
+      "thousand island"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious chicken nuggets prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်သားပြား ပါးလွှာကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 13,
+    "category": "main_course",
+    "english_name": "Thaiwan Style Deep Fried Chicken",
+    "myanmar_name": "ထိုင်၀မ်စတိုင် ကြက်တုံးကြော်",
+    "price": 10000,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Thighs",
+      "Chicken Powder",
+      "Salt",
+      "Pepper",
+      "Garlic Powder",
+      "Garlic",
+      "Basil",
+      "Tempura Flour",
+      "Vegetable Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious thaiwan style deep fried chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထိုင်၀မ်စတိုင် ကြက်တုံးကြော်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 14,
+    "category": "appetizers_sides",
+    "english_name": "Buffalo wings",
+    "myanmar_name": "ကြက်တောင်ပံကြော်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Wings",
+      "Salt",
+      "Black Pepper",
+      "vegetable oil",
+      "Hot Sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious buffalo wings prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်တောင်ပံကြော်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 15,
+    "category": "main_course",
+    "english_name": "Grilled Pork Neck",
+    "myanmar_name": "ဝက်ဂုတ်သားကင်",
+    "price": 10800,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork Neck",
+      "Carrot",
+      "Cucumber",
+      "Long Bean",
+      "Chicken Powder",
+      "ABC",
+      "Honey",
+      "Oyster Sauce",
+      "Black Pepper"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken",
+      "pork"
+    ],
+    "description_en": "Delicious grilled pork neck prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ဂုတ်သားကင်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 16,
+    "category": "main_course",
+    "english_name": "Crispy Pork Belly",
+    "myanmar_name": "ဝက်သုံးထပ်သားအကြွပ်ကြော်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork Belly",
+      "vegetable oil",
+      "Tamarind Sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious crispy pork belly prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်သုံးထပ်သားအကြွပ်ကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 17,
+    "category": "main_course",
+    "english_name": "Fried Pork Spareribs",
+    "myanmar_name": "ဝက်နံရိုးနုကြော်",
+    "price": 13000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork ribs",
+      "Tempura Flour",
+      "Ginger",
+      "lemongrass",
+      "curry leaves",
+      "vegetable oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "pork"
+    ],
+    "description_en": "Delicious fried pork spareribs prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်နံရိုးနုကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 18,
+    "category": "main_course",
+    "english_name": "Spicy Fried Pork Dry Chilli",
+    "myanmar_name": "ဝက်သားခြောက်စပ်ကြော်",
+    "price": 11500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork Loin",
+      "Corn Flour",
+      "Onion",
+      "Garlic",
+      "Shan Corainder",
+      "Red Oil",
+      "Egg",
+      "Sugar",
+      "Chicken Powder"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "chicken",
+      "pork"
+    ],
+    "description_en": "Delicious spicy fried pork dry chilli prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်သားခြောက်စပ်ကြော်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 19,
+    "category": "main_course",
+    "english_name": "Sesame Porksticks",
+    "myanmar_name": "ဝက်သားနှမ်းကပ်ကြော်",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Sesame Seed(white)",
+      "Black Sesame Seed",
+      "Tempura Flour",
+      "Chicken Powder",
+      "Sesame Oil",
+      "vegetable oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken",
+      "pork",
+      "sesame"
+    ],
+    "description_en": "Delicious sesame porksticks prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်သားနှမ်းကပ်ကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 20,
+    "category": "main_course",
+    "english_name": "Assorted Tempura Seafood Board",
+    "myanmar_name": "ပင်လယ်စာအစုံကြော်",
+    "price": 15500,
+    "currency": "MMK",
+    "ingredients": [
+      "Cuttle Fish",
+      "Tiger Prawn",
+      "seabass",
+      "French Fries",
+      "Tempura Flour",
+      "Vegetable Oil",
+      "Fresh Chilli",
+      "Salt",
+      "Pepper",
+      "Chicken Powder",
+      "Sesame Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken",
+      "fish",
+      "shellfish",
+      "sesame"
+    ],
+    "description_en": "Delicious assorted tempura seafood board prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပင်လယ်စာအစုံကြော်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 21,
+    "category": "soups",
+    "english_name": "Pentagon Pork Ribs Noodle Soup",
+    "myanmar_name": "ဝက်နံရိုးနုခေါက်ဆွဲပြုတ်",
+    "price": 9000,
+    "currency": "MMK",
+    "ingredients": [
+      "Noodle",
+      "Pork ribs",
+      "Brocolli",
+      "Carrot",
+      "Straw Mushroom",
+      "Baby corn",
+      "egg",
+      "ginger",
+      "Garlic",
+      "chicken powder",
+      "sugar",
+      "salt",
+      "Black Pepper"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "chicken",
+      "pork"
+    ],
+    "description_en": "Delicious pentagon pork ribs noodle soup prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်နံရိုးနုခေါက်ဆွဲပြုတ်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 22,
+    "category": "main_course",
+    "english_name": "Kaya Pork Sausage",
+    "myanmar_name": "ကယားဝက်အူးချောင်းကြော်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious kaya pork sausage prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကယားဝက်အူးချောင်းကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 23,
+    "category": "noodles",
+    "english_name": "Mala dry noodle with crispy pork belly",
+    "myanmar_name": "ဝက်သုံးထပ်သားအကြွပ်ကြော်နှင့် မာလာခေါက်ဆွဲသုပ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Noodle",
+      "Pork Belly",
+      "mala paste",
+      "szechuan pepper oil",
+      "pickled mustard"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "pork"
+    ],
+    "description_en": "Delicious mala dry noodle with crispy pork belly prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်သုံးထပ်သားအကြွပ်ကြော်နှင့် မာလာခေါက်ဆွဲသုပ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 24,
+    "category": "soups",
+    "english_name": "Pentagon Signature Meat Ball\nNoodle Soup   (Chicken)",
+    "myanmar_name": "အသားလုံးခေါက်ဆွဲပြုတ် (ကြက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious pentagon signature meat ball\nnoodle soup   (chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အသားလုံးခေါက်ဆွဲပြုတ် (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 25,
+    "category": "soups",
+    "english_name": "Pentagon Signature Meat Ball\nNoodle Soup   (Pork)",
+    "myanmar_name": "အသားလုံးခေါက်ဆွဲပြုတ် (ဝက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "pork"
+    ],
+    "description_en": "Delicious pentagon signature meat ball\nnoodle soup   (pork) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အသားလုံးခေါက်ဆွဲပြုတ် (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 26,
+    "category": "noodles",
+    "english_name": "Pad Thai Noodle with chicken",
+    "myanmar_name": "ပတ်ထိုင်းခေါက်ဆွဲကြော် (ကြက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pad Thai Noodle",
+      "Egg",
+      "Seasoning",
+      "Bean sprout",
+      "beancard",
+      "Roasted Chilli",
+      "Lime",
+      "pad thai sauce",
+      "ground nut",
+      "Chicken Breast"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "chicken",
+      "nuts"
+    ],
+    "description_en": "Delicious pad thai noodle with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပတ်ထိုင်းခေါက်ဆွဲကြော် (ကြက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 27,
+    "category": "soups",
+    "english_name": "Pentagon Signature Meat Ball\nNoodle Soup   (Beef)",
+    "myanmar_name": "အသားလုံးခေါက်ဆွဲပြုတ် (အမဲ)",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "beef"
+    ],
+    "description_en": "Delicious pentagon signature meat ball\nnoodle soup   (beef) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အသားလုံးခေါက်ဆွဲပြုတ် (အမဲ)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 28,
+    "category": "noodles",
+    "english_name": "Pad Thai Noodle with pork",
+    "myanmar_name": "ပတ်ထိုင်းခေါက်ဆွဲကြော် (ဝက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pad Thai Noodle",
+      "Egg",
+      "Seasoning",
+      "Bean sprout",
+      "chives",
+      "beancard",
+      "Dried shrimp",
+      "Roasted Chilli",
+      "Lime",
+      "ground nut",
+      "Pork loin"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "pork",
+      "shellfish",
+      "nuts"
+    ],
+    "description_en": "Delicious pad thai noodle with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပတ်ထိုင်းခေါက်ဆွဲကြော် (ဝက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 29,
+    "category": "soups",
+    "english_name": "Miso Noodle soup (Chicken)",
+    "myanmar_name": "မီဆိုခေါက်ဆွဲပြုတ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious miso noodle soup (chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မီဆိုခေါက်ဆွဲပြုတ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 30,
+    "category": "noodles",
+    "english_name": "Pad Thai Noodle with seafood",
+    "myanmar_name": "ပတ်ထိုင်းခေါက်ဆွဲကြော် (ပင်လယ်စာ)",
+    "price": 10900,
+    "currency": "MMK",
+    "ingredients": [
+      "Pad Thai Noodle",
+      "Egg",
+      "Seasoning",
+      "Bean sprout",
+      "chives",
+      "beancard",
+      "Dried shrimp",
+      "Roasted Chilli",
+      "Lime",
+      "ground nut",
+      "Tiger Prawn"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "shellfish",
+      "nuts"
+    ],
+    "description_en": "Delicious pad thai noodle with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပတ်ထိုင်းခေါက်ဆွဲကြော် (ပင်လယ်စာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 31,
+    "category": "soups",
+    "english_name": "Miso Noodle soup (Pork)",
+    "myanmar_name": "မီဆိုခေါက်ဆွဲပြုတ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "pork"
+    ],
+    "description_en": "Delicious miso noodle soup (pork) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မီဆိုခေါက်ဆွဲပြုတ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 32,
+    "category": "noodles",
+    "english_name": "Prawn Glass Noodle Clay Pot",
+    "myanmar_name": "ပုဇွန်ပဲကြာဇံကြော်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [
+      "Straw Mushroom",
+      "Chinese Cabbage",
+      "Ear Mushroom",
+      "Snow Peas",
+      "Baby Corn",
+      "Glass Noodle",
+      "Tiger Prawn",
+      "Garlic",
+      "Chicken Powder",
+      "Sugar"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken",
+      "shellfish"
+    ],
+    "description_en": "Delicious prawn glass noodle clay pot prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပုဇွန်ပဲကြာဇံကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 33,
+    "category": "soups",
+    "english_name": "Miso Noodle soup (Beef)",
+    "myanmar_name": "မီဆိုခေါက်ဆွဲပြုတ်",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "beef"
+    ],
+    "description_en": "Delicious miso noodle soup (beef) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မီဆိုခေါက်ဆွဲပြုတ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 34,
+    "category": "noodles",
+    "english_name": "Fried Noodle with chicken",
+    "myanmar_name": "ခေါက်ဆွဲကြော် (ကြက်)",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Noodle",
+      "Vegetables",
+      "Egg",
+      "Chicken Breast",
+      "garlic",
+      "Seasoning",
+      "Cooking Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious fried noodle with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ခေါက်ဆွဲကြော် (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 35,
+    "category": "noodles",
+    "english_name": "Fried Noodle with pork",
+    "myanmar_name": "ခေါက်ဆွဲကြော် (ဝက်)",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Noodle",
+      "Vegetables",
+      "Egg",
+      "Pork loin",
+      "garlic",
+      "Seasoning",
+      "Cooking Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "pork"
+    ],
+    "description_en": "Delicious fried noodle with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ခေါက်ဆွဲကြော် (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 36,
+    "category": "main_course",
+    "english_name": "Spicy Mala Pot (Chicken)",
+    "myanmar_name": "မာလာခေါက်ဆွဲပြုတ်",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious spicy mala pot (chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မာလာခေါက်ဆွဲပြုတ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 37,
+    "category": "noodles",
+    "english_name": "Fried Noodle with Seafood",
+    "myanmar_name": "ခေါက်ဆွဲကြော် (ပင်လယ်စာ)",
+    "price": 5000,
+    "currency": "MMK",
+    "ingredients": [
+      "Noodle",
+      "Vegetables",
+      "Egg",
+      "Tiger Prawn",
+      "Cutter Fish",
+      "garlic",
+      "Seasoning",
+      "Cooking Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "gluten",
+      "fish",
+      "shellfish"
+    ],
+    "description_en": "Delicious fried noodle with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ခေါက်ဆွဲကြော် (ပင်လယ်စာ)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 38,
+    "category": "main_course",
+    "english_name": "Spicy Mala Pot (Pork)",
+    "myanmar_name": "မာလာခေါက်ဆွဲပြုတ်",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious spicy mala pot (pork) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မာလာခေါက်ဆွဲပြုတ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 39,
+    "category": "noodles",
+    "english_name": "Fried Vermicelli with chicken",
+    "myanmar_name": "ကြာဇံကြော် (ကြက်)",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice Vermicelli",
+      "Vegetables",
+      "Egg",
+      "Chicken Breast",
+      "garlic",
+      "Seasoning",
+      "Cooking Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious fried vermicelli with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြာဇံကြော် (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 40,
+    "category": "main_course",
+    "english_name": "Spicy Mala Pot (Beef)",
+    "myanmar_name": "မာလာခေါက်ဆွဲပြုတ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious spicy mala pot (beef) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မာလာခေါက်ဆွဲပြုတ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 41,
+    "category": "noodles",
+    "english_name": "Fried Vermicelli with pork",
+    "myanmar_name": "ကြာဇံကြော် (ဝက်)",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice Vermicelli",
+      "Vegetables",
+      "Egg",
+      "Pork loin",
+      "garlic",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious fried vermicelli with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြာဇံကြော် (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 42,
+    "category": "sandwiches_burgers",
+    "english_name": "Tuna Sandwiches",
+    "myanmar_name": "တူနာငါးအသားညှပ်ပေါင်မုန့်",
+    "price": 13000,
+    "currency": "MMK",
+    "ingredients": [
+      "bread",
+      "garlic butter",
+      "Carrot",
+      "Tuna",
+      "Mayonaise",
+      "onion dice",
+      "french fries"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "description_en": "Delicious tuna sandwiches prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တူနာငါးအသားညှပ်ပေါင်မုန့်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 43,
+    "category": "sandwiches_burgers",
+    "english_name": "Club sandwiches",
+    "myanmar_name": "ကြက်သားနှင့်ဘေကွန် အသားညှပ်ပေါင်မုန့်",
+    "price": 14000,
+    "currency": "MMK",
+    "ingredients": [
+      "bread",
+      "garlic butter",
+      "mayonaise",
+      "slice cheese",
+      "bacon",
+      "chicken breast",
+      "Tomato",
+      "Cucumber",
+      "iceberg",
+      "french fries"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious club sandwiches prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်သားနှင့်ဘေကွန် အသားညှပ်ပေါင်မုန့်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 44,
+    "category": "sandwiches_burgers",
+    "english_name": "Classic Beef Burger ***",
+    "myanmar_name": "အမဲသားညှပ်ပေါင်မုန့်",
+    "price": 13500,
+    "currency": "MMK",
+    "ingredients": [
+      "Burger Bun",
+      "Garlic butter",
+      "Beef Tenderloin",
+      "slice cheese",
+      "thousand island",
+      "Tomato",
+      "Iceberg",
+      "olive oil",
+      "cucumber",
+      "french fries"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten",
+      "beef"
+    ],
+    "description_en": "Delicious classic beef burger *** prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲသားညှပ်ပေါင်မုန့်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 45,
+    "category": "sandwiches_burgers",
+    "english_name": "Pancetta Beef Burger",
+    "myanmar_name": "ဘေကွန် အမဲသားညှပ်ပေါင်မုန့်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [
+      "Burger bun",
+      "Garlic butter",
+      "Beef Tenderloin",
+      "slice cheese",
+      "thousand island",
+      "bacon",
+      "Tomato",
+      "iceberg",
+      "olive oil",
+      "cucumber",
+      "french fries"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten",
+      "beef"
+    ],
+    "description_en": "Delicious pancetta beef burger prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဘေကွန် အမဲသားညှပ်ပေါင်မုန့်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 46,
+    "category": "breakfast",
+    "english_name": "Egg Buns Burger",
+    "myanmar_name": "ကြက်ဥဘာဂါ",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Egg",
+      "Bacon",
+      "chedder cheese",
+      "iceberg",
+      "raddicho",
+      "tomato",
+      "ham",
+      "cherry tomato",
+      "unsalted butter",
+      "salt",
+      "Black Pepper"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "dairy",
+      "eggs",
+      "gluten"
+    ],
+    "description_en": "Delicious egg buns burger prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ဥဘာဂါ",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 47,
+    "category": "sandwiches_burgers",
+    "english_name": "Smoked B.B.Q Burger",
+    "myanmar_name": "အသားညှပ်ပေါင်မုန့်",
+    "price": 15500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken breast",
+      "Pork Loin",
+      "Burger Bun",
+      "side salad",
+      "french fries",
+      "BBQ Sauce",
+      "Iceberg",
+      "Unsalted Butter",
+      "sunflower oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten",
+      "chicken",
+      "pork"
+    ],
+    "description_en": "Delicious smoked b.b.q burger prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အသားညှပ်ပေါင်မုန့်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 48,
+    "category": "salads",
+    "english_name": "Chef Salad",
+    "myanmar_name": "စားဖိုမှူး အရွက်စုံသုပ်",
+    "price": 15500,
+    "currency": "MMK",
+    "ingredients": [
+      "mixed salad",
+      "Egg",
+      "Chicken Breast",
+      "bacon",
+      "ham",
+      "cherry tomato",
+      "croutons",
+      "chef salad dressing"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious chef salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် စားဖိုမှူး အရွက်စုံသုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 49,
+    "category": "salads",
+    "english_name": "Nicoise Salad",
+    "myanmar_name": "တူနာသီးရွက်စုံသုပ်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [
+      "mixed salad",
+      "french bean",
+      "cherry tomato",
+      "black olive",
+      "green olive",
+      "Egg",
+      "nicoise dressing",
+      "Potato",
+      "tuna"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious nicoise salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တူနာသီးရွက်စုံသုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 50,
+    "category": "salads",
+    "english_name": "Ceaser Salad",
+    "myanmar_name": "ဆီဇာအရွက်စုံသုပ်",
+    "price": 13000,
+    "currency": "MMK",
+    "ingredients": [
+      "Romaine",
+      "croutons",
+      "Egg",
+      "chicken breast",
+      "ham",
+      "bacon",
+      "Egg",
+      "caesar dressing"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious ceaser salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဆီဇာအရွက်စုံသုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 51,
+    "category": "salads",
+    "english_name": "Grilled Pork Neck Salad",
+    "myanmar_name": "ဝက်ဂုတ်သားကင်သုပ်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork Neck",
+      "Seasoning",
+      "Grilled Pork Neck Sauce",
+      "saw leaves",
+      "spring onion",
+      "onion",
+      "mint leaves"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious grilled pork neck salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ဂုတ်သားကင်သုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 52,
+    "category": "salads",
+    "english_name": "Mutton Floss Tea Salad",
+    "myanmar_name": "ဆိတ်လက်ဖက်ထောင်း",
+    "price": 10000,
+    "currency": "MMK",
+    "ingredients": [
+      "Dried Mutton",
+      "Garlic",
+      "Green Chilli",
+      "Saw leaves",
+      "corainder leaves",
+      "fish sauce",
+      "chicken powder",
+      "vegetable oil",
+      "tea leaf"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken",
+      "fish"
+    ],
+    "description_en": "Delicious mutton floss tea salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဆိတ်လက်ဖက်ထောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 53,
+    "category": "salads",
+    "english_name": "Raw Prawn Salad",
+    "myanmar_name": "ပုဇွန်အစိမ်းသုပ်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [
+      "Tiger Prawn",
+      "Seafood Sauce",
+      "Tomato"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "shellfish"
+    ],
+    "description_en": "Delicious raw prawn salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပုဇွန်အစိမ်းသုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 54,
+    "category": "salads",
+    "english_name": "Glass Noodle Seafood Salad",
+    "myanmar_name": "ပင်လယ်စာပဲကြာဇံသုပ်",
+    "price": 13500,
+    "currency": "MMK",
+    "ingredients": [
+      "Glass Noodle",
+      "Tiger prawn",
+      "Seafood Sauce",
+      "Chicken Powder",
+      "Fish Sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "chicken",
+      "fish",
+      "shellfish"
+    ],
+    "description_en": "Delicious glass noodle seafood salad prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပင်လယ်စာပဲကြာဇံသုပ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 55,
+    "category": "main_course",
+    "english_name": "Stir-Fried Kai Lan with oyster sauce",
+    "myanmar_name": "ကိုက်လန်ခရုဆီကြော်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Kai lan",
+      "seasoning",
+      "vegetable oil",
+      "straw mushroom",
+      "garlic"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious stir-fried kai lan with oyster sauce prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကိုက်လန်ခရုဆီကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 56,
+    "category": "main_course",
+    "english_name": "Fried Kai Lan with Crispy Pork Belly",
+    "myanmar_name": "ဝက်ခေါက် ကိုက်လန်ကြော်",
+    "price": 11500,
+    "currency": "MMK",
+    "ingredients": [
+      "Kai Lan",
+      "Pork Belly",
+      "Ginger",
+      "Garlic",
+      "Red Chilli",
+      "Seasoning Sauce",
+      "Vegetable Oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious fried kai lan with crispy pork belly prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ခေါက် ကိုက်လန်ကြော်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 57,
+    "category": "main_course",
+    "english_name": "Stir-fried chayote leaf",
+    "myanmar_name": "ဂေါ်ရခါးညွှန့်ကြော်",
+    "price": 6000,
+    "currency": "MMK",
+    "ingredients": [
+      "chayote leaf",
+      "seasoning",
+      "vegetable oil",
+      "garlic"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious stir-fried chayote leaf prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဂေါ်ရခါးညွှန့်ကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 58,
+    "category": "main_course",
+    "english_name": "Stir-fried Asparagus",
+    "myanmar_name": "ကညွတ်ကြော်",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [
+      "Asparagus",
+      "Carrot",
+      "Seasoning",
+      "vegetable oil",
+      "garlic"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious stir-fried asparagus prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကညွတ်ကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 59,
+    "category": "main_course",
+    "english_name": "Assorted vegetables",
+    "myanmar_name": "အသီးအရွက်စုံ အစိမ်းကြော်",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [
+      "mixed vegetables",
+      "garlic",
+      "vegetable oil",
+      "seasoning",
+      "fried garlic"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious assorted vegetables prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အသီးအရွက်စုံ အစိမ်းကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 60,
+    "category": "pasta",
+    "english_name": "Bolognese",
+    "myanmar_name": "အမဲစင်းကော ခရမ်းချဉ်သီးအနှစ်နှင့် အီတလီခေါက်ဆွဲ",
+    "price": 13000,
+    "currency": "MMK",
+    "ingredients": [
+      "Speghetti Pasta",
+      "Beef Tenderloin",
+      "Olive Oil",
+      "Bolognese Tomato Sauce",
+      "Carrot",
+      "Shallot",
+      "Salt",
+      "Black Pepper",
+      "Red wine"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten",
+      "beef"
+    ],
+    "description_en": "Delicious bolognese prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲစင်းကော ခရမ်းချဉ်သီးအနှစ်နှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 61,
+    "category": "pasta",
+    "english_name": "Seafood Pesto Pasta  (Spaghetti/Penne)",
+    "myanmar_name": "ဝက်ပေါင်ခြောက်၊ ဒိန်ခဲနှင့် အီတလီခေါက်ဆွဲ",
+    "price": 14000,
+    "currency": "MMK",
+    "ingredients": [
+      "Speghetti Pasta",
+      "Pesto Sauce",
+      "squid",
+      "Sunflower Oil",
+      "Garlic",
+      "Fresh Chilli",
+      "White Wine"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": false,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "gluten"
+    ],
+    "description_en": "Delicious seafood pesto pasta  (spaghetti/penne) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ပေါင်ခြောက်၊ ဒိန်ခဲနှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 62,
+    "category": "pasta",
+    "english_name": "Carbonara  (bacon)",
+    "myanmar_name": "ဝက်ပေါင်ခြောက်၊ ဒိန်ခဲနှင့် အီတလီခေါက်ဆွဲ",
+    "price": 17500,
+    "currency": "MMK",
+    "ingredients": [
+      "Speghetti Pasta",
+      "bacon",
+      "sunflower oil",
+      "Shallot",
+      "Whipping Cream",
+      "pure milk",
+      "Salt",
+      "Black Pepper",
+      "White Wine",
+      "parmesan cheese"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "description_en": "Delicious carbonara  (bacon) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ပေါင်ခြောက်၊ ဒိန်ခဲနှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 63,
+    "category": "pasta",
+    "english_name": "Carbonara  (Seafood)",
+    "myanmar_name": "0",
+    "price": 18500,
+    "currency": "MMK",
+    "ingredients": [
+      "Speghetti Pasta",
+      "Squid",
+      "sunflower oil",
+      "Shallot",
+      "Whipping Cream",
+      "pure milk",
+      "Salt",
+      "Black Pepper",
+      "White Wine",
+      "parmesan cheese"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "description_en": "Delicious carbonara  (seafood) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် 0",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 64,
+    "category": "rice_dishes",
+    "english_name": "Pineapple Fried Rice with chicken",
+    "myanmar_name": "နာနတ်သီးထမင်းကြော် (ကြက်)",
+    "price": 9000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pineapple",
+      "Cashew nut",
+      "vegetables",
+      "shallot",
+      "seasoning",
+      "egg",
+      "Chicken Breast",
+      "rice",
+      "rasing",
+      "curry powder"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken",
+      "nuts"
+    ],
+    "description_en": "Delicious pineapple fried rice with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် နာနတ်သီးထမင်းကြော် (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 65,
+    "category": "rice_dishes",
+    "english_name": "Pineapple Fried Rice with pork",
+    "myanmar_name": "နာနတ်သီးထမင်းကြော် (ဝက်)",
+    "price": 9000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pineapple",
+      "Cashew nut",
+      "vegetables",
+      "shallot",
+      "seasoning",
+      "egg",
+      "Pork loin",
+      "rice",
+      "rasing",
+      "curry powder"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork",
+      "nuts"
+    ],
+    "description_en": "Delicious pineapple fried rice with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် နာနတ်သီးထမင်းကြော် (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 66,
+    "category": "rice_dishes",
+    "english_name": "Pineapple Fried Rice with seafood",
+    "myanmar_name": "နာနတ်သီးထမင်းကြော် (ပင်လယ်စာ)",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pineapple",
+      "Cashew nut",
+      "vegetables",
+      "shallot",
+      "seasoning",
+      "egg",
+      "Squid",
+      "rice",
+      "rasing",
+      "curry powder"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "nuts"
+    ],
+    "description_en": "Delicious pineapple fried rice with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် နာနတ်သီးထမင်းကြော် (ပင်လယ်စာ)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 67,
+    "category": "rice_dishes",
+    "english_name": "American Fried Rice",
+    "myanmar_name": "အမေရိကန်ထမင်းကြော်",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Thighs",
+      "Rice",
+      "Egg",
+      "vegetables",
+      "seasoning",
+      "chicken sausage"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious american fried rice prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမေရိကန်ထမင်းကြော်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 68,
+    "category": "main_course",
+    "english_name": "Aglio E Olio (Plain)",
+    "myanmar_name": "သံလွင်ဆီ၊ ကြက်သွန်ဖြူကြော်နှင့် အီတလီခေါက်ဆွဲ",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious aglio e olio (plain) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် သံလွင်ဆီ၊ ကြက်သွန်ဖြူကြော်နှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 69,
+    "category": "rice_dishes",
+    "english_name": "Tom Yum Fried Rice with chicken",
+    "myanmar_name": "တုံယမ်းထမင်းကြော် (ကြက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Chicken Breast",
+      "Shallot",
+      "Tomato",
+      "Red Chilli",
+      "lemongrass",
+      "glanger",
+      "Kaffir lime leaves",
+      "seasoning",
+      "egg"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious tom yum fried rice with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တုံယမ်းထမင်းကြော် (ကြက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 70,
+    "category": "main_course",
+    "english_name": "Aglio E Olio (Seafood)",
+    "myanmar_name": "သံလွင်ဆီ၊ ကြက်သွန်ဖြူကြော်နှင့် အီတလီခေါက်ဆွဲ",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious aglio e olio (seafood) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် သံလွင်ဆီ၊ ကြက်သွန်ဖြူကြော်နှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 71,
+    "category": "rice_dishes",
+    "english_name": "Tom Yum Fried Rice With pork",
+    "myanmar_name": "တုံယမ်းထမင်းကြော် (ဝက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Pork loin",
+      "Shallot",
+      "Tomato",
+      "Red Chilli",
+      "lemongrass",
+      "glanger",
+      "Kaffir lime leaves",
+      "seasoning",
+      "egg"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious tom yum fried rice with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တုံယမ်းထမင်းကြော် (ဝက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 72,
+    "category": "rice_dishes",
+    "english_name": "Tom Yum Fried Rice with seafood",
+    "myanmar_name": "တုံယမ်းထမင်းကြော် (ပင်လယ်စာ)",
+    "price": 10900,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Seafood",
+      "Shallot",
+      "Tomato",
+      "chilli",
+      "lemongrass",
+      "glanger",
+      "Kaffir lime leaves",
+      "seasoning",
+      "egg"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious tom yum fried rice with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တုံယမ်းထမင်းကြော် (ပင်လယ်စာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 73,
+    "category": "main_course",
+    "english_name": "Marinara (Seafood)",
+    "myanmar_name": "ပင်လယ်စာ ခရမ်းချဉ်သီးအနှစ်နှင့် အီတလီခေါက်ဆွဲ",
+    "price": 15500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": true,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious marinara (seafood) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပင်လယ်စာ ခရမ်းချဉ်သီးအနှစ်နှင့် အီတလီခေါက်ဆွဲ",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 74,
+    "category": "rice_dishes",
+    "english_name": "Chinese Fried Rice with chicken",
+    "myanmar_name": "တရုတ်ထမင်းကြော် (ကြက်)",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "Chicken Breast",
+      "Vegetables",
+      "Spring Onion",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious chinese fried rice with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တရုတ်ထမင်းကြော် (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 75,
+    "category": "rice_dishes",
+    "english_name": "Chinese Fried Rice with pork",
+    "myanmar_name": "တရုတ်ထမင်းကြော် (ဝက်)",
+    "price": 7000,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "Pork loin",
+      "Vegetables",
+      "Spring Onion",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious chinese fried rice with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တရုတ်ထမင်းကြော် (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 76,
+    "category": "rice_dishes",
+    "english_name": "Chinese Fried Rice with seafood",
+    "myanmar_name": "တရုတ်ထမင်းကြော် (ပင်လယ်စာ)",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "seafood",
+      "Vegetables",
+      "Spring Onion",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious chinese fried rice with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တရုတ်ထမင်းကြော် (ပင်လယ်စာ)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 77,
+    "category": "rice_dishes",
+    "english_name": "Spicy Fried Rice with chicken",
+    "myanmar_name": "ပသျှူးထမင်းကြော် (ကြက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "Chicken Breast",
+      "Pickeled Mix vegetables",
+      "Shallot",
+      "Red Chilli",
+      "Tomato",
+      "Vegetables",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious spicy fried rice with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပသျှူးထမင်းကြော် (ကြက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 78,
+    "category": "rice_dishes",
+    "english_name": "Spicy Fried Rice with pork",
+    "myanmar_name": "ပသျှူးထမင်းကြော် (ဝက်)",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "Pork loin",
+      "Pickeled Mix vegetables",
+      "Shallot",
+      "Red Chilli",
+      "Tomato",
+      "Vegetables",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious spicy fried rice with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပသျှူးထမင်းကြော် (ဝက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 79,
+    "category": "rice_dishes",
+    "english_name": "Spicy Fried Rice with seafood",
+    "myanmar_name": "ပသျှူးထမင်းကြော် (ပင်လယ်စာ)",
+    "price": 10900,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Egg",
+      "Squid",
+      "Pickeled Mix vegetables",
+      "Shallot",
+      "Roasted Chilli",
+      "Tomato",
+      "Vegetables",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious spicy fried rice with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပသျှူးထမင်းကြော် (ပင်လယ်စာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 80,
+    "category": "rice_dishes",
+    "english_name": "Thai Style Shrimp Paste Fried Rice\n(chicken)",
+    "myanmar_name": "ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ကြက်)",
+    "price": 9000,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Fried Garlic",
+      "Shallot",
+      "Chilli",
+      "Seasoning",
+      "Rice",
+      "Egg",
+      "shrimp paste"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken",
+      "shellfish"
+    ],
+    "description_en": "Delicious thai style shrimp paste fried rice\n(chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ကြက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 81,
+    "category": "rice_dishes",
+    "english_name": "Thai Style Shrimp Paste Fried Rice (Pork)",
+    "myanmar_name": "ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ဝက်)",
+    "price": 9000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Fried Garlic",
+      "Shallot",
+      "Chilli",
+      "Seasoning",
+      "Rice",
+      "Egg",
+      "shrimp paste"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork",
+      "shellfish"
+    ],
+    "description_en": "Delicious thai style shrimp paste fried rice (pork) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ဝက်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 82,
+    "category": "rice_dishes",
+    "english_name": "Thai Style Shrimp Paste Fried Rice (Seafood)",
+    "myanmar_name": "ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ပင်လယ်စာ)",
+    "price": 11500,
+    "currency": "MMK",
+    "ingredients": [
+      "seafood",
+      "Fried Garlic",
+      "Shallot",
+      "Chilli",
+      "Seasoning",
+      "Rice",
+      "Egg",
+      "shrimp paste"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "shellfish"
+    ],
+    "description_en": "Delicious thai style shrimp paste fried rice (seafood) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထိုင်းစတိုင် ငါးပိထမင်းကြော် (ပင်လယ်စာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 83,
+    "category": "rice_dishes",
+    "english_name": "Signature Steamed Rice with Pork Spareribs",
+    "myanmar_name": "ပင်တဂွန် ဝက်နံရိုးထမင်းပေါင်း",
+    "price": 12500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "pork ribs",
+      "bottom mushroom",
+      "straw mushroom",
+      "chitagi mushroom",
+      "fried garlic",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious signature steamed rice with pork spareribs prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ပင်တဂွန် ဝက်နံရိုးထမင်းပေါင်း",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 84,
+    "category": "rice_dishes",
+    "english_name": "Steamed Rice with chicken",
+    "myanmar_name": "ထမင်းပေါင်း (ကြက်)",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Chicken Breast",
+      "Fried Garlic",
+      "Mixed vegetables",
+      "Quail egg",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious steamed rice with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းပေါင်း (ကြက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 85,
+    "category": "rice_dishes",
+    "english_name": "Steamed Rice with pork",
+    "myanmar_name": "ထမင်းပေါင်း (ဝက်)",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Meat",
+      "Fried Garlic",
+      "Mixed vegetables",
+      "Quail egg",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious steamed rice with pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းပေါင်း (ဝက်)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 86,
+    "category": "rice_dishes",
+    "english_name": "Steamed Rice with seafood",
+    "myanmar_name": "ထမင်းပေါင်း (ပင်လယ်စာ)",
+    "price": 12500,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "seafood",
+      "Fried Garlic",
+      "Mixed vegetables",
+      "Quail egg",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious steamed rice with seafood prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းပေါင်း (ပင်လယ်စာ)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 87,
+    "category": "rice_dishes",
+    "english_name": "Curry prawns with rice",
+    "myanmar_name": "ထမင်းနှင့် ပုဇွန်ဟင်း",
+    "price": 10800,
+    "currency": "MMK",
+    "ingredients": [
+      "Tiger prawn",
+      "rice",
+      "Egg",
+      "Capsicum",
+      "curry powder",
+      "seasoning",
+      "garlic",
+      "vegetable oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "shellfish"
+    ],
+    "description_en": "Delicious curry prawns with rice prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းနှင့် ပုဇွန်ဟင်း",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 88,
+    "category": "main_course",
+    "english_name": "Pan-seared salmon",
+    "myanmar_name": "ဆယ်လ်မွန်ငါးကင်",
+    "price": 31000,
+    "currency": "MMK",
+    "ingredients": [
+      "salmon",
+      "asparagus",
+      "brocolli",
+      "Unsalted Butter",
+      "lemon juice",
+      "whipping cream",
+      "salt",
+      "Black Pepper",
+      "Potato",
+      "sunflower oil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "fish"
+    ],
+    "description_en": "Delicious pan-seared salmon prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဆယ်လ်မွန်ငါးကင်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 89,
+    "category": "main_course",
+    "english_name": "surf and turf",
+    "myanmar_name": "အမဲသားနှင့် ပုဇွန်ကင်",
+    "price": 26000,
+    "currency": "MMK",
+    "ingredients": [
+      "Beef Tenderloin",
+      "olive oil",
+      "brocolli",
+      "asparagus",
+      "thyme",
+      "Potato",
+      "Tiger prawn",
+      "white wine vinegar",
+      "Egg",
+      "shallot",
+      "salt",
+      "Black Pepper",
+      "Unsalted Butter"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "dairy",
+      "eggs",
+      "beef",
+      "shellfish"
+    ],
+    "description_en": "Delicious surf and turf prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲသားနှင့် ပုဇွန်ကင်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 90,
+    "category": "main_course",
+    "english_name": "Pork Chop",
+    "myanmar_name": "ဝက်လိုင်းသားနှင့် ငရုပ်ပွဆော့စ်",
+    "price": 23000,
+    "currency": "MMK",
+    "ingredients": [
+      "pork chop",
+      "Potato",
+      "capsicum (Y/R/G)",
+      "sunflower oil",
+      "asparagus",
+      "whipping cream",
+      "salt",
+      "Black Pepper",
+      "Unsalted Butter",
+      "thyme",
+      "onion",
+      "brocolli"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "pork"
+    ],
+    "description_en": "Delicious pork chop prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်လိုင်းသားနှင့် ငရုပ်ပွဆော့စ်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 91,
+    "category": "main_course",
+    "english_name": "B.B.Q Pork Ribs",
+    "myanmar_name": "ဝက်နံရိုးကင်နှင့် B.B.Q ဆော့စ်",
+    "price": 24500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork ribs",
+      "Potato",
+      "Lemon",
+      "Mixed salas",
+      "B.B.Q sauce",
+      "Oyster sauce",
+      "A.B.C",
+      "Salt",
+      "Pepper",
+      "H.P sauce",
+      "L.P sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious b.b.q pork ribs prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်နံရိုးကင်နှင့် B.B.Q ဆော့စ်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 92,
+    "category": "main_course",
+    "english_name": "Grilled Seabass Fillets",
+    "myanmar_name": "ကက္ကတစ်ငါးကြော်နှင့် ဝိုင်ဖြူခရင်မ် အနှစ်ဆမ်း",
+    "price": 24000,
+    "currency": "MMK",
+    "ingredients": [
+      "Seabass",
+      "saw leaves",
+      "Basil",
+      "Green Chilli",
+      "Garlic",
+      "Seasoning",
+      "Longanma"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "fish"
+    ],
+    "description_en": "Delicious grilled seabass fillets prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကက္ကတစ်ငါးကြော်နှင့် ဝိုင်ဖြူခရင်မ် အနှစ်ဆမ်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 93,
+    "category": "main_course",
+    "english_name": "Boneless Steamed Seabass with Lime Sauce",
+    "myanmar_name": "ကက္ကတစ်ငါးသံပုရာပေါင်း",
+    "price": 23000,
+    "currency": "MMK",
+    "ingredients": [
+      "seabass",
+      "lime",
+      "corainder leaves",
+      "Green Long Chilli",
+      "Garlic",
+      "Seafood sauce"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "fish"
+    ],
+    "description_en": "Delicious boneless steamed seabass with lime sauce prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကက္ကတစ်ငါးသံပုရာပေါင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 94,
+    "category": "breakfast",
+    "english_name": "Basil Chikcen with Rice & Egg",
+    "myanmar_name": "ကြက်ပင်စိမ်း",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs"
+    ],
+    "description_en": "Delicious basil chikcen with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ပင်စိမ်း",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 95,
+    "category": "main_course",
+    "english_name": "Crispy Seabass",
+    "myanmar_name": "ကက္ကတစ် ငါးအသားလွှာကြော်နှင့် ကီမောင်ဆော့စ်",
+    "price": 23500,
+    "currency": "MMK",
+    "ingredients": [
+      "Seabass",
+      "Seasoning",
+      "vegetable oil",
+      "Basil"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "fish"
+    ],
+    "description_en": "Delicious crispy seabass prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကက္ကတစ် ငါးအသားလွှာကြော်နှင့် ကီမောင်ဆော့စ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 96,
+    "category": "breakfast",
+    "english_name": "Basil Pork with Rice & Egg",
+    "myanmar_name": "ဝက်ပင်စိမ်း",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious basil pork with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ပင်စိမ်း",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 97,
+    "category": "main_course",
+    "english_name": "Minced Beef",
+    "myanmar_name": "အမဲစင်းကော",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Beef Tenderloin",
+      "Onion",
+      "Chinese celery",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious minced beef prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲစင်းကော",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 98,
+    "category": "breakfast",
+    "english_name": "Chicken Spicy & Sour with Rice & Egg",
+    "myanmar_name": "ထမင်းနှင့် ကြက် (သို့) ဝက်ချဉ်စပ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious chicken spicy & sour with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းနှင့် ကြက် (သို့) ဝက်ချဉ်စပ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 99,
+    "category": "main_course",
+    "english_name": "Spicy & Sour Chicken",
+    "myanmar_name": "ကြက် ချဉ်စပ်",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Red Long Chilli",
+      "Green Long Chilli",
+      "Onion(Shallot)",
+      "Tomato",
+      "Seasoning",
+      "Corainder Leaves",
+      "Saw leaves"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious spicy & sour chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက် ချဉ်စပ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 100,
+    "category": "breakfast",
+    "english_name": "Pork Spicy & Sour with Rice & Egg",
+    "myanmar_name": "ထမင်းနှင့် ကြက် (သို့) ဝက်ချဉ်စပ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious pork spicy & sour with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းနှင့် ကြက် (သို့) ဝက်ချဉ်စပ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 101,
+    "category": "main_course",
+    "english_name": "Spicy & Sour Pork",
+    "myanmar_name": "ဝက် ချဉ်စပ်",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork Loin",
+      "Red Long Chilli",
+      "Green Long Chilli",
+      "Onion(Shallot)",
+      "Tomato",
+      "Seasoning",
+      "Corainder Leaves",
+      "Saw leaves"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious spicy & sour pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက် ချဉ်စပ်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 102,
+    "category": "breakfast",
+    "english_name": "Chicken Sweet & Sour with Rice & Egg",
+    "myanmar_name": "ထမင်းနှင့် ကြက် (သို့) ဝက်ချိုချဉ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "chicken"
+    ],
+    "description_en": "Delicious chicken sweet & sour with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းနှင့် ကြက် (သို့) ဝက်ချိုချဉ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 103,
+    "category": "breakfast",
+    "english_name": "Pork Sweet & Sour with Rice & Egg",
+    "myanmar_name": "ထမင်းနှင့် ကြက် (သို့) ဝက်ချိုချဉ်",
+    "price": 8500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "pork"
+    ],
+    "description_en": "Delicious pork sweet & sour with rice & egg prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ထမင်းနှင့် ကြက် (သို့) ဝက်ချိုချဉ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 104,
+    "category": "rice_dishes",
+    "english_name": "Black Pepper beef with rice",
+    "myanmar_name": "အမဲငရုတ်ကောင်း",
+    "price": 10000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious black pepper beef with rice prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 105,
+    "category": "main_course",
+    "english_name": "Black Pepper Chicken",
+    "myanmar_name": "ကြက်ငရုတ်ကောင်း",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Capsicum",
+      "Onion",
+      "Spring Onion",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious black pepper chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 106,
+    "category": "main_course",
+    "english_name": "Black Pepper  Pork",
+    "myanmar_name": "ဝက်ငရုတ်ကောင်း",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Capsicum",
+      "Onion",
+      "Spring Onion",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious black pepper  pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 107,
+    "category": "rice_dishes",
+    "english_name": "Minced Beef with rice",
+    "myanmar_name": "အမဲစင်းကော",
+    "price": 10000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious minced beef with rice prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲစင်းကော",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 108,
+    "category": "main_course",
+    "english_name": "Beef Steak \n(Brown sauce or black pepper sauce)",
+    "myanmar_name": "အမဲသားကင်",
+    "price": 25000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious beef steak \n(brown sauce or black pepper sauce) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲသားကင်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 109,
+    "category": "main_course",
+    "english_name": "Grilled Chicken Thigh",
+    "myanmar_name": "အရိုးလွတ်ကြက်ပေါင်ကင်",
+    "price": 20000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious grilled chicken thigh prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အရိုးလွတ်ကြက်ပေါင်ကင်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 110,
+    "category": "main_course",
+    "english_name": "Deep Fried whole Seabass with Laoganma Sauce",
+    "myanmar_name": "ကက္ကတစ်ငါးကောင်လုံး ကြွပ်ကြော်နှင့် ပဲပိစပ်ဆော့စ်",
+    "price": 25000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious deep fried whole seabass with laoganma sauce prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကက္ကတစ်ငါးကောင်လုံး ကြွပ်ကြော်နှင့် ပဲပိစပ်ဆော့စ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 111,
+    "category": "main_course",
+    "english_name": "Sweet & Sour Chicken",
+    "myanmar_name": "ကြက်ချိုချဉ်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Onion",
+      "Capsicum",
+      "Cucumber",
+      "Tomato",
+      "Pineapple",
+      "Spring Onion",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious sweet & sour chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ချိုချဉ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 112,
+    "category": "main_course",
+    "english_name": "Sweet & Sour Pork",
+    "myanmar_name": "ဝက်ချိုချဉ်",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Onion",
+      "Capsicum",
+      "Cucumber",
+      "Tomato",
+      "Pineapple",
+      "Spring Onion",
+      "Seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious sweet & sour pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ချိုချဉ်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 113,
+    "category": "main_course",
+    "english_name": "Chicken - Thai Basil",
+    "myanmar_name": "ကြက်ပင်စိမ်း",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Basil",
+      "Green Long Chilli",
+      "Long Bean",
+      "Seasoning",
+      "vegetable oil",
+      "chilli"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious chicken - thai basil prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ပင်စိမ်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 114,
+    "category": "main_course",
+    "english_name": "Pork - Thai Basil",
+    "myanmar_name": "ဝက်ပင်စိမ်း",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Basil",
+      "Green Long Chilli",
+      "Long Bean",
+      "Seasoning",
+      "vegetable oil",
+      "chilli"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious pork - thai basil prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ပင်စိမ်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 115,
+    "category": "main_course",
+    "english_name": "Black Pepper beef",
+    "myanmar_name": "အမဲငရုတ်ကောင်း",
+    "price": 12000,
+    "currency": "MMK",
+    "ingredients": [
+      "Beef Tenderloin",
+      "Capsicum",
+      "Onion",
+      "Spring Onion",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "beef"
+    ],
+    "description_en": "Delicious black pepper beef prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် အမဲငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 116,
+    "category": "main_course",
+    "english_name": "Black Pepper Chicken",
+    "myanmar_name": "ကြက်ငရုတ်ကောင်း",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Capsicum",
+      "Onion",
+      "Spring Onion",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious black pepper chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 117,
+    "category": "main_course",
+    "english_name": "Black Pepper  Pork",
+    "myanmar_name": "ဝက်ငရုတ်ကောင်း",
+    "price": 10500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pork loin",
+      "Capsicum",
+      "Onion",
+      "Spring Onion",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious black pepper  pork prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဝက်ငရုတ်ကောင်း",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 118,
+    "category": "soups",
+    "english_name": "Cream of mushroom soup",
+    "myanmar_name": "မှိုစုံ ခရင်မ် ဟင်းရည်",
+    "price": 12500,
+    "currency": "MMK",
+    "ingredients": [
+      "unsalted butter",
+      "sunflower oil",
+      "shallot",
+      "garlic",
+      "brown mushroom",
+      "straw mushroom",
+      "bottom mushroom",
+      "white wine",
+      "flour",
+      "chicken stock",
+      "whipping cream",
+      "salt",
+      "Black Pepper"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": false,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy",
+      "gluten",
+      "chicken"
+    ],
+    "description_en": "Delicious cream of mushroom soup prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မှိုစုံ ခရင်မ် ဟင်းရည်",
+    "spice_level": 2,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 119,
+    "category": "soups",
+    "english_name": "Cream of Pumpkin Soup",
+    "myanmar_name": "ရွှေဖရုံသီး ခရင်မ်ဟင်းရည်",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Pumpkin",
+      "Carrot",
+      "Onion",
+      "Whipping Cream",
+      "Milk",
+      "Unsalted Butter"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy"
+    ],
+    "description_en": "Delicious cream of pumpkin soup prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ရွှေဖရုံသီး ခရင်မ်ဟင်းရည်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 120,
+    "category": "soups",
+    "english_name": "Cream of Carrot Soup",
+    "myanmar_name": "မုန်လာဥနီ ခရင်မ်ဟင်းရည်",
+    "price": 6500,
+    "currency": "MMK",
+    "ingredients": [
+      "Carrot",
+      "Onion",
+      "Unsalted Butter",
+      "Whipping Cream",
+      "Milk"
+    ],
+    "dietary_info": {
+      "vegetarian": true,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": true,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "dairy"
+    ],
+    "description_en": "Delicious cream of carrot soup prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မုန်လာဥနီ ခရင်မ်ဟင်းရည်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 121,
+    "category": "main_course",
+    "english_name": "Miso Salmon",
+    "myanmar_name": "မီဆိုဆယ်လမွန်ဟင်းရည်",
+    "price": 14500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [],
+    "description_en": "Delicious miso salmon prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် မီဆိုဆယ်လမွန်ဟင်းရည်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 122,
+    "category": "main_course",
+    "english_name": "Rakhine Chicken Thoutsan",
+    "myanmar_name": "ရခိုင်သောက်ဆမ်းဟင်းရည်",
+    "price": 9500,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious rakhine chicken thoutsan prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ရခိုင်သောက်ဆမ်းဟင်းရည်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 123,
+    "category": "soups",
+    "english_name": "Dregea Volufils soup with chicken",
+    "myanmar_name": "ကြက်ဂွေးတောက်ဟင်းရည်",
+    "price": 8900,
+    "currency": "MMK",
+    "ingredients": [
+      "chicken breast",
+      "Dregra Volubillis",
+      "shallot",
+      "Red Chilli",
+      "garlic",
+      "vegetable oil",
+      "chicken stock",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious dregea volufils soup with chicken prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ကြက်ဂွေးတောက်ဟင်းရည်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 124,
+    "category": "soups",
+    "english_name": "Fish head soup",
+    "myanmar_name": "ငါးခေါင်းဟင်းရည်",
+    "price": 9900,
+    "currency": "MMK",
+    "ingredients": [
+      "Fish head",
+      "pickled bamboo shoot",
+      "tomato",
+      "beancard",
+      "shallot",
+      "Cabbage",
+      "lemongrass",
+      "Red Chilli",
+      "lime juice",
+      "vegetable oil",
+      "seasoning",
+      "Quail egg"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": true
+    },
+    "allergens": [
+      "eggs",
+      "fish"
+    ],
+    "description_en": "Delicious fish head soup prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ငါးခေါင်းဟင်းရည်",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 125,
+    "category": "main_course",
+    "english_name": "preserved mustard leaves with pork ribs",
+    "myanmar_name": "၀က်သားကြံမဆိုင် ဟင်းရည်",
+    "price": 13000,
+    "currency": "MMK",
+    "ingredients": [],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "pork"
+    ],
+    "description_en": "Delicious preserved mustard leaves with pork ribs prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ၀က်သားကြံမဆိုင် ဟင်းရည်",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 126,
+    "category": "soups",
+    "english_name": "Tom Yum Goong Soup  (Pork/Chicken)",
+    "myanmar_name": "တုံယမ်းဟင်းရည် (ကြက်/၀က်)",
+    "price": 11500,
+    "currency": "MMK",
+    "ingredients": [
+      "Chicken Breast",
+      "Lemongrass",
+      "Glanger",
+      "Red Chilli",
+      "Lime juice",
+      "tomato",
+      "shallot",
+      "kaffir lime leaves",
+      "chicken stock",
+      "tom yum cube",
+      "tom yum paste",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken",
+      "pork"
+    ],
+    "description_en": "Delicious tom yum goong soup  (pork/chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တုံယမ်းဟင်းရည် (ကြက်/၀က်)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  },
+  {
+    "id": 127,
+    "category": "soups",
+    "english_name": "Tom Yum Goong Soup  (Seafood)",
+    "myanmar_name": "တုံယမ်းဟင်းရည် (ပင်လယ်စာ)",
+    "price": 13500,
+    "currency": "MMK",
+    "ingredients": [
+      "Tiger prawn",
+      "Lemongrass",
+      "Glanger",
+      "Red Chilli",
+      "Lime juice",
+      "tomato",
+      "shallot",
+      "kaffir lime leaves",
+      "chicken stock",
+      "tom yum cube",
+      "tom yum paste",
+      "vegetable oil",
+      "seasoning"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken",
+      "shellfish"
+    ],
+    "description_en": "Delicious tom yum goong soup  (seafood) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် တုံယမ်းဟင်းရည် (ပင်လယ်စာ)",
+    "spice_level": 4,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//bread.jpg"
+  },
+  {
+    "id": 128,
+    "category": "soups",
+    "english_name": "Boiled Rice Soup  (Chicken)",
+    "myanmar_name": "ဆန်ပြုတ် (ကြက်သား)",
+    "price": 5000,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "Chicken Breast",
+      "garlic",
+      "seasoning",
+      "fried onion"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "chicken"
+    ],
+    "description_en": "Delicious boiled rice soup  (chicken) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဆန်ပြုတ် (ကြက်သား)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//chiken.jpg"
+  },
+  {
+    "id": 129,
+    "category": "soups",
+    "english_name": "Boiled Rice Soup  (Fish)",
+    "myanmar_name": "ဆန်ပြုတ် (ငါး)",
+    "price": 5000,
+    "currency": "MMK",
+    "ingredients": [
+      "Rice",
+      "fish",
+      "garlic",
+      "seasoning",
+      "fried onion"
+    ],
+    "dietary_info": {
+      "vegetarian": false,
+      "vegan": false,
+      "gluten_free": true,
+      "contains_dairy": false,
+      "contains_eggs": false
+    },
+    "allergens": [
+      "fish"
+    ],
+    "description_en": "Delicious boiled rice soup  (fish) prepared with fresh ingredients",
+    "description_mm": "လတ်ဆတ်သော ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အရသာရှိသည့် ဆန်ပြုတ် (ငါး)",
+    "spice_level": 1,
+    "preparation_time": "15-20 minutes",
+    "image_url": "https://qniujcgwyphkfnnqhjcq.supabase.co/storage/v1/object/public/cafepentagon//friedfish.jpg"
+  }
+]

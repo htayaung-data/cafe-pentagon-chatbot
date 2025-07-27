@@ -1,0 +1,329 @@
+{
+  "restaurant_info": {
+    "name": "Café Pentagon",
+    "name_mm": "Café Pentagon စားသောက်ဆိုင်",
+    "address": "No.285, Mahar Bandula Road, Ward 39, North Dagon Township, Yangon",
+    "address_mm": "အမှတ် ၂၈၅၊ မဟာဗန္ဓုလလမ်း၊ ၃၉ ရပ်ကွက်၊ မြောက်ဒဂုံမြို့နယ်၊ ရန်ကုန်",
+    "phone": "+959979732781",
+    "email": "info@caferestaurant.com",
+    "total_tables": 25,
+    "max_party_size": 15,
+    "seating_capacity": 80
+  },
+  "opening_hours": {
+    "monday": {
+      "open": "09:00",
+      "close": "22:00",
+      "status": "open",
+      "notes_en": "Regular hours",
+      "notes_mm": "ပုံမှန်ဖွင့်ချိန်"
+    },
+    "tuesday": {
+      "open": "09:00",
+      "close": "22:00",
+      "status": "open",
+      "notes_en": "Regular hours",
+      "notes_mm": "ပုံမှန်ဖွင့်ချိန်"
+    },
+    "wednesday": {
+      "open": "09:00",
+      "close": "22:00",
+      "status": "open",
+      "notes_en": "Regular hours",
+      "notes_mm": "ပုံမှန်ဖွင့်ချိန်"
+    },
+    "thursday": {
+      "open": "09:00",
+      "close": "22:00",
+      "status": "open",
+      "notes_en": "Regular hours",
+      "notes_mm": "ပုံမှန်ဖွင့်ချိန်"
+    },
+    "friday": {
+      "open": "09:00",
+      "close": "23:00",
+      "status": "open",
+      "notes_en": "Extended hours for weekend",
+      "notes_mm": "အပတ်စဉ်အတွက် ပိုကြာသော ဖွင့်ချိန်"
+    },
+    "saturday": {
+      "open": "09:00",
+      "close": "23:00",
+      "status": "open",
+      "notes_en": "Extended hours for weekend",
+      "notes_mm": "အပတ်စဉ်အတွက် ပိုကြာသော ဖွင့်ချိန်"
+    },
+    "sunday": {
+      "open": "09:00",
+      "close": "22:00",
+      "status": "open",
+      "notes_en": "Regular hours",
+      "notes_mm": "ပုံမှန်ဖွင့်ချိန်"
+    }
+  },
+  "table_configuration": [
+    {
+      "table_id": "T01",
+      "name": "Window Table 1",
+      "name_mm": "ပြတင်းပေါက်နားစားပွဲ ၁",
+      "capacity": 2,
+      "location": "window",
+      "area": "main_dining",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["window_view", "quiet"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T02",
+      "name": "Window Table 2",
+      "name_mm": "ပြတင်းပေါက်နားစားပွဲ ၂",
+      "capacity": 2,
+      "location": "window",
+      "area": "main_dining",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["window_view", "quiet"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T03",
+      "name": "Garden Table 1",
+      "name_mm": "ဥယျာဉ်စားပွဲ ၁",
+      "capacity": 4,
+      "location": "garden",
+      "area": "outdoor",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["garden_view", "outdoor_seating"],
+      "price_category": "premium"
+    },
+    {
+      "table_id": "T04",
+      "name": "Garden Table 2",
+      "name_mm": "ဥယျာဉ်စားပွဲ ၂",
+      "capacity": 4,
+      "location": "garden",
+      "area": "outdoor",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["garden_view", "outdoor_seating"],
+      "price_category": "premium"
+    },
+    {
+      "table_id": "T05",
+      "name": "Garden Table 3",
+      "name_mm": "ဥယျာဉ်စားပွဲ ၃",
+      "capacity": 6,
+      "location": "garden",
+      "area": "outdoor",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["garden_view", "outdoor_seating", "large_group"],
+      "price_category": "premium"
+    },
+    {
+      "table_id": "T06",
+      "name": "Main Dining 1",
+      "name_mm": "အဓိကစားခန်း ၁",
+      "capacity": 4,
+      "location": "center",
+      "area": "main_dining",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["central_location"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T07",
+      "name": "Main Dining 2",
+      "name_mm": "အဓိကစားခန်း ၂",
+      "capacity": 4,
+      "location": "center",
+      "area": "main_dining",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["central_location"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T08",
+      "name": "Main Dining 3",
+      "name_mm": "အဓိကစားခန်း ၃",
+      "capacity": 6,
+      "location": "center",
+      "area": "main_dining",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["central_location", "large_group"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T09",
+      "name": "Bar Table 1",
+      "name_mm": "ဘားစားပွဲ ၁",
+      "capacity": 2,
+      "location": "bar",
+      "area": "bar_area",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["bar_view", "casual"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T10",
+      "name": "Bar Table 2",
+      "name_mm": "ဘားစားပွဲ ၂",
+      "capacity": 2,
+      "location": "bar",
+      "area": "bar_area",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["bar_view", "casual"],
+      "price_category": "standard"
+    },
+    {
+      "table_id": "T11",
+      "name": "Private Room 1",
+      "name_mm": "သီးသန့်ခန်း ၁",
+      "capacity": 8,
+      "location": "private",
+      "area": "private_room",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["private", "quiet", "large_group", "business_meeting"],
+      "price_category": "premium"
+    },
+    {
+      "table_id": "T12",
+      "name": "Private Room 2",
+      "name_mm": "သီးသန့်ခန်း ၂",
+      "capacity": 12,
+      "location": "private",
+      "area": "private_room",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["private", "quiet", "large_group", "business_meeting", "birthday_party"],
+      "price_category": "premium"
+    },
+    {
+      "table_id": "T13",
+      "name": "VIP Table 1",
+      "name_mm": "VIP စားပွဲ ၁",
+      "capacity": 4,
+      "location": "vip",
+      "area": "vip_section",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["vip_service", "exclusive", "quiet"],
+      "price_category": "vip"
+    },
+    {
+      "table_id": "T14",
+      "name": "VIP Table 2",
+      "name_mm": "VIP စားပွဲ ၂",
+      "capacity": 6,
+      "location": "vip",
+      "area": "vip_section",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["vip_service", "exclusive", "quiet", "large_group"],
+      "price_category": "vip"
+    },
+    {
+      "table_id": "T15",
+      "name": "Event Hall",
+      "name_mm": "ပွဲခန်း",
+      "capacity": 15,
+      "location": "event",
+      "area": "event_hall",
+      "reserved_for": null,
+      "status": "available",
+      "special_features": ["large_group", "events", "parties", "corporate_events"],
+      "price_category": "event"
+    }
+  ],
+  "reservation_rules": {
+    "advance_booking_days": 3,
+    "cancellation_hours": 24,
+    "modification_hours": 12,
+    "deposit_required": false,
+    "deposit_amount": 0,
+    "special_requests_allowed": true,
+    "max_reservation_duration": 3,
+    "min_party_size": 1,
+    "max_party_size": 50,
+    "peak_hours": {
+      "lunch": ["12:00", "14:00"],
+      "dinner": ["18:00", "21:00"]
+    },
+    "peak_day_surcharge": {
+      "friday": 0,
+      "saturday": 0,
+      "sunday": 0
+    }
+  },
+  "reservation_time_slots": [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+    "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
+    "21:00", "21:30", "22:00", "22:30"
+  ],
+  "special_requests_options": [
+    {
+      "id": "birthday_celebration",
+      "name_en": "Birthday Celebration",
+      "name_mm": "မွေးနေ့ကျင်းပခြင်း",
+      "description_en": "We'll prepare a special birthday setup",
+      "description_mm": "မွေးနေ့အတွက် အထူးပြင်ဆင်မှုများ ပြုလုပ်ပေးပါမည်",
+      "additional_cost": 15000,
+      "advance_notice_hours": 24
+    },
+    {
+      "id": "anniversary_celebration",
+      "name_en": "Anniversary Celebration",
+      "name_mm": "နှစ်ပတ်လည်ကျင်းပခြင်း",
+      "description_en": "Special anniversary decorations and setup",
+      "description_mm": "နှစ်ပတ်လည်အတွက် အထူးအလှဆင်မှုများ",
+      "additional_cost": 20000,
+      "advance_notice_hours": 48
+    },
+    {
+      "id": "business_meeting",
+      "name_en": "Business Meeting",
+      "name_mm": "စီးပွားရေးအစည်းအဝေး",
+      "description_en": "Quiet area suitable for business discussions",
+      "description_mm": "စီးပွားရေးဆွေးနွေးမှုများအတွက် သင့်တော်သော ငြိမ်သက်ရာ",
+      "additional_cost": 0,
+      "advance_notice_hours": 2
+    },
+    {
+      "id": "dietary_restrictions",
+      "name_en": "Dietary Restrictions",
+      "name_mm": "အစားအသောက်ကန့်သတ်ချက်များ",
+      "description_en": "Special dietary requirements (vegetarian, vegan, allergies)",
+      "description_mm": "အထူးအစားအသောက်လိုအပ်ချက်များ (သက်သတ်လွတ်၊ ဓာတ်မတည့်ခြင်း)",
+      "additional_cost": 0,
+      "advance_notice_hours": 4
+    },
+    {
+      "id": "wheelchair_access",
+      "name_en": "Wheelchair Access",
+      "name_mm": "ဘီးတပ်ကုလားထိုင်ဝင်ရောက်နိုင်ခြင်း",
+      "description_en": "Accessible seating for wheelchair users",
+      "description_mm": "ဘီးတပ်ကုလားထိုင်သုံးစွဲသူများအတွက် ဝင်ရောက်နိုင်သောနေရာ",
+      "additional_cost": 0,
+      "advance_notice_hours": 2
+    }
+  ],
+  "confirmation_settings": {
+    "send_sms": true,
+    "send_email": true,
+    "reminder_hours": 24,
+    "confirmation_message_template_en": "Your reservation at Café Pentagon is confirmed for {date} at {time} for {party_size} people. Confirmation code: {code}. Please arrive 10 minutes early.",
+    "confirmation_message_template_mm": "မိတ်ဆွေမိတ်ဆွေရဲ့ Café Pentagon စားသောက်ဆိုင်မှာ {date} ရက် {time} နာရီတွင် လူ {party_size} ယောက်အတွက် ကြိုတင်မှာယူမှု အတည်ပြုပါသည်။ အတည်ပြုကုဒ်: {code}။ ကျေးဇူးပြု၍ ၁၀ မိနစ်စောရောက်ပါ။",
+    "reminder_message_template_en": "Reminder: Your reservation at Café Pentagon is tomorrow at {time} for {party_size} people. Confirmation code: {code}",
+    "reminder_message_template_mm": "မိတ်ဆွေရဲ့ Café Pentagon စားသောက်ဆိုင်မှာ မနက်ဖြန် {time} နာရီတွင် လူ {party_size} ယောက်အတွက် ကြိုတင်မှာယူမှု ရှိပါသည်။ အတည်ပြုကုဒ်: {code}"
+  }
+} 

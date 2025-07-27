@@ -1,0 +1,192 @@
+[
+  {
+    "id": 1,
+    "category": "location",
+    "question_en": "What is the location of the cafe?",
+    "answer_en": "Our cafe is located at No.285, Mahar Bandula Road, Ward 39. North Dagon Township, Yangon. Here is the google map link: https://maps.app.goo.gl/G5aFQDUkuW4RuTKe9",
+    "question_mm": "ဆိုင်တည်နေရာဘယ်မှာလဲ၊ လိပ်စာလေး ပြောပေးပါ",
+    "answer_mm": "အမှတ် ၂၈၅၊ မဟာဗန္ဓုလလမ်း၊ ၃၉ ရပ်ကွက်၊ မြောက်ဒဂုံမြို့နယ်၊ ရန်ကုန်မှာ တည်ရှိပါတယ်။ ဒီ Google Map Link: https://maps.app.goo.gl/G5aFQDUkuW4RuTKe9 မှာလည်း ကြည့်ရှုနိုင်ပါတယ် ခင်ဗျာ",
+    "tags": ["location", "address", "map", "directions"],
+    "priority": 1
+  },
+  {
+    "id": 2,
+    "category": "facilities",
+    "question_en": "Is there car parking available?",
+    "answer_en": "Yes, we have a dedicated parking lot for our customers.",
+    "question_mm": "ကားရပ်နားရန်နေရာ ရှိပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ကားရပ်နားရန်နေရာ လုံလောက်စွာ ရှိပါတယ် ခင်ဗျာ",
+    "tags": ["parking", "facilities", "convenience"],
+    "priority": 2
+  },
+  {
+    "id": 3,
+    "category": "policies",
+    "question_en": "Is smoking allowed in the cafe?",
+    "answer_en": "No, smoking is not allowed inside the cafe. However, smoking is permitted in our outdoor seating area.",
+    "question_mm": "ဆိုင်ထဲမှာ ဆေးလိပ်သောက်လို့ရပါသလား?",
+    "answer_mm": "ကဖေးဆိုင်ထဲမှာ ဆေးလိပ်သောက်၍ မရပါ ခင်ဗျာ။ သို့သော် အပြင်ထိုင်ခုံမှာတော့ ဆေးလိပ်သောက်လို့ရပါတယ်",
+    "tags": ["smoking", "policies", "outdoor"],
+    "priority": 2
+  },
+  {
+    "id": 4,
+    "category": "policies",
+    "question_en": "Can I bring my pet to the cafe?",
+    "answer_en": "No, pets are not allowed inside the cafe.",
+    "question_mm": "အိမ်မွေးတိရစ္ဆာန်ကို ကဖေးထဲ ခေါ်လာလို့ရပါသလား?",
+    "answer_mm": "အိမ်မွေးတိရစ္ဆာန်များကို ကဖေးဆိုင်ထဲ ခေါ်ဆောင်လာ၍ မရပါ ခင်ဗျာ",
+    "tags": ["pets", "policies", "restrictions"],
+    "priority": 3
+  },
+  {
+    "id": 5,
+    "category": "policies",
+    "question_en": "Can I bring outside food or drinks to the cafe?",
+    "answer_en": "No, outside food or drinks are not allowed in the cafe.",
+    "question_mm": "အပြင်က အစားအစာ သို့မဟုတ် အဖျော်ယမကာများကို ဆိုင်ထဲ ယူလာလို့ရပါသလား?",
+    "answer_mm": "အပြင်က အစားအစာ သို့မဟုတ် အဖျော်ယမကာများကို ကဖေးဆိုင်ထဲ ယူဆောင်စားသုံး၍ မရပါ ခင်ဗျာ",
+    "tags": ["outside_food", "policies", "restrictions"],
+    "priority": 3
+  },
+  {
+    "id": 6,
+    "category": "contact",
+    "question_en": "What is the contact phone number for the cafe?",
+    "answer_en": "You can contact us at +959979732781",
+    "question_mm": "ကဖေးရဲ့ ဆက်သွယ်ရန် ဖုန်းနံပါတ် ဘယ်လိုလဲ?",
+    "answer_mm": "ကျွန်ုပ်တို့ကို +959979732781 မှာ ဆက်သွယ်နိုင်ပါတယ်",
+    "tags": ["phone", "contact", "customer_service"],
+    "priority": 1
+  },
+  {
+    "id": 7,
+    "category": "hours",
+    "question_en": "What are the opening hours of the cafe?",
+    "answer_en": "We are open from 9 AM to 10 PM everyday.",
+    "question_mm": "ဆိုင်ဘယ်ချိန် ဖွင့်လဲ?",
+    "answer_mm": "ကျွန်ုပ်တို့က ၉ နာရီကနေ ၁၀ နာရီအထိ နေ့စဉ်ဖွင့်ပါတယ်",
+    "tags": ["hours", "opening_times", "schedule"],
+    "priority": 1
+  },
+  {
+    "id": 8,
+    "category": "dietary",
+    "question_en": "Do you offer vegetarian or vegan options?",
+    "answer_en": "Yes, we have a variety of vegetarian and vegan options available on our menu.",
+    "question_mm": "သက်သတ်လွတ် သို့မဟုတ် သက်သတ်လွတ်အစားအစာ ရှိပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ သက်သတ်လွတ်နှင့် သက်သတ်လွတ်အစားအစာ အမျိုးမျိုး ရှိပါတယ် ခင်ဗျာ",
+    "tags": ["vegetarian", "vegan", "dietary", "menu"],
+    "priority": 2
+  },
+  {
+    "id": 9,
+    "category": "reservations",
+    "question_en": "Do you take reservations?",
+    "answer_en": "Yes, we accept reservations. You can book a table by calling us at +959979732781.",
+    "question_mm": "ကြိုတင်မှာယူနိုင်ပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ +959979732781 ကို ဖုန်းဆက်ပြီး Reservation ပြုလုပ်နိုင်ပါတယ် ခင်ဗျာ",
+    "tags": ["reservations", "booking", "table"],
+    "priority": 2
+  },
+  {
+    "id": 10,
+    "category": "delivery",
+    "question_en": "Do you offer delivery or takeout services?",
+    "answer_en": "Yes, we offer both delivery and takeout services for North Dagon Township only. You can place an order by calling us +959979732781.",
+    "question_mm": "Delivery ပို့ပေးလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ကျွန်ုပ်တို့မှာ မြောက်ဒဂုံမြို့နယ်အတွင်း Delivery ဝန်ဆောင်မှု ရှိပါတယ်။ +959979732781 ကို ဖုန်းဆက်ပြီး မှာယူနိုင်ပါတယ်",
+    "tags": ["delivery", "takeout", "ordering"],
+    "priority": 2
+  },
+  {
+    "id": 11,
+    "category": "menu",
+    "question_en": "Do you have a kids' menu?",
+    "answer_en": "Yes, we have a special menu for kids with a variety of child-friendly options.",
+    "question_mm": "ကလေးများအတွက် မီနူး ရှိပါသလား? ကလေးလေးတွေအတွက် သင့်တော်တဲ့ အစားအစာရှိလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ကျွန်ုပ်တို့မှာ ကလေးများအတွက် အထူးမီနူး ရှိပြီး ကလေးများနှစ်သက်မည့် အစားအစာ အမျိုးမျိုး ရှိပါတယ်",
+    "tags": ["kids_menu", "children", "family_friendly"],
+    "priority": 2
+  },
+  {
+    "id": 12,
+    "category": "facilities",
+    "question_en": "Do you have outdoor seating?",
+    "answer_en": "Yes, we have a beautiful outdoor seating area available for our customers. Smoking is permitted in the outdoor seating area.",
+    "question_mm": "အပြင်ထိုင်ခုံများ ရှိပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ အပြင်ထိုင်ခုံများ ရှိပါတယ်။ အပြင်ထိုင်ခုံမှာ ဆေးလိပ်လည်း သောက်လို့ရပါတယ်",
+    "tags": ["outdoor_seating", "facilities", "smoking"],
+    "priority": 2
+  },
+  {
+    "id": 13,
+    "category": "accessibility",
+    "question_en": "Are you wheelchair accessible?",
+    "answer_en": "Yes, our cafe is fully wheelchair accessible.",
+    "question_mm": "Wheelchair နဲ့လာလို့ အဆင်ပြေပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ကျနော်တို့ဆိုင်ထဲကို Wheelchair နဲ့ အလွယ်တကူဝင်ထွက်လို့ရပါတယ်",
+    "tags": ["wheelchair", "accessibility", "disabled_friendly"],
+    "priority": 2
+  },
+  {
+    "id": 14,
+    "category": "services",
+    "question_en": "Do you offer catering services?",
+    "answer_en": "Yes, we offer catering services for events and parties. Please contact us at +959979732781 for more details.",
+    "question_mm": "အစားအသောက် ဝန်ဆောင်မှု ရှိပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ပွဲများနှင့် ပါတီများအတွက် အစားအသောက် ဝန်ဆောင်မှု ရှိပါတယ်။ အသေးစိတ်အချက်အလက်များအတွက် +959979732781 ကို ဆက်သွယ်ပေးပါ ခင်ဗျာ",
+    "tags": ["catering", "events", "parties"],
+    "priority": 3
+  },
+  {
+    "id": 15,
+    "category": "payment",
+    "question_en": "What payment methods do you accept?",
+    "answer_en": "We accept cash, mobile payments including KPay, Wave, OnePay, and MPU Cards.",
+    "question_mm": "ဘယ်လို ငွေပေးချေမှု နည်းလမ်းများကို လက်ခံပါသလဲ?",
+    "answer_mm": "ငွေသား၊ KPay, Wave, OnePay, နှင့် MPU ကတ်များ အပါအဝင် မိုဘိုင်းငွေပေးချေမှုများကို လက်ခံပါတယ်",
+    "tags": ["payment", "cash", "mobile_payment", "cards"],
+    "priority": 2
+  },
+  {
+    "id": 16,
+    "category": "promotions",
+    "question_en": "Do you have any special promotions or discounts?",
+    "answer_en": "Yes, we have various promotions and discounts throughout the year. Please check our Facebook page for the latest offers.",
+    "question_mm": "အထူးပရိုမိုးရှင်းများ သို့မဟုတ် လျှော့စျေးများ ရှိပါသလား?",
+    "answer_mm": "ဟုတ်ကဲ့၊ ကျနော်တို့မှာ တစ်နှစ်ပတ်လုံး အထူးပရိုမိုးရှင်းများနှင့် လျှော့စျေးများ ရှိပါတယ်။ နောက်ဆုံးပရိုမိုးရှင်းများကို ကျနော်တို့ရဲ့ Facebook စာမျက်နှာမှာ ကြည့်ရှုနိုင်ပါတယ် ခင်ဗျာ",
+    "tags": ["promotions", "discounts", "offers", "facebook"],
+    "priority": 3
+  },
+  {
+    "id": 17,
+    "category": "entertainment",
+    "question_en": "What time do you have live music?",
+    "answer_en": "On Saturday & Sunday, 3:00 PM to 6:00 PM, The Molecules Music band is playing instrumental music with Classical Guitar and Violin. Every night, 6:00 PM to 9:00 PM, Golden Vibe Music Band, arranged by Sayar Diramore, is entertaining Classical Myanmar Music Songs.",
+    "question_mm": "တီးဝိုင်းက ဘယ်အချိန်တွေမှာ ဖျော်ဖြေတာလဲ?",
+    "answer_mm": "စနေ၊ တနင်္ဂနွေ နေ့လည် ၃ နာရီကနေ ၆ နာရီအထိ The Molecules Music band က Classical Guitar နဲ့ တယော တို့ ကို အသုံးပြုပြီး Instrumental တီးပါတယ် ခင်ဗျာ။ ညစဉ် ၆ နာရီမှ ၉ နာရီအထိ ဆရာ ဓီရာမိုရ် စီစဉ်တင်ဆက်တဲ့ Golden Vibe Music Band က မြန်မာမှု ဂန္တဝင် တေးသီချင်းကောင်းများဖြင့် ဖျော်ဖြေတင်ဆက်လျက်ရှိပါတယ် ခင်ဗျာ",
+    "tags": ["live_music", "entertainment", "weekend", "myanmar_music"],
+    "priority": 2
+  },
+  {
+    "id": 18,
+    "category": "services",
+    "question_en": "Is it allowed for shooting such as movie making, music video or something like that?",
+    "answer_en": "Yes, we can hire in Morning Time. Please contact us at +959979732781 for more details.",
+    "question_mm": "ရုပ်ရှင်၊ ဂီတ သီချင်း တွေအတွက် ရိုက်ကူးရေး ခွင့်ပြုပါသလား?",
+    "answer_mm": "မနက်ခင်း အချိန်ပိုင်း ငှားရမ်း၍ ရပါတယ်။ အသေးစိတ်အချက်အလက်များအတွက် +959979732781 ကို ဆက်သွယ်ပေးပါ ခင်ဗျာ",
+    "tags": ["shooting", "filming", "rental", "morning"],
+    "priority": 3
+  },
+  {
+    "id": 19,
+    "category": "policies",
+    "question_en": "Is it allowed for taking photo with Professional Camera?",
+    "answer_en": "Taking photos with Professional Cameras are not allowed. But taking photos with Mobile Phone is okay.",
+    "question_mm": "Professional ကင်မရာနဲ့ ဓါတ်ပုံရိုက်လို့ ရပါသလား?",
+    "answer_mm": "Professional Camera များဖြင့် ရိုက်ကူးခွင့်မပြုပါ ခင်ဗျာ။ Mobile Phone နဲ့ ရိုက်ကူးလို့ ရပါတယ် ခင်ဗျာ",
+    "tags": ["photography", "professional_camera", "mobile_phone", "policies"],
+    "priority": 3
+  }
+] 

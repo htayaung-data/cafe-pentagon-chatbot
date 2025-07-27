@@ -1,0 +1,288 @@
+{
+  "restaurant_info": {
+    "name": "Café Pentagon",
+    "name_mm": "Café Pentagon စားသောက်ဆိုင်",
+    "venue_capacity": 80,
+    "contact_phone": "+959979732781",
+    "contact_email": "events@caferestaurant.com"
+  },
+  "events": [
+    {
+      "event_id": "jazz_night_001",
+      "type": "live_music",
+      "title_en": "Jazz Night with Local Band",
+      "title_mm": "ဒေသခံတီးဝိုင်းနှင့် ဂျက်ဇ်ည",
+      "date": "2024-12-15",
+      "time": "20:00-23:00",
+      "day_of_week": "sunday",
+      "description_en": "Enjoy live jazz music with our special dinner menu. Featuring local jazz musicians performing classic and contemporary jazz pieces.",
+      "description_mm": "အထူးညစာမီနူးနှင့်အတူ ဂျက်ဇ်ဂီတကို ခံစားပါ။ ဒေသခံဂျက်ဇ်ဂီတပညာရှင်များက ရှေးဟောင်းနှင့် ခေတ်ပေါ်ဂျက်ဇ်သီချင်းများကို တီးမှုတ်ပါသည်။",
+      "artist_en": "Yangon Jazz Collective",
+      "artist_mm": "ရန်ကုန်ဂျက်ဇ်အဖွဲ့",
+      "special_menu": ["jazz_dinner_set"],
+      "menu_description_en": "Special 3-course dinner with wine pairing",
+      "menu_description_mm": "ဝိုင်နှင့်အတူ အထူး ၃ ထပ်ညစာ",
+      "reservation_required": true,
+      "promotion_code": "JAZZ20",
+      "discount_percentage": 20,
+      "max_capacity": 50,
+      "current_bookings": 25,
+      "price": {
+        "entry_fee": 15000,
+        "dinner_set": 25000,
+        "currency": "MMK"
+      },
+      "features": ["live_music", "dinner", "wine", "reserved_seating"],
+      "status": "upcoming"
+    },
+    {
+      "event_id": "acoustic_night_001",
+      "type": "live_music",
+      "title_en": "Acoustic Night",
+      "title_mm": "အကူးစတစ်ည",
+      "date": "2024-12-22",
+      "time": "19:00-22:00",
+      "day_of_week": "sunday",
+      "description_en": "Intimate acoustic performances by local artists. Perfect for a relaxed evening with friends and family.",
+      "description_mm": "ဒေသခံအနုပညာရှင်များ၏ ရင်းနှီးသော အကူးစတစ်ဖျော်ဖြေမှုများ။ မိတ်ဆွေများနှင့် မိသားစုနှင့် အေးအေးဆေးဆေး ညပိုင်းအတွက် သင့်တော်ပါသည်။",
+      "artist_en": "Various Local Artists",
+      "artist_mm": "ဒေသခံအနုပညာရှင်များ",
+      "special_menu": ["acoustic_special"],
+      "menu_description_en": "Light dinner and cocktail specials",
+      "menu_description_mm": "ပေါ့ပါးသောညစာနှင့် ကော့တေးအထူးများ",
+      "reservation_required": false,
+      "promotion_code": "ACOUSTIC15",
+      "discount_percentage": 15,
+      "max_capacity": 40,
+      "current_bookings": 15,
+      "price": {
+        "entry_fee": 10000,
+        "dinner_set": 20000,
+        "currency": "MMK"
+      },
+      "features": ["acoustic_music", "casual_dining", "cocktails"],
+      "status": "upcoming"
+    },
+    {
+      "event_id": "valentine_dinner_001",
+      "type": "special_occasion",
+      "title_en": "Valentine's Day Special Dinner",
+      "title_mm": "ချစ်သူများနေ့ အထူးညစာ",
+      "date": "2025-02-14",
+      "time": "18:00-22:00",
+      "day_of_week": "friday",
+      "description_en": "Celebrate love with our special Valentine's Day menu. Romantic atmosphere with candlelit dining and special desserts.",
+      "description_mm": "ကျွန်ုပ်တို့၏ အထူးချစ်သူများနေ့မီနူးဖြင့် အချစ်ကို ကျင်းပပါ။ ဖယောင်းတိုင်များနှင့် အထူးအချိုပွဲများဖြင့် ချစ်ခြင်းမေတ္တာလေထု။",
+      "artist_en": "Romantic Background Music",
+      "artist_mm": "ချစ်ခြင်းမေတ္တာနောက်ခံဂီတ",
+      "special_menu": ["valentine_dinner_set"],
+      "menu_description_en": "5-course romantic dinner with champagne",
+      "menu_description_mm": "ရှန်ပိန်နှင့်အတူ ၅ ထပ်ချစ်ခြင်းမေတ္တာညစာ",
+      "reservation_required": true,
+      "promotion_code": "LOVE2025",
+      "discount_percentage": 0,
+      "max_capacity": 60,
+      "current_bookings": 0,
+      "price": {
+        "entry_fee": 0,
+        "dinner_set": 45000,
+        "currency": "MMK"
+      },
+      "features": ["romantic", "candlelit", "champagne", "special_desserts"],
+      "status": "upcoming"
+    },
+    {
+      "event_id": "new_year_party_001",
+      "type": "celebration",
+      "title_en": "New Year's Eve Party",
+      "title_mm": "နှစ်သစ်ကူးပွဲ",
+      "date": "2024-12-31",
+      "time": "21:00-02:00",
+      "day_of_week": "tuesday",
+      "description_en": "Ring in the New Year with live music, special menu, and countdown celebration. Includes midnight toast and party favors.",
+      "description_mm": "အသက်ရှင်ဂီတ၊ အထူးမီနူးနှင့် နှစ်သစ်ကူးအချိန်ရေတွက်ခြင်းဖြင့် နှစ်သစ်ကို ကြိုဆိုပါ။ ညသန်းခေါင်အချိန်တိုက်ပွဲနှင့် ပွဲပစ္စည်းများ ပါဝင်ပါသည်။",
+      "artist_en": "Live Band & DJ",
+      "artist_mm": "အသက်ရှင်တီးဝိုင်းနှင့် DJ",
+      "special_menu": ["new_year_feast"],
+      "menu_description_en": "All-inclusive dinner and drinks package",
+      "menu_description_mm": "ညစာနှင့်အဖျော်ယမကာ အားလုံးပါဝင်သော ပက်ကေ့ချ်",
+      "reservation_required": true,
+      "promotion_code": "NEWYEAR2025",
+      "discount_percentage": 0,
+      "max_capacity": 80,
+      "current_bookings": 0,
+      "price": {
+        "entry_fee": 0,
+        "dinner_set": 60000,
+        "currency": "MMK"
+      },
+      "features": ["countdown", "live_music", "dancing", "midnight_toast"],
+      "status": "upcoming"
+    },
+    {
+      "event_id": "business_lunch_001",
+      "type": "business",
+      "title_en": "Business Networking Lunch",
+      "title_mm": "စီးပွားရေးကွန်ယက်ချိတ်ဆက်မှု နေ့လည်စာ",
+      "date": "2024-12-20",
+      "time": "12:00-14:00",
+      "day_of_week": "friday",
+      "description_en": "Monthly business networking event. Connect with local entrepreneurs and professionals over lunch.",
+      "description_mm": "လစဉ်စီးပွားရေးကွန်ယက်ချိတ်ဆက်မှုပွဲ။ ဒေသခံစီးပွားရေးလုပ်ငန်းရှင်များနှင့် ပညာရှင်များနှင့် နေ့လည်စာစားရင်း ချိတ်ဆက်ပါ။",
+      "artist_en": "Background Music",
+      "artist_mm": "နောက်ခံဂီတ",
+      "special_menu": ["business_lunch_set"],
+      "menu_description_en": "Professional lunch menu with networking materials",
+      "menu_description_mm": "ကွန်ယက်ချိတ်ဆက်မှုပစ္စည်းများနှင့် ပညာရှင်နေ့လည်စာမီနူး",
+      "reservation_required": true,
+      "promotion_code": "NETWORK20",
+      "discount_percentage": 20,
+      "max_capacity": 30,
+      "current_bookings": 12,
+      "price": {
+        "entry_fee": 5000,
+        "dinner_set": 15000,
+        "currency": "MMK"
+      },
+      "features": ["networking", "business_lunch", "professional"],
+      "status": "upcoming"
+    }
+  ],
+  "promotions": [
+    {
+      "promo_id": "happy_hour_001",
+      "type": "time_based",
+      "title_en": "Happy Hour",
+      "title_mm": "ပျော်ရွှင်သော အချိန်",
+      "description_en": "50% off on all drinks from 5-7 PM",
+      "description_mm": "နေ့လည် ၅ နာရီမှ ၇ နာရီအထိ အဖျော်ယမကာများ ၅၀% လျှော့ဈေး",
+      "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "valid_time": {
+        "start": "17:00",
+        "end": "19:00"
+      },
+      "discount_percentage": 50,
+      "applicable_items": ["drinks", "cocktails", "beer", "wine"],
+      "excluded_items": ["premium_spirits", "imported_beer"],
+      "promotion_code": "HAPPY50",
+      "status": "active"
+    },
+    {
+      "promo_id": "lunch_special_001",
+      "type": "meal_based",
+      "title_en": "Lunch Special",
+      "title_mm": "နေ့လည်စာအထူး",
+      "description_en": "20% off on all lunch items from 12-2 PM",
+      "description_mm": "နေ့လည် ၁၂ နာရီမှ ၂ နာရီအထိ နေ့လည်စာပစ္စည်းများ ၂၀% လျှော့ဈေး",
+      "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "valid_time": {
+        "start": "12:00",
+        "end": "14:00"
+      },
+      "discount_percentage": 20,
+      "applicable_items": ["lunch_menu", "set_meals"],
+      "excluded_items": ["drinks", "desserts"],
+      "promotion_code": "LUNCH20",
+      "status": "active"
+    },
+    {
+      "promo_id": "student_discount_001",
+      "type": "customer_based",
+      "title_en": "Student Discount",
+      "title_mm": "ကျောင်းသားလျှော့ဈေး",
+      "description_en": "15% off for students with valid ID",
+      "description_mm": "မှန်ကန်သောကျောင်းသားလက္ခဏာနှင့် ကျောင်းသားများအတွက် ၁၅% လျှော့ဈေး",
+      "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+      "valid_time": {
+        "start": "09:00",
+        "end": "22:00"
+      },
+      "discount_percentage": 15,
+      "applicable_items": ["food", "drinks"],
+      "excluded_items": ["alcohol", "premium_items"],
+      "promotion_code": "STUDENT15",
+      "requirements": ["student_id"],
+      "status": "active"
+    },
+    {
+      "promo_id": "birthday_special_001",
+      "type": "occasion_based",
+      "title_en": "Birthday Special",
+      "title_mm": "မွေးနေ့အထူး",
+      "description_en": "Free dessert on your birthday with any main course",
+      "description_mm": "သင့်မွေးနေ့တွင် မည်သည့်အဓိကအစားအစာနှင့်မဆို အချိုပွဲအခမဲ့",
+      "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+      "valid_time": {
+        "start": "09:00",
+        "end": "22:00"
+      },
+      "discount_percentage": 100,
+      "applicable_items": ["desserts"],
+      "requirements": ["birthday_verification", "main_course_purchase"],
+      "promotion_code": "BIRTHDAY",
+      "status": "active"
+    },
+    {
+      "promo_id": "weekend_brunch_001",
+      "type": "time_based",
+      "title_en": "Weekend Brunch",
+      "title_mm": "အပတ်စဉ်နေ့လည်စာ",
+      "description_en": "Special brunch menu with 25% off on weekends",
+      "description_mm": "အပတ်စဉ်များတွင် ၂၅% လျှော့ဈေးဖြင့် အထူးနေ့လည်စာမီနူး",
+      "valid_days": ["saturday", "sunday"],
+      "valid_time": {
+        "start": "10:00",
+        "end": "14:00"
+      },
+      "discount_percentage": 25,
+      "applicable_items": ["brunch_menu", "breakfast_items"],
+      "excluded_items": ["dinner_menu", "drinks"],
+      "promotion_code": "BRUNCH25",
+      "status": "active"
+    }
+  ],
+  "seasonal_events": [
+    {
+      "season": "christmas",
+      "title_en": "Christmas Celebration",
+      "title_mm": "ခရစ္စမတ်ကျင်းပခြင်း",
+      "start_date": "2024-12-20",
+      "end_date": "2024-12-25",
+      "description_en": "Special Christmas menu and decorations throughout the restaurant",
+      "description_mm": "စားသောက်ဆိုင်တစ်ခုလုံးတွင် အထူးခရစ္စမတ်မီနူးနှင့် အလှဆင်မှုများ",
+      "special_menu": ["christmas_dinner", "christmas_desserts"],
+      "promotion_code": "CHRISTMAS2024",
+      "discount_percentage": 10
+    },
+    {
+      "season": "myanmar_new_year",
+      "title_en": "Thingyan Festival",
+      "title_mm": "သင်္ကြန်ပွဲတော်",
+      "start_date": "2025-04-13",
+      "end_date": "2025-04-16",
+      "description_en": "Traditional Myanmar New Year celebration with special traditional menu",
+      "description_mm": "အထူးရိုးရာမီနူးနှင့် ရိုးရာမြန်မာနှစ်သစ်ကူးကျင်းပခြင်း",
+      "special_menu": ["thingyan_special", "traditional_desserts"],
+      "promotion_code": "THINGYAN2025",
+      "discount_percentage": 15
+    }
+  ],
+  "booking_policies": {
+    "advance_booking_days": 30,
+    "cancellation_hours": 24,
+    "group_booking_min": 10,
+    "group_booking_max": 80,
+    "deposit_required": {
+      "events": true,
+      "deposit_amount": 10000,
+      "currency": "MMK"
+    },
+    "payment_methods": ["cash", "mobile_money", "bank_transfer", "credit_card"]
+  },
+  "contact_info": {
+    "events_email": "events@caferestaurant.com",
+    "events_phone": "+959979732781",
+    "booking_hours": "09:00-18:00",
+    "emergency_contact": "+959979732781"
+  }
+} 
