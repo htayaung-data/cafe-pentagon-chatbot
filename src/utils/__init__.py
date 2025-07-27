@@ -4,7 +4,7 @@ Utility functions for Cafe Pentagon Chatbot
 
 from .logger import setup_logger, get_logger
 from .language import detect_language, translate_text
-from .cache import CacheManager
+from .cache import SimpleCacheManager
 from .validators import validate_email, validate_phone
 
 __all__ = [
@@ -12,7 +12,7 @@ __all__ = [
     "get_logger", 
     "detect_language",
     "translate_text",
-    "CacheManager",
+    "SimpleCacheManager",
     "validate_email",
     "validate_phone"
 ] 
