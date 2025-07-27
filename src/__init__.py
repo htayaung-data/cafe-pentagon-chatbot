@@ -1,18 +1,7 @@
 """
-Utility functions for Cafe Pentagon Chatbot
+Cafe Pentagon Chatbot - A multilingual restaurant customer support chatbot
 """
 
-from .logger import setup_logger, get_logger
-from .language import detect_language, translate_text
-from .cache import SimpleCacheManager
-from .validators import validate_email, validate_phone
-
-__all__ = [
-    "setup_logger",
-    "get_logger", 
-    "detect_language",
-    "translate_text",
-    "SimpleCacheManager",
-    "validate_email",
-    "validate_phone"
-] 
+__version__ = "1.0.0"
+__author__ = "Cafe Pentagon Team"
+__description__ = "Multilingual restaurant customer support chatbot with LangGraph" 
