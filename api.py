@@ -1,6 +1,8 @@
 """
 FastAPI application for Cafe Pentagon Chatbot
 Handles Facebook Messenger webhooks and API endpoints
+
+Last updated: Minor test change for GitHub workflow verification
 """
 
 import json
