@@ -1,75 +1,26 @@
 """
-Cache management for Cafe Pentagon Chatbot using Redis
+Simple in-memory cache management for Cafe Pentagon Chatbot
 """
 
 import json
-import pickle
+import time
 from typing import Any, Optional, Union, Dict, List
-import redis
 from src.config.settings import get_settings
 from src.config.constants import CACHE_TTL, CACHE_KEYS
 from src.utils.logger import get_logger, log_performance, LoggerMixin
 
 
-class CacheManager(LoggerMixin):
+class SimpleCacheManager(LoggerMixin):
     """
-    Redis cache manager for conversation persistence and data caching
+    Simple in-memory cache manager for conversation persistence and data caching
     """
     
     def __init__(self):
-        """Initialize cache manager with Redis connection"""
+        """Initialize cache manager with in-memory storage"""
         self.settings = get_settings()
-        self.redis_client = self._create_redis_connection()
-        self._fallback_cache = {} if self.redis_client is None else None
-        self.logger.info("cache_manager_initialized", redis_available=self.redis_client is not None)
-    
-    def _create_redis_connection(self) -> redis.Redis:
-        """Create Redis connection"""
-        try:
-            # Parse Redis URL
-            redis_url = self.settings.redis_url
-            if redis_url.startswith('redis://'):
-                # Extract components from URL
-                url_parts = redis_url.replace('redis://', '').split('@')
-                if len(url_parts) > 1:
-                    # URL with password
-                    auth, host_port = url_parts
-                    password = auth.split(':')[1] if ':' in auth else None
-                    host, port = host_port.split(':')
-                else:
-                    # URL without password
-                    host_port = url_parts[0]
-                    password = None
-                    host, port = host_port.split(':')
-                
-                port = int(port) if port else 6379
-            else:
-                # Fallback to default values
-                host = 'localhost'
-                port = 6379
-                password = None
-            
-            # Create Redis client
-            client = redis.Redis(
-                host=host,
-                port=port,
-                password=password or self.settings.redis_password,
-                db=self.settings.redis_db,
-                decode_responses=False,  # Keep as bytes for pickle compatibility
-                socket_connect_timeout=5,
-                socket_timeout=5,
-                retry_on_timeout=True
-            )
-            
-            # Test connection
-            client.ping()
-            self.logger.info("redis_connection_established", host=host, port=port)
-            return client
-            
-        except Exception as e:
-            self.logger.error("redis_connection_failed", error=str(e))
-            self.logger.warning("redis_fallback_to_memory", message="Using in-memory fallback")
-            return None
+        self._cache = {}
+        self._expiry_times = {}
+        self.logger.info("simple_cache_manager_initialized")
     
     @log_performance
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
@@ -84,32 +35,15 @@ class CacheManager(LoggerMixin):
         Returns:
             True if successful, False otherwise
         """
-        # Use fallback cache if Redis is not available
-        if self.redis_client is None:
-            if self._fallback_cache is not None:
-                self._fallback_cache[key] = value
-                self.logger.debug("cache_set_fallback", key=key, ttl=ttl)
-                return True
-            return False
-        
         try:
-            # Serialize value
-            if isinstance(value, (dict, list)):
-                serialized_value = json.dumps(value, ensure_ascii=False)
+            self._cache[key] = value
+            if ttl:
+                self._expiry_times[key] = time.time() + ttl
             else:
-                serialized_value = pickle.dumps(value)
+                self._expiry_times[key] = None
             
-            # Set in Redis
-            result = self.redis_client.set(key, serialized_value, ex=ttl)
-            
-            self.logger.debug(
-                "cache_set",
-                key=key,
-                ttl=ttl,
-                success=bool(result)
-            )
-            
-            return bool(result)
+            self.logger.debug("cache_set", key=key, ttl=ttl)
+            return True
             
         except Exception as e:
             self.logger.error("cache_set_failed", key=key, error=str(e))
@@ -127,36 +61,24 @@ class CacheManager(LoggerMixin):
         Returns:
             Cached value or default
         """
-        # Use fallback cache if Redis is not available
-        if self.redis_client is None:
-            if self._fallback_cache is not None:
-                value = self._fallback_cache.get(key, default)
-                if value is not default:
-                    self.logger.debug("cache_hit_fallback", key=key)
-                else:
-                    self.logger.debug("cache_miss_fallback", key=key)
-                return value
-            return default
-        
         try:
-            value = self.redis_client.get(key)
-            
-            if value is None:
+            # Check if key exists and is not expired
+            if key not in self._cache:
                 self.logger.debug("cache_miss", key=key)
                 return default
             
-            # Try to deserialize as JSON first, then pickle
-            try:
-                deserialized_value = json.loads(value.decode('utf-8'))
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                try:
-                    deserialized_value = pickle.loads(value)
-                except pickle.UnpicklingError:
-                    self.logger.warning("cache_deserialization_failed", key=key)
-                    return default
+            # Check expiration
+            expiry_time = self._expiry_times.get(key)
+            if expiry_time and time.time() > expiry_time:
+                # Key has expired, remove it
+                del self._cache[key]
+                del self._expiry_times[key]
+                self.logger.debug("cache_expired", key=key)
+                return default
             
+            value = self._cache[key]
             self.logger.debug("cache_hit", key=key)
-            return deserialized_value
+            return value
             
         except Exception as e:
             self.logger.error("cache_get_failed", key=key, error=str(e))
@@ -174,9 +96,13 @@ class CacheManager(LoggerMixin):
             True if successful, False otherwise
         """
         try:
-            result = self.redis_client.delete(key)
-            self.logger.debug("cache_delete", key=key, success=bool(result))
-            return bool(result)
+            if key in self._cache:
+                del self._cache[key]
+                if key in self._expiry_times:
+                    del self._expiry_times[key]
+                self.logger.debug("cache_delete", key=key)
+                return True
+            return False
             
         except Exception as e:
             self.logger.error("cache_delete_failed", key=key, error=str(e))
@@ -194,8 +120,18 @@ class CacheManager(LoggerMixin):
             True if key exists, False otherwise
         """
         try:
-            result = self.redis_client.exists(key)
-            return bool(result)
+            if key not in self._cache:
+                return False
+            
+            # Check expiration
+            expiry_time = self._expiry_times.get(key)
+            if expiry_time and time.time() > expiry_time:
+                # Key has expired, remove it
+                del self._cache[key]
+                del self._expiry_times[key]
+                return False
+            
+            return True
             
         except Exception as e:
             self.logger.error("cache_exists_failed", key=key, error=str(e))
@@ -214,9 +150,11 @@ class CacheManager(LoggerMixin):
             True if successful, False otherwise
         """
         try:
-            result = self.redis_client.expire(key, ttl)
-            self.logger.debug("cache_expire", key=key, ttl=ttl, success=bool(result))
-            return bool(result)
+            if key in self._cache:
+                self._expiry_times[key] = time.time() + ttl
+                self.logger.debug("cache_expire", key=key, ttl=ttl)
+                return True
+            return False
             
         except Exception as e:
             self.logger.error("cache_expire_failed", key=key, error=str(e))
@@ -338,18 +276,8 @@ class CacheManager(LoggerMixin):
             True if successful, False otherwise
         """
         try:
-            # Clear specific cache keys
-            cache_keys = [
-                CACHE_KEYS["menu_cache"],
-                CACHE_KEYS["faq_cache"],
-                CACHE_KEYS["reservation_cache"],
-                CACHE_KEYS["event_cache"],
-                CACHE_KEYS["job_cache"]
-            ]
-            
-            for key in cache_keys:
-                self.delete(key)
-            
+            self._cache.clear()
+            self._expiry_times.clear()
             self.logger.info("all_caches_cleared")
             return True
             
@@ -365,14 +293,23 @@ class CacheManager(LoggerMixin):
             Cache statistics
         """
         try:
-            info = self.redis_client.info()
+            # Clean expired entries
+            current_time = time.time()
+            expired_keys = [
+                key for key, expiry_time in self._expiry_times.items()
+                if expiry_time and current_time > expiry_time
+            ]
+            
+            for key in expired_keys:
+                if key in self._cache:
+                    del self._cache[key]
+                if key in self._expiry_times:
+                    del self._expiry_times[key]
+            
             return {
-                "connected_clients": info.get("connected_clients", 0),
-                "used_memory_human": info.get("used_memory_human", "0B"),
-                "total_commands_processed": info.get("total_commands_processed", 0),
-                "keyspace_hits": info.get("keyspace_hits", 0),
-                "keyspace_misses": info.get("keyspace_misses", 0),
-                "uptime_in_seconds": info.get("uptime_in_seconds", 0)
+                "total_keys": len(self._cache),
+                "expired_keys_cleaned": len(expired_keys),
+                "memory_usage": "In-memory cache"
             }
             
         except Exception as e:
@@ -381,38 +318,44 @@ class CacheManager(LoggerMixin):
     
     def health_check(self) -> bool:
         """
-        Perform health check on Redis connection
+        Perform health check on cache
         
         Returns:
             True if healthy, False otherwise
         """
         try:
-            self.redis_client.ping()
-            return True
+            # Simple health check - try to set and get a test value
+            test_key = "_health_check"
+            test_value = "ok"
+            self.set(test_key, test_value, ttl=1)
+            result = self.get(test_key) == test_value
+            self.delete(test_key)
+            return result
             
         except Exception as e:
-            self.logger.error("redis_health_check_failed", error=str(e))
+            self.logger.error("cache_health_check_failed", error=str(e))
             return False
     
     def close(self):
-        """Close Redis connection"""
+        """Close cache manager"""
         try:
-            self.redis_client.close()
-            self.logger.info("redis_connection_closed")
+            self._cache.clear()
+            self._expiry_times.clear()
+            self.logger.info("cache_manager_closed")
             
         except Exception as e:
-            self.logger.error("redis_close_failed", error=str(e))
+            self.logger.error("cache_close_failed", error=str(e))
 
 
 # Global cache manager instance
-_cache_manager: Optional[CacheManager] = None
+_cache_manager: Optional[SimpleCacheManager] = None
 
 
-def get_cache_manager() -> CacheManager:
+def get_cache_manager() -> SimpleCacheManager:
     """Get or create cache manager instance"""
     global _cache_manager
     if _cache_manager is None:
-        _cache_manager = CacheManager()
+        _cache_manager = SimpleCacheManager()
     return _cache_manager
 
 
