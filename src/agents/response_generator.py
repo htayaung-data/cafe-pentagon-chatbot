@@ -95,10 +95,21 @@ class EnhancedResponseGenerator(BaseAgent):
         # Get language key
         lang_key = "my" if user_language in ["my", "myanmar"] else "en"
         
+        # Debug logging for language detection
+        logger.info("language_debug", 
+                   user_message=user_message[:100],
+                   user_language=user_language,
+                   lang_key=lang_key,
+                   primary_intent=primary_intent)
+        
         try:
             # Try AI-powered response generation first
             ai_response = await self._generate_ai_response(user_message, primary_intent, lang_key, state)
             if ai_response:
+                logger.info("ai_response_generated", 
+                           response_language=lang_key,
+                           response_length=len(ai_response),
+                           response_preview=ai_response[:100])
                 return ai_response
         except Exception as e:
             logger.error("ai_response_generation_failed", error=str(e))
@@ -106,23 +117,30 @@ class EnhancedResponseGenerator(BaseAgent):
         
         # Generate response based on intent (fallback)
         if primary_intent == "greeting":
-            return self._generate_greeting_response(lang_key)
+            response = self._generate_greeting_response(lang_key)
         elif primary_intent == "menu_browse":
-            return await self._generate_menu_response(user_message, lang_key, intents)
+            response = await self._generate_menu_response(user_message, lang_key, intents)
         elif primary_intent == "faq":
-            return await self._generate_faq_response(user_message, lang_key)
+            response = await self._generate_faq_response(user_message, lang_key)
         elif primary_intent == "order_place":
-            return self._generate_order_response(lang_key)
+            response = self._generate_order_response(lang_key)
         elif primary_intent == "reservation":
-            return self._generate_reservation_response(lang_key)
+            response = self._generate_reservation_response(lang_key)
         elif primary_intent == "events":
-            return await self._generate_events_response(user_message, lang_key)
+            response = await self._generate_events_response(user_message, lang_key)
         elif primary_intent == "complaint":
-            return self._generate_complaint_response(lang_key)
+            response = self._generate_complaint_response(lang_key)
         elif primary_intent == "goodbye":
-            return self._generate_goodbye_response(lang_key)
+            response = self._generate_goodbye_response(lang_key)
         else:
-            return self._generate_unknown_response(lang_key)
+            response = self._generate_unknown_response(lang_key)
+        
+        logger.info("template_response_generated", 
+                   response_language=lang_key,
+                   response_length=len(response),
+                   response_preview=response[:100])
+        
+        return response
 
     async def _generate_ai_response(self, user_message: str, intent: str, language: str, state: Dict[str, Any]) -> Optional[str]:
         """Generate AI-powered response with conversation memory"""
@@ -314,23 +332,28 @@ LANGUAGE: {language_name}
 CONTEXT DATA:
 {json.dumps(context_data, indent=2, ensure_ascii=False)}
 
+🚨 CRITICAL LANGUAGE INSTRUCTION 🚨
+YOU MUST RESPOND ONLY IN {language_name.upper()} LANGUAGE!
+- If language is "Burmese": Respond ONLY in Burmese (မြန်မာဘာသာ)
+- If language is "English": Respond ONLY in English
+- DO NOT mix languages or translate
+- DO NOT use any other language
+
 CRITICAL INSTRUCTIONS:
 1. Respond ONLY in {language_name} - do not translate or mix languages
 2. Use the context data that matches the user's language ({language_name})
 3. Be natural, friendly, and conversational - like talking to a friend
 4. Keep responses concise but helpful - don't be verbose
-5. For menu items: mention name, price in MMK, and key features briefly
+5. For menu items: mention name, price, and key features briefly
 6. For FAQ: give clear, direct answers in a friendly tone
 7. For events: share relevant details in an engaging way
 8. If you don't have specific information, be honest and helpful
 9. Use natural {language_name} expressions and tone
 10. Don't be formal or robotic - be warm and approachable
-11. IMPORTANT: Only use information from the provided context data - do not make up information
-12. For complaints: be empathetic, understanding, and offer to help resolve issues
 
 IMPORTANT: If the user is asking in Burmese, use Burmese content from context_data. If asking in English, use English content. Do not translate between languages.
 
-RESPONSE:"""
+RESPONSE (IN {language_name.upper()} ONLY):"""
         
         return prompt
         
