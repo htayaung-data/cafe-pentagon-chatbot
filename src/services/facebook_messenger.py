@@ -123,11 +123,11 @@ class FacebookMessengerService:
             facebook_profile = await self.get_user_info(sender_id)
             user_profile = await self.user_manager.get_or_create_user(sender_id, facebook_profile)
             
-            # Process message with main agent
+            # Process message with main agent (auto-detect language from message)
             response = await self.main_agent.chat(
                 message_text,
                 sender_id,
-                user_profile.preferences.preferred_language.value
+                None  # Let the agent auto-detect language from message content
             )
             
             # Send response back to user
