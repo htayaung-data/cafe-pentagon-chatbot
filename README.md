@@ -1,4 +1,4 @@
-# Cafe Pentagon Chatbot - AI Enhanced
+# Cafe Pentagon Chatbot 
 
 A sophisticated multilingual chatbot for Cafe Pentagon with AI-powered intent classification, enhanced response generation, and independent data embedding service.
 
