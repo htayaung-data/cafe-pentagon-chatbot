@@ -8,7 +8,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from src.config.settings import get_settings
 from src.utils.logger import LoggerMixin, log_performance
-from src.utils.cache import CacheManager
+from src.utils.cache import SimpleCacheManager
 
 
 class BaseAgent(LoggerMixin, ABC):
@@ -21,7 +21,7 @@ class BaseAgent(LoggerMixin, ABC):
         super().__init__()
         self.name = name
         self.settings = get_settings()
-        self.cache = CacheManager()
+        self.cache = SimpleCacheManager()
         
         # Initialize LLM
         self.llm = ChatOpenAI(
