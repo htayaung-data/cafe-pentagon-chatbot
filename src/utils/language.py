@@ -5,7 +5,7 @@ Language detection and translation utilities for Cafe Pentagon Chatbot
 import re
 from typing import Optional, Tuple
 from langdetect import detect, DetectorFactory, LangDetectException
-from googletrans import Translator, LANGUAGES
+# Removed googletrans import - will implement simple translation later
 from src.config.constants import SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE
 from src.utils.logger import get_logger, log_performance
 
@@ -94,6 +94,7 @@ def translate_text(
 ) -> str:
     """
     Translate text to target language
+    Note: Currently returns original text as translation service is disabled
     
     Args:
         text: Text to translate
@@ -101,10 +102,7 @@ def translate_text(
         source_language: Source language code (optional, auto-detect if not provided)
         
     Returns:
-        Translated text
-        
-    Raises:
-        Exception: If translation fails
+        Original text (translation disabled for now)
     """
     if not text or not text.strip():
         return text
@@ -117,45 +115,15 @@ def translate_text(
         )
         return text
     
-    try:
-        translator = Translator()
-        
-        # Auto-detect source language if not provided
-        if not source_language:
-            source_language = detect_language(text)
-        
-        # Don't translate if source and target are the same
-        if source_language == target_language:
-            return text
-        
-        # Perform translation
-        translation = translator.translate(
-            text,
-            src=source_language,
-            dest=target_language
-        )
-        
-        translated_text = translation.text
-        
-        logger.info(
-            "text_translated",
-            source_language=source_language,
-            target_language=target_language,
-            original_length=len(text),
-            translated_length=len(translated_text)
-        )
-        
-        return translated_text
-        
-    except Exception as e:
-        logger.error(
-            "translation_failed",
-            text=text[:100],
-            source_language=source_language,
-            target_language=target_language,
-            error=str(e)
-        )
-        return text
+    # For now, return original text as translation service is disabled
+    # TODO: Implement translation service later
+    logger.info(
+        "translation_disabled",
+        text=text[:100],
+        target_language=target_language,
+        note="Translation service temporarily disabled"
+    )
+    return text
 
 
 def get_language_name(language_code: str) -> str:
