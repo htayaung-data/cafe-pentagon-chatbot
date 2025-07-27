@@ -37,8 +37,14 @@ class EnhancedMainAgent(BaseAgent):
             if not language or language == "Auto-detect":
                 from src.utils.language import detect_language
                 detected_language = detect_language(user_message)
+                logger.info("language_detected_in_chat", 
+                           user_message=user_message[:100],
+                           detected_language=detected_language)
             else:
                 detected_language = language
+                logger.info("language_provided_in_chat", 
+                           user_message=user_message[:100],
+                           provided_language=detected_language)
             
             # Load existing conversation history
             existing_history = await self.conversation_manager.get_conversation_history(user_id)
@@ -52,6 +58,10 @@ class EnhancedMainAgent(BaseAgent):
                 "conversation_history": existing_history or []
             }
             
+            logger.info("chat_state_initialized", 
+                       user_language=detected_language,
+                       conversation_history_length=len(existing_history or []))
+            
             # Add user message to conversation history immediately
             state = self.add_message_to_history(state, "user", user_message)
             
@@ -64,7 +74,9 @@ class EnhancedMainAgent(BaseAgent):
             state = await self.conversation_manager.process(state)
             
             # Step 3: Enhanced Response Generation
-            logger.info("generating_enhanced_response", primary_intent=state.get("primary_intent"))
+            logger.info("generating_enhanced_response", 
+                       primary_intent=state.get("primary_intent"),
+                       user_language=state.get("user_language"))
             response = await self.response_generator.generate_response(state)
             
             # Add assistant response to conversation history
@@ -84,7 +96,9 @@ class EnhancedMainAgent(BaseAgent):
             
             logger.info("enhanced_chat_completed", 
                        primary_intent=result["primary_intent"],
-                       conversation_state=result["conversation_state"])
+                       conversation_state=result["conversation_state"],
+                       user_language=result["user_language"],
+                       response_preview=response[:100])
             
             return result
             
