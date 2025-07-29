@@ -346,11 +346,11 @@ class FacebookMessengerService:
             logger.error("invalid_image_url_for_facebook", original_url=image_url)
             return False
         
-        # Test if image URL is accessible
+        # Test if image URL is accessible (but don't fail if test fails)
         is_accessible = await self._test_image_url_accessibility(validated_url)
         if not is_accessible:
-            logger.error("image_url_not_accessible_for_facebook", image_url=validated_url)
-            return False
+            logger.warning("image_url_accessibility_test_failed_but_continuing", image_url=validated_url)
+            # Don't return False here - let Facebook try to access it anyway
         
         for attempt in range(max_retries):
             try:
@@ -629,9 +629,21 @@ class FacebookMessengerService:
             
             # Check if URL is from Supabase and fix if needed
             if 'supabase.co' in image_url:
+                # Fix double slash issues in Supabase URLs
+                if '//' in image_url.split('/storage/v1/object/public/')[-1]:
+                    # Fix double slash in the filename part
+                    parts = image_url.split('/storage/v1/object/public/')
+                    if len(parts) == 2:
+                        bucket_path = parts[0] + '/storage/v1/object/public/'
+                        filename = parts[1].replace('//', '/')
+                        fixed_url = bucket_path + filename
+                        logger.info("fixed_supabase_double_slash", 
+                                  original_url=image_url,
+                                  fixed_url=fixed_url)
+                        image_url = fixed_url
+                
                 # Ensure proper Supabase storage URL format
                 if '/storage/v1/object/public/' in image_url:
-                    # This is the correct format, but let's ensure it's accessible
                     logger.info("supabase_image_url_validated", image_url=image_url)
                     return image_url
                 else:
@@ -715,13 +727,13 @@ class FacebookMessengerService:
     async def send_image_with_fallback(self, recipient_id: str, image_url: str, caption: str = "") -> bool:
         """Send image with multiple fallback strategies"""
         try:
-            # Strategy 1: Try original URL
+            # Strategy 1: Try original URL (with validation fixes)
             logger.info("trying_original_image_url", image_url=image_url)
             success = await self.send_image(recipient_id, image_url, caption)
             if success:
                 return True
             
-            # Strategy 2: Try alternative URL
+            # Strategy 2: Try alternative URL (Imgur/Cloudinary)
             logger.info("trying_alternative_image_url")
             alternative_url = await self._get_alternative_image_url(image_url)
             if alternative_url != image_url:
@@ -729,14 +741,20 @@ class FacebookMessengerService:
                 if success:
                     return True
             
-            # Strategy 3: Try alternative sending method
+            # Strategy 3: Try alternative sending method (Media API)
             logger.info("trying_alternative_sending_method")
             success = await self.send_image_alternative(recipient_id, image_url, caption)
             if success:
                 return True
             
-            # Strategy 4: Send text with image URL as fallback
-            logger.info("sending_text_with_image_url_fallback")
+            # Strategy 4: Try with network connectivity handling
+            logger.info("trying_network_connectivity_handling")
+            success = await self._handle_network_connectivity_issue(recipient_id, image_url, caption)
+            if success:
+                return True
+            
+            # Strategy 5: Send text with image URL as last resort
+            logger.warning("all_image_sending_methods_failed_sending_text_fallback")
             fallback_message = f"{caption}\n\n📸 View image: {image_url}"
             await self.send_message(recipient_id, fallback_message)
             return True
