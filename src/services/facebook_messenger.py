@@ -131,21 +131,18 @@ class FacebookMessengerService:
                 None  # Let the agent auto-detect language from message content
             )
             
-            # Send response back to user
-            await self.send_message(sender_id, response["response"])
-            
-            # Check if we need to send an image
+            # Check if we need to send an image first
             image_info = response.get("image_info")
             if image_info:
                 logger.info("image_info_found", 
                            sender_id=sender_id,
                            image_info=image_info)
                 
-                # Send image after text message with comprehensive fallback
+                # Send image first (without caption)
                 image_success = await self.send_image_with_fallback(
                     sender_id, 
                     image_info["image_url"], 
-                    image_info["caption"]
+                    ""  # No caption
                 )
                 logger.info("image_send_attempt_completed", 
                            sender_id=sender_id,
@@ -158,6 +155,9 @@ class FacebookMessengerService:
                 logger.info("no_image_info_in_response", 
                            sender_id=sender_id,
                            response_keys=list(response.keys()))
+            
+            # Send text response after image (or immediately if no image)
+            await self.send_message(sender_id, response["response"])
             
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
@@ -742,9 +742,6 @@ class FacebookMessengerService:
             logger.info("trying_original_image_url", image_url=image_url)
             success = await self.send_image(recipient_id, image_url, caption)
             if success:
-                # If we have a caption, send it as a separate text message
-                if caption:
-                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 2: Try alternative URL (Imgur/Cloudinary)
@@ -753,32 +750,23 @@ class FacebookMessengerService:
             if alternative_url != image_url:
                 success = await self.send_image(recipient_id, alternative_url, caption)
                 if success:
-                    # If we have a caption, send it as a separate text message
-                    if caption:
-                        await self.send_message(recipient_id, caption)
                     return True
             
             # Strategy 3: Try alternative sending method (Media API)
             logger.info("trying_alternative_sending_method")
             success = await self.send_image_alternative(recipient_id, image_url, caption)
             if success:
-                # If we have a caption, send it as a separate text message
-                if caption:
-                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 4: Try with network connectivity handling
             logger.info("trying_network_connectivity_handling")
             success = await self._handle_network_connectivity_issue(recipient_id, image_url, caption)
             if success:
-                # If we have a caption, send it as a separate text message
-                if caption:
-                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 5: Send text with image URL as last resort
             logger.warning("all_image_sending_methods_failed_sending_text_fallback")
-            fallback_message = f"{caption}\n\n📸 View image: {image_url}"
+            fallback_message = f"📸 View image: {image_url}"
             await self.send_message(recipient_id, fallback_message)
             return True
             
@@ -846,10 +834,6 @@ class FacebookMessengerService:
             logger.info("sending_text_with_image_url_as_fallback")
             fallback_message = f"📸 View image: {image_url}"
             await self.send_message(recipient_id, fallback_message)
-            
-            # If we have a caption, send it as a separate message
-            if caption:
-                await self.send_message(recipient_id, caption)
             
             return True
             
