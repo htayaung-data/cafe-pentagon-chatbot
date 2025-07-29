@@ -62,7 +62,7 @@ class UserManager:
         try:
             # Try cache first
             cache_key = f"user:facebook:{facebook_id}"
-            cached_user = await self.cache_manager.get(cache_key)
+            cached_user = self.cache_manager.get(cache_key)
             
             if cached_user:
                 return UserProfile(**json.loads(cached_user))
@@ -75,7 +75,7 @@ class UserManager:
                 user_profile = self._convert_db_user_to_profile(db_user)
                 
                 # Cache the user
-                await self.cache_manager.set(cache_key, user_profile.json(), expire=3600)
+                self.cache_manager.set(cache_key, user_profile.json(), ttl=3600)
                 
                 return user_profile
             
@@ -144,10 +144,10 @@ class UserManager:
             if success:
                 # Save to cache
                 cache_key = f"user:facebook:{facebook_id}"
-                await self.cache_manager.set(
+                self.cache_manager.set(
                     cache_key, 
                     user.json(), 
-                    expire=86400  # 24 hours
+                    ttl=86400  # 24 hours
                 )
                 
                 logger.info("user_saved", user_id=user.user_id, facebook_id=facebook_id)
@@ -186,7 +186,7 @@ class UserManager:
             if success:
                 # Update cache
                 cache_key = f"user:facebook:{facebook_id}"
-                await self.cache_manager.set(cache_key, user.json(), expire=86400)
+                self.cache_manager.set(cache_key, user.json(), ttl=86400)
             
             return success
             
@@ -219,7 +219,7 @@ class UserManager:
         """Get user's shopping cart"""
         try:
             cache_key = f"cart:facebook:{facebook_id}"
-            cached_cart = await self.cache_manager.get(cache_key)
+            cached_cart = self.cache_manager.get(cache_key)
             
             if cached_cart:
                 return ShoppingCart(**json.loads(cached_cart))
@@ -244,10 +244,10 @@ class UserManager:
         """Save shopping cart to cache"""
         try:
             cache_key = f"cart:facebook:{facebook_id}"
-            await self.cache_manager.set(
+            self.cache_manager.set(
                 cache_key,
                 cart.json(),
-                expire=3600  # 1 hour
+                ttl=3600  # 1 hour
             )
             return True
         except Exception as e:
@@ -384,10 +384,10 @@ class UserManager:
         try:
             # Save to cache
             cache_key = f"order:{order.order_id}"
-            await self.cache_manager.set(
+            self.cache_manager.set(
                 cache_key,
                 order.json(),
-                expire=86400  # 24 hours
+                ttl=86400  # 24 hours
             )
             
             # TODO: Save to database
@@ -420,10 +420,10 @@ class UserManager:
             
             # Save to cache
             cache_key = f"analytics:facebook:{facebook_id}"
-            await self.cache_manager.set(
+            self.cache_manager.set(
                 cache_key,
                 analytics.json(),
-                expire=86400  # 24 hours
+                ttl=86400  # 24 hours
             )
             
             return True
