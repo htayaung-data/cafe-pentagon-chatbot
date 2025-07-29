@@ -375,9 +375,9 @@ class FacebookMessengerService:
                     }
                 }
                 
-                # Add caption if provided
-                if caption:
-                    payload["message"]["attachment"]["payload"]["caption"] = caption
+                # For Facebook Messenger, we'll send caption as a separate text message
+                # if caption is provided, since image attachments don't support captions
+                # in the same way as other platforms
                 
                 logger.info("attempting_to_send_image", 
                            recipient_id=recipient_id,
@@ -486,9 +486,8 @@ class FacebookMessengerService:
                         }
                     }
                     
-                    # Add caption if provided
-                    if caption:
-                        message_data["message"]["attachment"]["payload"]["caption"] = caption
+                                         # For Facebook Messenger, captions are not supported in image attachments
+                     # We'll send the caption as a separate text message if needed
                     
                     async with session.post(message_url, json=message_data) as msg_response:
                         if msg_response.status == 200:
@@ -627,20 +626,32 @@ class FacebookMessengerService:
             if image_url.startswith('http://'):
                 image_url = image_url.replace('http://', 'https://')
             
+            # Fix any double slashes in the URL (except for https://)
+            if 'https://' in image_url:
+                protocol = 'https://'
+                rest_of_url = image_url[8:]  # Remove 'https://'
+                # Replace any remaining double slashes with single slash
+                rest_of_url = rest_of_url.replace('//', '/')
+                image_url = protocol + rest_of_url
+            
             # Check if URL is from Supabase and fix if needed
             if 'supabase.co' in image_url:
                 # Fix double slash issues in Supabase URLs
-                if '//' in image_url.split('/storage/v1/object/public/')[-1]:
-                    # Fix double slash in the filename part
+                # Check for double slash anywhere in the URL after the domain
+                if '/storage/v1/object/public/' in image_url:
                     parts = image_url.split('/storage/v1/object/public/')
                     if len(parts) == 2:
                         bucket_path = parts[0] + '/storage/v1/object/public/'
-                        filename = parts[1].replace('//', '/')
-                        fixed_url = bucket_path + filename
-                        logger.info("fixed_supabase_double_slash", 
-                                  original_url=image_url,
-                                  fixed_url=fixed_url)
-                        image_url = fixed_url
+                        filename = parts[1]
+                        
+                        # Fix any double slashes in the filename
+                        if '//' in filename:
+                            filename = filename.replace('//', '/')
+                            fixed_url = bucket_path + filename
+                            logger.info("fixed_supabase_double_slash", 
+                                      original_url=image_url,
+                                      fixed_url=fixed_url)
+                            image_url = fixed_url
                 
                 # Ensure proper Supabase storage URL format
                 if '/storage/v1/object/public/' in image_url:
@@ -731,6 +742,9 @@ class FacebookMessengerService:
             logger.info("trying_original_image_url", image_url=image_url)
             success = await self.send_image(recipient_id, image_url, caption)
             if success:
+                # If we have a caption, send it as a separate text message
+                if caption:
+                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 2: Try alternative URL (Imgur/Cloudinary)
@@ -739,18 +753,27 @@ class FacebookMessengerService:
             if alternative_url != image_url:
                 success = await self.send_image(recipient_id, alternative_url, caption)
                 if success:
+                    # If we have a caption, send it as a separate text message
+                    if caption:
+                        await self.send_message(recipient_id, caption)
                     return True
             
             # Strategy 3: Try alternative sending method (Media API)
             logger.info("trying_alternative_sending_method")
             success = await self.send_image_alternative(recipient_id, image_url, caption)
             if success:
+                # If we have a caption, send it as a separate text message
+                if caption:
+                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 4: Try with network connectivity handling
             logger.info("trying_network_connectivity_handling")
             success = await self._handle_network_connectivity_issue(recipient_id, image_url, caption)
             if success:
+                # If we have a caption, send it as a separate text message
+                if caption:
+                    await self.send_message(recipient_id, caption)
                 return True
             
             # Strategy 5: Send text with image URL as last resort
@@ -787,8 +810,8 @@ class FacebookMessengerService:
                 }
             }
             
-            if caption:
-                payload["message"]["attachment"]["payload"]["caption"] = caption
+            # For Facebook Messenger, captions are not supported in image attachments
+            # We'll send the caption as a separate text message if needed
             
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.post(url, json=payload, headers=headers) as response:
@@ -821,8 +844,13 @@ class FacebookMessengerService:
             
             # Strategy 3: Send as text with image URL
             logger.info("sending_text_with_image_url_as_fallback")
-            fallback_message = f"{caption}\n\n📸 View image: {image_url}"
+            fallback_message = f"📸 View image: {image_url}"
             await self.send_message(recipient_id, fallback_message)
+            
+            # If we have a caption, send it as a separate message
+            if caption:
+                await self.send_message(recipient_id, caption)
+            
             return True
             
         except Exception as e:
