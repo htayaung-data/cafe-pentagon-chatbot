@@ -81,7 +81,23 @@ class EnhancedMainAgent(BaseAgent):
             
             # Check if response contains image information
             image_info = None
-            if "<img" in response:
+            
+            # Check for new IMAGE_MARKER format
+            if "[IMAGE_MARKER:" in response:
+                import re
+                image_match = re.search(r'\[IMAGE_MARKER:(https?://[^:]+):([^\]]+)\]', response)
+                if image_match:
+                    image_url = image_match.group(1)
+                    item_name = image_match.group(2)
+                    image_info = {
+                        "image_url": image_url,
+                        "caption": f"{item_name} - Cafe Pentagon"
+                    }
+                    # Remove the marker from the response text
+                    response = re.sub(r'\n\n\[IMAGE_MARKER:[^\]]+\]', '', response)
+            
+            # Fallback: Check for old HTML img tag format (for backward compatibility)
+            elif "<img" in response:
                 # Extract image URL from HTML img tag
                 import re
                 image_match = re.search(r'<img[^>]+src=["\'](https?://[^"\']+)["\'][^>]*>', response)
@@ -94,6 +110,10 @@ class EnhancedMainAgent(BaseAgent):
                         "image_url": image_url,
                         "caption": f"{item_name} - Cafe Pentagon"
                     }
+                    # Remove the HTML img tag from the response text
+                    response = re.sub(r'<img[^>]+>', '', response)
+            
+            # Fallback: Check for markdown image syntax
             elif "![(" in response or "![(" in response:
                 # Extract image URL from markdown image syntax
                 import re
@@ -105,6 +125,9 @@ class EnhancedMainAgent(BaseAgent):
                         "image_url": image_url,
                         "caption": f"{item_name} - Cafe Pentagon"
                     }
+                    # Remove the markdown image syntax from the response text
+                    response = re.sub(r'!\[.*?\]\(https?://[^\s\n]+\)', '', response)
+            
             # Fallback for old format
             elif "🖼️ **Image**:" in response or "🖼️ **ပုံ**:" in response:
                 # Extract image URL from response
@@ -119,6 +142,9 @@ class EnhancedMainAgent(BaseAgent):
                         "image_url": image_url,
                         "caption": f"{item_name} - Cafe Pentagon"
                     }
+                    # Remove the old format markers from the response text
+                    response = re.sub(r'🖼️ \*\*.*?\*\*: https?://[^\s\n]+', '', response)
+                    response = re.sub(r'📸 \*\*.*?\*\*', '', response)
             
             # Add assistant response to conversation history
             state = self.add_message_to_history(state, "assistant", response)

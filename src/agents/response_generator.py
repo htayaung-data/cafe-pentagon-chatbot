@@ -735,40 +735,39 @@ Return only the category name, or "unknown" if unclear.
             return self._get_fallback_response("menu_browse", lang_key)
 
     async def _generate_item_image_response(self, item_name: str, lang_key: str) -> str:
-        """Generate response with image information for a specific item"""
+        """Generate response with image information for a specific item using AI-powered understanding"""
         try:
+            # Use AI to better understand the user's request, especially for Burmese
+            if lang_key == "my" or any('\u1000' <= char <= '\u109F' for char in item_name):
+                # Use AI to understand and translate the Burmese request
+                understood_item = await self._understand_burmese_request(item_name)
+                if understood_item:
+                    item_name = understood_item
+            
             # Get image information from vector search
             image_info = await self.vector_search.get_item_image(item_name)
             
             if not image_info:
                 if lang_key == "my":
-                    return f"'{item_name}' အစားအစာရဲ့ ပုံကို မတွေ့ရှိပါဘူး။"
+                    return f"'{item_name}' အစားအစာရဲ့ ပုံကို မတွေ့ရှိပါဘူး။ ကျေးဇူးပြု၍ အခြားအစားအစာကို မေးကြည့်ပါ။"
                 else:
-                    return f"Image for '{item_name}' not found."
+                    return f"Image for '{item_name}' not found. Please try asking for a different menu item."
             
-            # Format natural conversational response
+            # Format natural conversational response WITHOUT HTML img tags
             if lang_key == "my":
                 # Natural Burmese response
                 response = f"**{image_info['item_name']}** ပုံပါ ခင်ဗျာ။ "
                 response += f"ဈေးနှုန်းလေးကတော့ {image_info['price']} ဖြစ်ပါတယ်။\n\n"
-                
-                # Include the actual image using markdown image syntax with size control
-                if image_info.get('image_url'):
-                    # Use HTML img tag for better size control and Facebook Messenger compatibility
-                    response += f'<img src="{image_info["image_url"]}" alt="{image_info["item_name"]}" style="max-width: 300px; height: auto; border-radius: 8px;" />\n\n'
-                
                 response += "အခြားအစားအစာများကို ကြည့်ချင်ပါသလား?"
             else:
                 # Natural English response
                 response = f"Here is the photo of **{image_info['item_name']}**. "
                 response += f"The price is {image_info['price']}.\n\n"
-                
-                # Include the actual image using markdown image syntax with size control
-                if image_info.get('image_url'):
-                    # Use HTML img tag for better size control and Facebook Messenger compatibility
-                    response += f'<img src="{image_info["image_url"]}" alt="{image_info["item_name"]}" style="max-width: 300px; height: auto; border-radius: 8px;" />\n\n'
-                
                 response += "Would you like to see other items?"
+            
+            # Add a special marker to indicate this response should include an image
+            # The main agent will detect this marker and extract the image info
+            response += f"\n\n[IMAGE_MARKER:{image_info['image_url']}:{image_info['item_name']}]"
             
             return response
             
@@ -776,6 +775,69 @@ Return only the category name, or "unknown" if unclear.
             logger.error("item_image_response_generation_failed", error=str(e))
             return self._get_fallback_response("menu_browse", lang_key)
 
+    async def _understand_burmese_request(self, burmese_text: str) -> Optional[str]:
+        """
+        Use AI to understand and translate Burmese food requests to English menu item names
+        """
+        try:
+            from src.config.settings import get_settings
+            from openai import OpenAI
+            
+            settings = get_settings()
+            client = OpenAI(api_key=settings.openai_api_key)
+            
+            # Create a prompt that helps the AI understand the specific request
+            prompt = f"""
+            You are a helpful assistant that understands Burmese food requests and translates them to specific English menu item names.
+            
+            The user is asking for a food item in Burmese: "{burmese_text}"
+            
+            Please analyze this request and provide the most likely English menu item name that the user is looking for.
+            
+            Consider:
+            1. The specific food item being requested
+            2. Common menu item names that would match this request
+            3. The context of a restaurant menu
+            
+            Return only the English menu item name. Do not include explanations or additional text.
+            
+            If you're not sure about the exact item, return the most likely match based on the Burmese text.
+            
+            Example:
+            Burmese: "ကြက်သားဟင်းရည်"
+            English: chicken soup
+            
+            Burmese: "ခေါက်ဆွဲကြော်"
+            English: fried noodles
+            
+            Burmese: "ဘာဂါ"
+            English: burger
+            """
+            
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a food translation expert that helps translate Burmese food requests to specific English menu item names."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=50,
+                temperature=0.2
+            )
+            
+            # Extract the translated item name
+            translated_item = response.choices[0].message.content.strip()
+            
+            logger.info("burmese_request_understood", 
+                       original=burmese_text,
+                       translated_item=translated_item)
+            
+            return translated_item if translated_item else None
+            
+        except Exception as e:
+            logger.error("burmese_understanding_failed", 
+                        burmese_text=burmese_text,
+                        error=str(e))
+            return None
 
 
     async def _generate_faq_response(self, user_message: str, lang_key: str) -> str:

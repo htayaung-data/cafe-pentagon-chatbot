@@ -302,43 +302,29 @@ RESPONSE: Return only the exact category name from the available categories list
 
     async def get_item_details(self, item_name: str, language: str = "en") -> Optional[Dict[str, Any]]:
         """
-        Get detailed information about a specific item with improved search accuracy
+        Get detailed information about a specific item using AI-powered natural language understanding
         """
         try:
-            # Create more specific search queries
-            search_queries = []
+            # If the input is in Burmese, use AI to translate and understand the request
+            if language == "my" or any('\u1000' <= char <= '\u109F' for char in item_name):
+                # Use AI to translate and understand the Burmese request
+                translated_queries = await self._translate_burmese_request(item_name)
+            else:
+                # For English, use the original item name
+                translated_queries = [item_name]
             
-            # Add the original item name
-            search_queries.append(item_name)
-            
-            # Add category-specific searches with better Burmese support
-            if any(word in item_name.lower() for word in ["burger", "ဘာဂါ", "အမဲသား", "အသားညှပ်"]):
-                search_queries.extend(["burger", "beef burger", "အမဲသားညှပ်ပေါင်မုန့်", "ဘာဂါ"])
-            elif any(word in item_name.lower() for word in ["tuna", "တူနာ", "ငါး", "ငါးအသား"]):
-                search_queries.extend(["tuna", "tuna sandwich", "တူနာငါးအသားညှပ်ပေါင်မုန့်", "တူနာ"])
-            elif any(word in item_name.lower() for word in ["pasta", "ပါစတာ", "ခေါက်ဆွဲ"]):
-                search_queries.extend(["pasta", "ပါစတာ", "noodles"])
-            elif any(word in item_name.lower() for word in ["salad", "ဆလပ်", "အရွက်"]):
-                search_queries.extend(["salad", "ဆလပ်", "vegetables"])
-            elif any(word in item_name.lower() for word in ["noodle", "ခေါက်ဆွဲ", "ခေါက်ဆွဲခြောက်"]):
-                search_queries.extend(["noodle", "ခေါက်ဆွဲ", "noodles"])
-            elif any(word in item_name.lower() for word in ["rice", "ထမင်း", "ထမင်းဟင်း"]):
-                search_queries.extend(["rice", "ထမင်း", "rice dish"])
-            elif any(word in item_name.lower() for word in ["soup", "ဟင်းရည်", "ဟင်းချို"]):
-                search_queries.extend(["soup", "ဟင်းရည်", "soups"])
-            
-            # Try each search query
+            # Try each translated query
             best_match = None
             best_score = 0
             
-            for query in search_queries:
+            for query in translated_queries:
                 embedding = self.embeddings.embed_query(query)
                 
                 # Query Pinecone with higher top_k for better matching
                 results = self.pinecone_index.query(
                     vector=embedding,
                     namespace=PINECONE_NAMESPACES["menu"],
-                    top_k=15,  # Increased for better matching
+                    top_k=20,  # Increased for better matching
                     include_metadata=True
                 )
                 
@@ -349,33 +335,10 @@ RESPONSE: Return only the exact category name from the available categories list
                     
                     # Check if this is a better match
                     if score > best_score:
-                        # Additional validation for better accuracy
-                        item_name_lower = item_name.lower()
-                        english_name = metadata.get("name", "").lower()
-                        myanmar_name = metadata.get("myanmar_name", "").lower()
-                        
-                        # Check for exact or partial matches
-                        if (item_name_lower in english_name or 
-                            item_name_lower in myanmar_name or
-                            english_name in item_name_lower or
-                            myanmar_name in item_name_lower):
-                            best_match = metadata
-                            best_score = score
-                        # For category-specific searches, be more lenient
-                        elif any(word in item_name_lower for word in ["burger", "ဘာဂါ", "အသားညှပ်"]) and "burger" in english_name:
-                            best_match = metadata
-                            best_score = score
-                        elif any(word in item_name_lower for word in ["tuna", "တူနာ", "ငါး"]) and "tuna" in english_name:
-                            best_match = metadata
-                            best_score = score
-                        elif any(word in item_name_lower for word in ["noodle", "ခေါက်ဆွဲ"]) and "noodle" in english_name:
-                            best_match = metadata
-                            best_score = score
-                        elif any(word in item_name_lower for word in ["pasta", "ပါစတာ"]) and "pasta" in english_name:
-                            best_match = metadata
-                            best_score = score
+                        best_match = metadata
+                        best_score = score
             
-            if best_match and best_score > 0.6:  # Lowered threshold for better Burmese matching
+            if best_match and best_score > 0.5:  # Lowered threshold for AI-powered matching
                 item = {
                     "id": best_match.get("id"),
                     "name": best_match.get("name") if language == "en" else best_match.get("myanmar_name"),
@@ -397,11 +360,12 @@ RESPONSE: Return only the exact category name from the available categories list
                            item_name=item_name,
                            found_item=item["name"],
                            language=language,
-                           similarity_score=best_score)
+                           similarity_score=best_score,
+                           translated_queries=translated_queries)
                 
                 return item
             
-            logger.warning("item_not_found", item_name=item_name, best_score=best_score)
+            logger.warning("item_not_found", item_name=item_name, best_score=best_score, translated_queries=translated_queries)
             return None
             
         except Exception as e:
@@ -410,34 +374,132 @@ RESPONSE: Return only the exact category name from the available categories list
                         error=str(e))
             return None
 
-    async def get_item_image(self, item_name: str) -> Optional[Dict[str, Any]]:
+    async def _translate_burmese_request(self, burmese_text: str) -> List[str]:
         """
-        Get image information for a specific item with improved Burmese text handling
+        Use AI to translate and understand Burmese food requests
         """
         try:
-            # Try to get item details in English first
-            item = await self.get_item_details(item_name, language="en")
+            from src.config.settings import get_settings
+            from openai import OpenAI
             
-            # If not found and the input looks like Burmese, try Burmese search
-            if not item and any('\u1000' <= char <= '\u109F' for char in item_name):
-                # Try searching with Burmese language
-                item = await self.get_item_details(item_name, language="my")
+            settings = get_settings()
+            client = OpenAI(api_key=settings.openai_api_key)
             
-            if item and item.get("image_url"):
+            # Create a prompt that helps the AI understand and translate the request
+            prompt = f"""
+            You are a helpful assistant that translates Burmese food requests to English menu item names.
+            
+            The user is asking for a food item in Burmese: "{burmese_text}"
+            
+            Please analyze this request and provide 3-5 English translations or related menu item names that would help find the correct food item.
+            
+            Consider:
+            1. Direct translations of the Burmese text
+            2. Common English names for similar dishes
+            3. Related food categories or ingredients
+            4. Popular menu item names that might match the request
+            
+            Return only the English terms, separated by commas. Do not include explanations or additional text.
+            
+            Example:
+            Burmese: "ကြက်သားဟင်းရည်"
+            English: chicken soup, chicken broth, chicken soup, soup with chicken, chicken soup
+            
+            Burmese: "ခေါက်ဆွဲကြော်"
+            English: fried noodles, stir fried noodles, noodle dish, fried noodle, noodles
+            """
+            
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a food translation expert that helps translate Burmese food requests to English menu terms."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=100,
+                temperature=0.3
+            )
+            
+            # Extract the translated terms
+            translated_text = response.choices[0].message.content.strip()
+            translated_terms = [term.strip() for term in translated_text.split(',') if term.strip()]
+            
+            # Add the original Burmese text as a fallback
+            translated_terms.append(burmese_text)
+            
+            logger.info("burmese_request_translated", 
+                       original=burmese_text,
+                       translated_terms=translated_terms)
+            
+            return translated_terms
+            
+        except Exception as e:
+            logger.error("burmese_translation_failed", 
+                        burmese_text=burmese_text,
+                        error=str(e))
+            # Fallback to original text if translation fails
+            return [burmese_text]
+
+    async def get_item_image(self, item_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get image information for a specific item using AI-powered natural language understanding
+        """
+        try:
+            # Determine if the input is in Burmese
+            is_burmese = any('\u1000' <= char <= '\u109F' for char in item_name)
+            
+            # Use AI-powered approach for better understanding
+            if is_burmese:
+                # Use AI to translate and understand the Burmese request
+                translated_queries = await self._translate_burmese_request(item_name)
+            else:
+                # For English, use the original item name
+                translated_queries = [item_name]
+            
+            # Try each translated query to find the best match
+            best_match = None
+            best_score = 0
+            
+            for query in translated_queries:
+                embedding = self.embeddings.embed_query(query)
+                
+                # Query Pinecone
+                results = self.pinecone_index.query(
+                    vector=embedding,
+                    namespace=PINECONE_NAMESPACES["menu"],
+                    top_k=15,
+                    include_metadata=True
+                )
+                
+                # Find the best match for this query
+                for match in results.matches:
+                    metadata = match.metadata
+                    score = match.score
+                    
+                    if score > best_score:
+                        best_match = metadata
+                        best_score = score
+            
+            if best_match and best_score > 0.5 and best_match.get("image_url"):
                 image_info = {
-                    "item_name": item["name"],
-                    "image_url": item["image_url"],
-                    "category": item["category"],
-                    "price": f"{item['price']} {item['currency']}"
+                    "item_name": best_match.get("name"),
+                    "image_url": best_match.get("image_url"),
+                    "category": best_match.get("category"),
+                    "price": f"{best_match.get('price', 0)} {best_match.get('currency', 'MMK')}"
                 }
                 
                 logger.info("item_image_retrieved", 
                            item_name=item_name,
-                           image_url=item["image_url"])
+                           found_item=image_info["item_name"],
+                           image_url=best_match.get("image_url"),
+                           similarity_score=best_score,
+                           translated_queries=translated_queries)
                 
                 return image_info
             
-            logger.warning("item_image_not_found", item_name=item_name)
+            logger.warning("item_image_not_found", 
+                          item_name=item_name, 
+                          best_score=best_score,
+                          translated_queries=translated_queries)
             return None
             
         except Exception as e:
