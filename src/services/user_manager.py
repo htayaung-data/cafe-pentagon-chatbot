@@ -131,22 +131,29 @@ class UserManager:
     async def _save_user(self, user: UserProfile) -> bool:
         """Save user to cache/database"""
         try:
+            # Get facebook_id safely
+            facebook_id = user.facebook_profile.facebook_id if user.facebook_profile else None
+            
+            if not facebook_id:
+                logger.error("facebook_id_missing", user_id=user.user_id)
+                return False
+            
             # Save to database
             success = await self.supabase_service.create_user_profile(user)
             
             if success:
                 # Save to cache
-                cache_key = f"user:facebook:{user.facebook_profile.facebook_id if user.facebook_profile else 'unknown'}"
+                cache_key = f"user:facebook:{facebook_id}"
                 await self.cache_manager.set(
                     cache_key, 
                     user.json(), 
                     expire=86400  # 24 hours
                 )
                 
-                logger.info("user_saved", user_id=user.user_id)
+                logger.info("user_saved", user_id=user.user_id, facebook_id=facebook_id)
                 return True
             else:
-                logger.error("user_save_failed", user_id=user.user_id)
+                logger.error("user_save_failed", user_id=user.user_id, facebook_id=facebook_id)
                 return False
             
         except Exception as e:
@@ -158,6 +165,13 @@ class UserManager:
         try:
             user.updated_at = datetime.now()
             
+            # Get facebook_id safely
+            facebook_id = user.facebook_profile.facebook_id if user.facebook_profile else None
+            
+            if not facebook_id:
+                logger.error("facebook_id_missing_for_update", user_id=user.user_id)
+                return False
+            
             # Update in database
             updates = {
                 "updated_at": user.updated_at.isoformat(),
@@ -167,14 +181,11 @@ class UserManager:
                 "favorite_items": user.favorite_items
             }
             
-            success = await self.supabase_service.update_user_profile(
-                user.facebook_profile.facebook_id if user.facebook_profile else None, 
-                updates
-            )
+            success = await self.supabase_service.update_user_profile(facebook_id, updates)
             
             if success:
                 # Update cache
-                cache_key = f"user:facebook:{user.facebook_profile.facebook_id if user.facebook_profile else 'unknown'}"
+                cache_key = f"user:facebook:{facebook_id}"
                 await self.cache_manager.set(cache_key, user.json(), expire=86400)
             
             return success

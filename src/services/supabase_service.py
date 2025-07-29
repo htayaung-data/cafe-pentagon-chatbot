@@ -51,16 +51,22 @@ class SupabaseService:
             return None
 
     async def create_user_profile(self, user_profile: UserProfile) -> bool:
-        """Create new user profile"""
+        """Create user profile with upsert to handle existing users"""
         try:
-            # Prepare data for insertion
+            # Get facebook_id safely
+            facebook_id = user_profile.facebook_profile.facebook_id if user_profile.facebook_profile else None
+            
+            if not facebook_id:
+                logger.error("facebook_id_missing_in_profile", user_id=user_profile.user_id)
+                return False
+            
             profile_data = {
-                "facebook_id": user_profile.facebook_profile.facebook_id if user_profile.facebook_profile else None,
+                "facebook_id": facebook_id,
                 "user_id": user_profile.user_id,
                 "source": user_profile.source.value,
                 "status": user_profile.status.value,
                 
-                # Facebook profile data
+                # Facebook Profile Data
                 "facebook_name": user_profile.facebook_profile.name if user_profile.facebook_profile else None,
                 "facebook_first_name": user_profile.facebook_profile.first_name if user_profile.facebook_profile else None,
                 "facebook_last_name": user_profile.facebook_profile.last_name if user_profile.facebook_profile else None,
@@ -69,7 +75,7 @@ class SupabaseService:
                 "facebook_timezone": user_profile.facebook_profile.timezone if user_profile.facebook_profile else None,
                 "facebook_gender": user_profile.facebook_profile.gender if user_profile.facebook_profile else None,
                 
-                # Contact information
+                # Contact Information
                 "phone": user_profile.phone,
                 "email": user_profile.email,
                 "address": user_profile.address,
@@ -88,17 +94,18 @@ class SupabaseService:
                 "last_active": user_profile.last_active.isoformat()
             }
             
-            response = self.supabase.table("user_profiles").insert(profile_data).execute()
+            # Use upsert to handle existing users
+            response = self.supabase.table("user_profiles").upsert(profile_data, on_conflict="facebook_id").execute()
             
             if response.data:
-                logger.info("user_profile_created", user_id=user_profile.user_id)
+                logger.info("user_profile_upserted", user_id=user_profile.user_id)
                 return True
             else:
-                logger.error("user_profile_creation_failed", user_id=user_profile.user_id)
+                logger.error("user_profile_upsert_failed", user_id=user_profile.user_id)
                 return False
                 
         except Exception as e:
-            logger.error("user_profile_creation_exception", user_id=user_profile.user_id, error=str(e))
+            logger.error("user_profile_upsert_exception", user_id=user_profile.user_id, error=str(e))
             return False
 
     async def update_user_profile(self, facebook_id: str, updates: Dict[str, Any]) -> bool:
@@ -143,7 +150,7 @@ class SupabaseService:
             return None
 
     async def create_or_update_cart(self, facebook_id: str, user_id: str, items: List[Dict[str, Any]]) -> bool:
-        """Create or update shopping cart"""
+        """Create or update shopping cart with upsert"""
         try:
             cart_data = {
                 "facebook_id": facebook_id,
@@ -152,26 +159,18 @@ class SupabaseService:
                 "updated_at": datetime.now().isoformat()
             }
             
-            # Check if cart exists
-            existing_cart = await self.get_user_cart(facebook_id)
-            
-            if existing_cart:
-                # Update existing cart
-                response = self.supabase.table("shopping_carts").update(cart_data).eq("facebook_id", facebook_id).execute()
-            else:
-                # Create new cart
-                cart_data["created_at"] = datetime.now().isoformat()
-                response = self.supabase.table("shopping_carts").insert(cart_data).execute()
+            # Use upsert to handle existing carts
+            response = self.supabase.table("shopping_carts").upsert(cart_data, on_conflict="facebook_id").execute()
             
             if response.data:
-                logger.info("cart_updated", facebook_id=facebook_id)
+                logger.info("cart_upserted", facebook_id=facebook_id)
                 return True
             else:
-                logger.error("cart_update_failed", facebook_id=facebook_id)
+                logger.error("cart_upsert_failed", facebook_id=facebook_id)
                 return False
                 
         except Exception as e:
-            logger.error("cart_update_exception", facebook_id=facebook_id, error=str(e))
+            logger.error("cart_upsert_exception", facebook_id=facebook_id, error=str(e))
             return False
 
     async def create_order(self, order: Order) -> bool:
