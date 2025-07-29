@@ -1,6 +1,6 @@
 """
 AI-Enhanced Response Generator for Cafe Pentagon Chatbot
-Provides contextual, language-aware responses using AI
+Provides contextual, language-aware responses using AI with vector search
 """
 
 import json
@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional
 from langchain_openai import ChatOpenAI
 from src.agents.base import BaseAgent
 from src.data.loader import get_data_loader
+from src.services.vector_search_service import get_vector_search_service
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 
@@ -16,7 +17,7 @@ logger = get_logger("enhanced_response_generator")
 
 class EnhancedResponseGenerator(BaseAgent):
     """
-    Enhanced response generator with contextual responses
+    Enhanced response generator with contextual responses using vector search
     """
     
     def __init__(self):
@@ -24,6 +25,7 @@ class EnhancedResponseGenerator(BaseAgent):
         super().__init__("ai_enhanced_response_generator")
         self.data_loader = get_data_loader()
         self.settings = get_settings()
+        self.vector_search = get_vector_search_service()
         
         # Initialize OpenAI model for response generation
         self.llm = ChatOpenAI(
@@ -102,8 +104,21 @@ class EnhancedResponseGenerator(BaseAgent):
                    lang_key=lang_key,
                    primary_intent=primary_intent)
         
+        # For menu browsing, prioritize vector search service
+        if primary_intent == "menu_browse":
+            try:
+                response = await self._generate_menu_response(user_message, lang_key, state)
+                logger.info("vector_search_menu_response_generated", 
+                           response_language=lang_key,
+                           response_length=len(response),
+                           response_preview=response[:100])
+                return response
+            except Exception as e:
+                logger.error("vector_search_menu_response_failed", error=str(e))
+                # Fall back to AI response
+        
         try:
-            # Try AI-powered response generation first
+            # Try AI-powered response generation for other intents
             ai_response = await self._generate_ai_response(user_message, primary_intent, lang_key, state)
             if ai_response:
                 logger.info("ai_response_generated", 
@@ -118,8 +133,6 @@ class EnhancedResponseGenerator(BaseAgent):
         # Generate response based on intent (fallback)
         if primary_intent == "greeting":
             response = self._generate_greeting_response(lang_key)
-        elif primary_intent == "menu_browse":
-            response = await self._generate_menu_response(user_message, lang_key, intents)
         elif primary_intent == "faq":
             response = await self._generate_faq_response(user_message, lang_key)
         elif primary_intent == "order_place":
@@ -469,136 +482,301 @@ RESPONSE (IN {language_name.upper()} ONLY):"""
         templates = self.response_templates["greeting"][lang_key]
         return random.choice(templates)
 
-    async def _generate_menu_response(self, user_message: str, lang_key: str, intents: List[Dict]) -> str:
-        """Generate menu browsing response"""
+    async def _generate_menu_response(self, user_message: str, lang_key: str, state: Dict[str, Any]) -> str:
+        """Generate menu browsing response using AI-driven decision making and vector search"""
         try:
-            # Load menu data
-            menu_data = self.data_loader.load_menu_data()
-            if not menu_data:
-                return self._get_fallback_response("menu_browse", lang_key)
+            # Get conversation history for context
+            conversation_history = state.get("conversation_history", [])
             
-            # Extract dietary preferences from entities
-            dietary_pref = None
-            for intent in intents:
-                if intent.get("intent") == "menu_browse":
-                    entities = intent.get("entities", {})
-                    dietary_pref = entities.get("dietary_preference")
-                    break
+            # Use AI to analyze user request
+            analysis = await self.vector_search.analyze_user_request(user_message, conversation_history)
             
-            # Filter menu items based on query
-            filtered_items = self._filter_menu_items(menu_data, user_message, dietary_pref, lang_key)
+            logger.info("menu_request_analyzed", 
+                       user_message=user_message[:100],
+                       action=analysis.get("action"),
+                       confidence=analysis.get("confidence"))
             
-            if not filtered_items:
-                return self._get_no_results_response(lang_key)
+            # Handle different actions based on AI analysis
+            action = analysis.get("action", "OTHER")
             
-            # Generate response
-            if lang_key == "my":
-                return self._format_menu_response_my(filtered_items, dietary_pref)
+            if action == "SHOW_CATEGORIES":
+                return await self._generate_categories_response(lang_key)
+            
+            elif action == "SHOW_CATEGORY_ITEMS":
+                category = analysis.get("category")
+                if category:
+                    return await self._generate_category_items_response(category, lang_key)
+                else:
+                    return self._get_fallback_response("menu_browse", lang_key)
+            
+            elif action == "SHOW_ITEM_DETAILS":
+                item_name = analysis.get("item_name")
+                if item_name:
+                    return await self._generate_item_details_response(item_name, lang_key)
+                else:
+                    return self._get_fallback_response("menu_browse", lang_key)
+            
+            elif action == "SHOW_ITEM_IMAGE":
+                item_name = analysis.get("item_name")
+                if item_name:
+                    return await self._generate_item_image_response(item_name, lang_key)
+                else:
+                    return self._get_fallback_response("menu_browse", lang_key)
+            
             else:
-                return self._format_menu_response_en(filtered_items, dietary_pref)
+                # Check if this is a category browsing question
+                if await self._is_category_browsing_question(user_message, lang_key):
+                    category = await self._extract_category_from_question(user_message, lang_key)
+                    if category:
+                        return await self._generate_category_items_response(category, lang_key)
+                
+                # Fallback to general menu response
+                return await self._generate_categories_response(lang_key)
                 
         except Exception as e:
             logger.error("menu_response_generation_failed", error=str(e))
             return self._get_fallback_response("menu_browse", lang_key)
 
-    def _filter_menu_items(self, menu_data: List[Dict], query: str, dietary_pref: Optional[str], lang_key: str) -> List[Dict]:
-        """Filter menu items based on query and preferences"""
-        query_lower = query.lower()
-        filtered_items = []
-        
-        for item in menu_data:
-            # Handle Pydantic model
-            if hasattr(item, 'model_dump'):
-                item_dict = item.model_dump()
-            elif hasattr(item, 'dict'):
-                item_dict = item.dict()
-            else:
-                item_dict = item
-            
-            # Check if item matches query
-            matches = False
-            
-            # Check English content
-            if lang_key == "en":
-                name = item_dict.get("english_name", "").lower()
-                desc = item_dict.get("description_en", "").lower()
-                category = item_dict.get("category", "").lower()
-                
-                if any(term in name or term in desc or term in category for term in query_lower.split()):
-                    matches = True
-            else:
-                # Check Burmese content
-                name = item_dict.get("myanmar_name", "").lower()
-                desc = item_dict.get("description_mm", "").lower()
-                category = item_dict.get("category", "").lower()
-                
-                if any(term in name or term in desc or term in category for term in query_lower.split()):
-                    matches = True
-            
-            # Check dietary preferences
-            if dietary_pref:
-                dietary_info = item_dict.get("dietary_info", {})
-                if isinstance(dietary_info, str):
-                    try:
-                        dietary_info = json.loads(dietary_info)
-                    except:
-                        dietary_info = {}
-                
-                if dietary_pref.lower() in str(dietary_info).lower():
-                    matches = True
-            
-            if matches:
-                filtered_items.append(item_dict)
-        
-        return filtered_items[:5]  # Limit to 5 items
+    async def _is_category_browsing_question(self, user_message: str, lang_key: str) -> bool:
+        """Check if user is asking about what kinds of items are available in a category"""
+        try:
+            # Use AI to determine if this is a category browsing question
+            prompt = f"""
+Analyze this user message and determine if they are asking about what kinds of items are available in a specific category.
 
-    def _format_menu_response_en(self, items: List[Dict], dietary_pref: Optional[str]) -> str:
-        """Format menu response in English"""
-        if not items:
-            return "I couldn't find any items matching your criteria. Please try adjusting your search or let me suggest some alternatives."
-        
-        response = "Here are some menu items that might interest you:\n\n"
-        
-        for item in items:
-            name = item.get("english_name", "Unknown")
-            price = item.get("price", 0)
-            currency = item.get("currency", "MMK")
-            desc = item.get("description_en", "")
-            
-            response += f"🍽️ **{name}** - {price:,} {currency}\n"
-            if desc:
-                response += f"   {desc}\n"
-            response += "\n"
-        
-        if dietary_pref:
-            response += f"\nThese items are suitable for {dietary_pref} preferences."
-        
-        response += "\nWould you like to know more about any specific item or see other categories?"
-        return response
+User message: "{user_message}"
+Language: {"Burmese" if lang_key == "my" else "English"}
 
-    def _format_menu_response_my(self, items: List[Dict], dietary_pref: Optional[str]) -> str:
-        """Format menu response in Burmese"""
-        if not items:
-            return "သင့်ရဲ့ ရှာဖွေမှုနဲ့ ကိုက်ညီတဲ့ အစားအစာများ မတွေ့ရှိပါဘူး။ ရှာဖွေမှုကို ပြင်ဆင်ကြည့်ပါ သို့မဟုတ် အခြားရွေးချယ်မှုများကို အကြံပြုပေးပါရစေ။"
-        
-        response = "သင့်ကို စိတ်ဝင်စားစရာ ကောင်းမယ့် မီနူးအစားအစာများ:\n\n"
-        
-        for item in items:
-            name = item.get("myanmar_name", "မသိ")
-            price = item.get("price", 0)
-            currency = item.get("currency", "ကျပ်")
-            desc = item.get("description_mm", "")
+Look for patterns like:
+- "what kind of [category]"
+- "what [category] do you have"
+- "show me [category]"
+- "ဘယ်လို [category] တွေ ရှိလဲ"
+- "[category] ဘာတွေ ရှိလဲ"
+
+Return only "YES" if it's a category browsing question, or "NO" if not.
+"""
             
-            response += f"🍽️ **{name}** - {price:,} {currency}\n"
-            if desc:
-                response += f"   {desc}\n"
-            response += "\n"
-        
-        if dietary_pref:
-            response += f"\nဒီအစားအစာများက {dietary_pref} ရွေးချယ်မှုများအတွက် သင့်တော်ပါတယ်။"
-        
-        response += "\nသီးသန့်အစားအစာ သို့မဟုတ် အခြားအမျိုးအစားများကို ပိုမိုသိလိုပါသလား?"
-        return response
+            response = await self.llm.ainvoke(prompt)
+            result = response.content.strip().upper()
+            
+            return result == "YES"
+            
+        except Exception as e:
+            logger.error("category_browsing_detection_failed", error=str(e))
+            return False
+
+    async def _extract_category_from_question(self, user_message: str, lang_key: str) -> str:
+        """Extract the category from a user's question using AI"""
+        try:
+            prompt = f"""
+Extract the menu category from this user question.
+
+User message: "{user_message}"
+Language: {"Burmese" if lang_key == "my" else "English"}
+
+Available categories: breakfast, main_course, appetizers_sides, soups, noodles, sandwiches_burgers, salads, pasta, rice_dishes
+
+Examples:
+- "what kind of noodles" → "noodles"
+- "ခေါက်ဆွဲဘာတွေ ရှိလဲ" → "noodles"
+- "what burgers do you have" → "sandwiches_burgers"
+- "ဘာဂါဘာတွေ ရှိလဲ" → "sandwiches_burgers"
+
+Return only the category name, or "unknown" if unclear.
+"""
+            
+            response = await self.llm.ainvoke(prompt)
+            category = response.content.strip().lower()
+            
+            # Validate category
+            valid_categories = ["breakfast", "main_course", "appetizers_sides", "soups", "noodles", "sandwiches_burgers", "salads", "pasta", "rice_dishes"]
+            
+            if category in valid_categories:
+                return category
+            else:
+                return "unknown"
+                
+        except Exception as e:
+            logger.error("category_extraction_failed", error=str(e))
+            return "unknown"
+
+    async def _generate_categories_response(self, lang_key: str) -> str:
+        """Generate response showing menu categories"""
+        try:
+            # Get categories from vector search
+            categories = await self.vector_search.get_menu_categories(lang_key)
+            
+            if not categories:
+                return self._get_fallback_response("menu_browse", lang_key)
+            
+            # Format natural response
+            if lang_key == "my":
+                response = "ကျွန်ုပ်တို့ရဲ့ မီနူးမှာ ဒီအမျိုးအစားတွေ ရှိပါတယ်:\n\n"
+                for category in categories:
+                    display_name = category["display_name"]
+                    response += f"• **{display_name}**\n"
+                response += "\nဘယ်အမျိုးအစားကို ကြည့်ချင်ပါသလဲ?"
+            else:
+                response = "Here are our menu categories:\n\n"
+                for category in categories:
+                    display_name = category["display_name"]
+                    response += f"• **{display_name}**\n"
+                response += "\nWhich category would you like to see?"
+            
+            return response
+            
+        except Exception as e:
+            logger.error("categories_response_generation_failed", error=str(e))
+            return self._get_fallback_response("menu_browse", lang_key)
+
+    async def _generate_category_items_response(self, category: str, lang_key: str) -> str:
+        """Generate response showing items from a specific category"""
+        try:
+            # Get items from vector search - show more items for category browsing
+            items = await self.vector_search.get_category_items(category, lang_key, limit=12)
+            
+            if not items:
+                if lang_key == "my":
+                    return f"'{category}' အမျိုးအစားမှာ အစားအစာများ မတွေ့ရှိပါဘူး။"
+                else:
+                    return f"No items found in the '{category}' category."
+            
+            # Format simple response with just names and prices - using proper line breaks
+            if lang_key == "my":
+                category_name = self.vector_search._get_category_display_name(category, lang_key)
+                response = f"**{category_name}** အစားအစာတွေပါ:\n\n"
+                
+                for i, item in enumerate(items, 1):
+                    name = item["name"]
+                    myanmar_name = item.get("name_other", "")
+                    price = item["price"]
+                    currency = item["currency"]
+                    
+                    if myanmar_name:
+                        response += f"{i}. **{name}** ({myanmar_name})\n"
+                        response += f"   💰 {price:,} {currency}\n\n"
+                    else:
+                        response += f"{i}. **{name}**\n"
+                        response += f"   💰 {price:,} {currency}\n\n"
+                
+                response += "ဘယ်အစားအစာကို ပိုမိုသိချင်ပါသလဲ?"
+            else:
+                category_name = self.vector_search._get_category_display_name(category, lang_key)
+                response = f"Here are our **{category_name}** items:\n\n"
+                
+                for i, item in enumerate(items, 1):
+                    name = item["name"]
+                    myanmar_name = item.get("name_other", "")
+                    price = item["price"]
+                    currency = item["currency"]
+                    
+                    if myanmar_name:
+                        response += f"{i}. **{name}** ({myanmar_name})\n"
+                        response += f"   💰 {price:,} {currency}\n\n"
+                    else:
+                        response += f"{i}. **{name}**\n"
+                        response += f"   💰 {price:,} {currency}\n\n"
+                
+                response += "Which item would you like to know more about?"
+            
+            return response
+            
+        except Exception as e:
+            logger.error("category_items_response_generation_failed", error=str(e))
+            return self._get_fallback_response("menu_browse", lang_key)
+
+    async def _generate_item_details_response(self, item_name: str, lang_key: str) -> str:
+        """Generate response with detailed information about a specific item"""
+        try:
+            # Get item details from vector search
+            item = await self.vector_search.get_item_details(item_name, lang_key)
+            
+            if not item:
+                if lang_key == "my":
+                    return f"'{item_name}' အစားအစာကို မတွေ့ရှိပါဘူး။"
+                else:
+                    return f"Item '{item_name}' not found."
+            
+            # Format natural conversational response
+            if lang_key == "my":
+                response = f"**{item['name']}** အကြောင်း ပြောပြပေးပါရစေ။\n\n"
+                response += f"ဈေးနှုန်းကတော့ {item['price']:,} {item['currency']} ဖြစ်ပါတယ်။\n"
+                response += f"{item['description']}\n\n"
+                response += f"ပြင်ဆင်ချိန်က {item['preparation_time']} ဖြစ်ပါတယ်။\n"
+                response += f"အစပ်အဆင့်က {item['spice_level']}/4 ဖြစ်ပါတယ်။\n"
+                
+                if item.get("ingredients"):
+                    response += f"\nပါဝင်ပစ္စည်းတွေကတော့ {', '.join(item['ingredients'])} တို့ ဖြစ်ပါတယ်။\n"
+                
+                if item.get("allergens"):
+                    response += f"\nဓာတ်မတည့်မှုရှိတဲ့ ပါဝင်ပစ္စည်းတွေကတော့ {', '.join(item['allergens'])} တို့ ဖြစ်ပါတယ်။\n"
+                
+                response += f"\nပုံကို ကြည့်ချင်ပါသလား?"
+            else:
+                response = f"Here's information about **{item['name']}**.\n\n"
+                response += f"The price is {item['price']:,} {item['currency']}.\n"
+                response += f"{item['description']}\n\n"
+                response += f"Preparation time is {item['preparation_time']}.\n"
+                response += f"Spice level is {item['spice_level']}/4.\n"
+                
+                if item.get("ingredients"):
+                    response += f"\nIngredients include {', '.join(item['ingredients'])}.\n"
+                
+                if item.get("allergens"):
+                    response += f"\nAllergens include {', '.join(item['allergens'])}.\n"
+                
+                response += f"\nWould you like to see the image?"
+            
+            return response
+            
+        except Exception as e:
+            logger.error("item_details_response_generation_failed", error=str(e))
+            return self._get_fallback_response("menu_browse", lang_key)
+
+    async def _generate_item_image_response(self, item_name: str, lang_key: str) -> str:
+        """Generate response with image information for a specific item"""
+        try:
+            # Get image information from vector search
+            image_info = await self.vector_search.get_item_image(item_name)
+            
+            if not image_info:
+                if lang_key == "my":
+                    return f"'{item_name}' အစားအစာရဲ့ ပုံကို မတွေ့ရှိပါဘူး။"
+                else:
+                    return f"Image for '{item_name}' not found."
+            
+            # Format natural conversational response
+            if lang_key == "my":
+                # Natural Burmese response
+                response = f"**{image_info['item_name']}** ပုံပါ ခင်ဗျာ။ "
+                response += f"ဈေးနှုန်းလေးကတော့ {image_info['price']} ဖြစ်ပါတယ်။\n\n"
+                
+                # Include the actual image using markdown image syntax with size control
+                if image_info.get('image_url'):
+                    # Use HTML img tag for better size control and Facebook Messenger compatibility
+                    response += f'<img src="{image_info["image_url"]}" alt="{image_info["item_name"]}" style="max-width: 300px; height: auto; border-radius: 8px;" />\n\n'
+                
+                response += "အခြားအစားအစာများကို ကြည့်ချင်ပါသလား?"
+            else:
+                # Natural English response
+                response = f"Here is the photo of **{image_info['item_name']}**. "
+                response += f"The price is {image_info['price']}.\n\n"
+                
+                # Include the actual image using markdown image syntax with size control
+                if image_info.get('image_url'):
+                    # Use HTML img tag for better size control and Facebook Messenger compatibility
+                    response += f'<img src="{image_info["image_url"]}" alt="{image_info["item_name"]}" style="max-width: 300px; height: auto; border-radius: 8px;" />\n\n'
+                
+                response += "Would you like to see other items?"
+            
+            return response
+            
+        except Exception as e:
+            logger.error("item_image_response_generation_failed", error=str(e))
+            return self._get_fallback_response("menu_browse", lang_key)
+
+
 
     async def _generate_faq_response(self, user_message: str, lang_key: str) -> str:
         """Generate FAQ response"""

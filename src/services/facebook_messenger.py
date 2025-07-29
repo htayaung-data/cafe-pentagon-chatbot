@@ -133,6 +133,19 @@ class FacebookMessengerService:
             # Send response back to user
             await self.send_message(sender_id, response["response"])
             
+            # Check if we need to send an image
+            image_info = response.get("image_info")
+            if image_info:
+                # Send image after text message
+                image_success = await self.send_image(
+                    sender_id, 
+                    image_info["image_url"], 
+                    image_info["caption"]
+                )
+                logger.info("image_sent_after_response", 
+                           sender_id=sender_id,
+                           image_success=image_success)
+            
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
                 await self.user_manager.update_user_preferences(sender_id, {
@@ -142,13 +155,15 @@ class FacebookMessengerService:
             logger.info("message_processed", 
                        sender_id=sender_id,
                        message_type=message_type,
-                       intent=response.get("primary_intent"))
+                       intent=response.get("primary_intent"),
+                       image_sent=bool(image_info))
             
             return {
                 "sender_id": sender_id,
                 "message_type": message_type,
                 "intent": response.get("primary_intent"),
-                "status": "processed"
+                "status": "processed",
+                "image_sent": bool(image_info)
             }
             
         except Exception as e:
@@ -305,6 +320,48 @@ class FacebookMessengerService:
                         
         except Exception as e:
             logger.error("generic_template_send_exception", recipient_id=recipient_id, error=str(e))
+            return False
+
+    async def send_image(self, recipient_id: str, image_url: str, caption: str = "") -> bool:
+        """Send image message"""
+        try:
+            url = f"{self.api_url}/me/messages?access_token={self.page_access_token}"
+            headers = {
+                "Content-Type": "application/json"
+            }
+            
+            message_data = {
+                "recipient": {"id": recipient_id},
+                "message": {
+                    "attachment": {
+                        "type": "image",
+                        "payload": {
+                            "url": image_url
+                        }
+                    }
+                }
+            }
+            
+            # Add caption if provided
+            if caption:
+                message_data["message"]["attachment"]["payload"]["caption"] = caption
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=message_data) as response:
+                    if response.status == 200:
+                        logger.info("image_sent_successfully", recipient_id=recipient_id, image_url=image_url)
+                        return True
+                    else:
+                        error_text = await response.text()
+                        logger.error("image_send_failed", 
+                                   recipient_id=recipient_id,
+                                   status=response.status,
+                                   error=error_text,
+                                   image_url=image_url)
+                        return False
+                        
+        except Exception as e:
+            logger.error("image_send_exception", recipient_id=recipient_id, error=str(e), image_url=image_url)
             return False
 
 

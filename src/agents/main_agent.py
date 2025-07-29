@@ -79,6 +79,47 @@ class EnhancedMainAgent(BaseAgent):
                        user_language=state.get("user_language"))
             response = await self.response_generator.generate_response(state)
             
+            # Check if response contains image information
+            image_info = None
+            if "<img" in response:
+                # Extract image URL from HTML img tag
+                import re
+                image_match = re.search(r'<img[^>]+src=["\'](https?://[^"\']+)["\'][^>]*>', response)
+                if image_match:
+                    image_url = image_match.group(1)
+                    # Extract alt text for caption
+                    alt_match = re.search(r'alt=["\']([^"\']+)["\']', response)
+                    item_name = alt_match.group(1) if alt_match else "Menu Item"
+                    image_info = {
+                        "image_url": image_url,
+                        "caption": f"{item_name} - Cafe Pentagon"
+                    }
+            elif "![(" in response or "![(" in response:
+                # Extract image URL from markdown image syntax
+                import re
+                image_match = re.search(r'!\[(.*?)\]\((https?://[^\s\n]+)\)', response)
+                if image_match:
+                    image_url = image_match.group(2)
+                    item_name = image_match.group(1)
+                    image_info = {
+                        "image_url": image_url,
+                        "caption": f"{item_name} - Cafe Pentagon"
+                    }
+            # Fallback for old format
+            elif "🖼️ **Image**:" in response or "🖼️ **ပုံ**:" in response:
+                # Extract image URL from response
+                import re
+                image_match = re.search(r'🖼️ \*\*.*?\*\*: (https?://[^\s\n]+)', response)
+                if image_match:
+                    image_url = image_match.group(1)
+                    # Extract item name for caption
+                    name_match = re.search(r'📸 \*\*(.*?)\*\*', response)
+                    item_name = name_match.group(1) if name_match else "Menu Item"
+                    image_info = {
+                        "image_url": image_url,
+                        "caption": f"{item_name} - Cafe Pentagon"
+                    }
+            
             # Add assistant response to conversation history
             state = self.add_message_to_history(state, "assistant", response)
             
@@ -91,7 +132,8 @@ class EnhancedMainAgent(BaseAgent):
                 "intents": state.get("detected_intents", []),
                 "primary_intent": state.get("primary_intent", "unknown"),
                 "conversation_state": state.get("conversation_state", "unknown"),
-                "user_language": state.get("user_language", "en")
+                "user_language": state.get("user_language", "en"),
+                "image_info": image_info
             }
             
             logger.info("enhanced_chat_completed", 
