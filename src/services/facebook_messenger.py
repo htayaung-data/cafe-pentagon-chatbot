@@ -136,15 +136,24 @@ class FacebookMessengerService:
             # Check if we need to send an image
             image_info = response.get("image_info")
             if image_info:
+                logger.info("image_info_found", 
+                           sender_id=sender_id,
+                           image_info=image_info)
+                
                 # Send image after text message
                 image_success = await self.send_image(
                     sender_id, 
                     image_info["image_url"], 
                     image_info["caption"]
                 )
-                logger.info("image_sent_after_response", 
+                logger.info("image_send_attempt_completed", 
                            sender_id=sender_id,
-                           image_success=image_success)
+                           image_success=image_success,
+                           image_url=image_info["image_url"])
+            else:
+                logger.info("no_image_info_in_response", 
+                           sender_id=sender_id,
+                           response_keys=list(response.keys()))
             
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
@@ -323,12 +332,18 @@ class FacebookMessengerService:
             return False
 
     async def send_image(self, recipient_id: str, image_url: str, caption: str = "") -> bool:
-        """Send image message"""
+        """Send image message with improved error handling and Facebook compliance"""
         try:
             url = f"{self.api_url}/me/messages?access_token={self.page_access_token}"
             headers = {
                 "Content-Type": "application/json"
             }
+            
+            # Facebook Messenger requires specific image URL format
+            # Ensure the image URL is publicly accessible and HTTPS
+            if not image_url.startswith('https://'):
+                logger.error("image_url_not_https", image_url=image_url)
+                return False
             
             message_data = {
                 "recipient": {"id": recipient_id},
@@ -336,33 +351,129 @@ class FacebookMessengerService:
                     "attachment": {
                         "type": "image",
                         "payload": {
-                            "url": image_url
+                            "url": image_url,
+                            "is_reusable": True  # Allow Facebook to cache the image
                         }
                     }
                 }
             }
             
-            # Add caption if provided
+            # Add caption if provided (Facebook Messenger supports captions)
             if caption:
                 message_data["message"]["attachment"]["payload"]["caption"] = caption
             
+            logger.info("attempting_to_send_image", 
+                       recipient_id=recipient_id,
+                       image_url=image_url,
+                       caption=caption)
+            
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, headers=headers, json=message_data) as response:
+                    response_text = await response.text()
+                    
                     if response.status == 200:
-                        logger.info("image_sent_successfully", recipient_id=recipient_id, image_url=image_url)
+                        logger.info("image_sent_successfully", 
+                                   recipient_id=recipient_id, 
+                                   image_url=image_url,
+                                   response=response_text)
                         return True
                     else:
-                        error_text = await response.text()
                         logger.error("image_send_failed", 
                                    recipient_id=recipient_id,
                                    status=response.status,
-                                   error=error_text,
-                                   image_url=image_url)
+                                   error=response_text,
+                                   image_url=image_url,
+                                   request_data=message_data)
+                        
+                        # Log specific Facebook error details
+                        try:
+                            error_data = json.loads(response_text)
+                            if 'error' in error_data:
+                                error_code = error_data['error'].get('code')
+                                error_message = error_data['error'].get('message')
+                                logger.error("facebook_api_error", 
+                                           error_code=error_code,
+                                           error_message=error_message)
+                        except:
+                            pass
+                        
                         return False
                         
         except Exception as e:
-            logger.error("image_send_exception", recipient_id=recipient_id, error=str(e), image_url=image_url)
+            logger.error("image_send_exception", 
+                        recipient_id=recipient_id, 
+                        error=str(e), 
+                        image_url=image_url)
             return False
+
+    async def test_api_connectivity(self) -> Dict[str, Any]:
+        """Test Facebook Messenger API connectivity and permissions"""
+        try:
+            # Test basic API access
+            url = f"{self.api_url}/me?access_token={self.page_access_token}"
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        page_info = await response.json()
+                        logger.info("facebook_api_connectivity_test_passed", 
+                                   page_id=page_info.get('id'),
+                                   page_name=page_info.get('name'))
+                        
+                        return {
+                            "status": "success",
+                            "page_info": page_info,
+                            "api_version": "v18.0"
+                        }
+                    else:
+                        error_text = await response.text()
+                        logger.error("facebook_api_connectivity_test_failed", 
+                                   status=response.status,
+                                   error=error_text)
+                        
+                        return {
+                            "status": "failed",
+                            "error": error_text,
+                            "status_code": response.status
+                        }
+                        
+        except Exception as e:
+            logger.error("facebook_api_connectivity_test_exception", error=str(e))
+            return {
+                "status": "exception",
+                "error": str(e)
+            }
+
+    async def test_image_sending(self, recipient_id: str, test_image_url: str = None) -> Dict[str, Any]:
+        """Test image sending functionality"""
+        try:
+            # Use a test image if none provided
+            if not test_image_url:
+                test_image_url = "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop"
+            
+            logger.info("testing_image_sending", 
+                       recipient_id=recipient_id,
+                       test_image_url=test_image_url)
+            
+            # Test sending a simple image
+            success = await self.send_image(
+                recipient_id,
+                test_image_url,
+                "Test image from Cafe Pentagon Chatbot"
+            )
+            
+            return {
+                "status": "success" if success else "failed",
+                "image_sent": success,
+                "test_image_url": test_image_url
+            }
+            
+        except Exception as e:
+            logger.error("image_sending_test_exception", error=str(e))
+            return {
+                "status": "exception",
+                "error": str(e)
+            }
 
 
 
