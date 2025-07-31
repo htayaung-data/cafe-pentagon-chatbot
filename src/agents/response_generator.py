@@ -10,6 +10,7 @@ from src.agents.base import BaseAgent
 from src.data.loader import get_data_loader
 from src.services.vector_search_service import get_vector_search_service
 from src.utils.logger import get_logger
+from src.utils.burmese_processor import enhance_burmese_response, translate_burmese_food_request, create_burmese_aware_prompt
 from src.config.settings import get_settings
 
 logger = get_logger("enhanced_response_generator")
@@ -46,7 +47,9 @@ class EnhancedResponseGenerator(BaseAgent):
                 "my": [
                     "မင်္ဂလာပါ! Cafe Pentagon မှ ကြိုဆိုပါတယ်! 🍽️ ဘယ်လိုကူညီပေးရမလဲ?",
                     "ဟယ်လို! မီနူး သို့မဟုတ် ဝန်ဆောင်မှုများကို မေးနိုင်ပါတယ်!",
-                    "မင်္ဂလာပါ! Cafe Pentagon မှ ကြိုဆိုပါတယ်! ဘာကို ကူညီပေးရမလဲ?"
+                    "မင်္ဂလာပါ! Cafe Pentagon မှ ကြိုဆိုပါတယ်! ဘာကို ကူညီပေးရမလဲ?",
+                    "မင်္ဂလာပါ အစ်ကို/အစ်မ! Cafe Pentagon မှ ကြိုဆိုပါတယ်! ဘာကို ကူညီပေးရမလဲ?",
+                    "ဟယ်လို! ကျနော်တို့ရဲ့ မီနူး သို့မဟုတ် ဝန်ဆောင်မှုများကို မေးနိုင်ပါတယ်!"
                 ]
             },
             "menu_browse": {
@@ -56,9 +59,11 @@ class EnhancedResponseGenerator(BaseAgent):
                     "I'd be happy to show you our menu! We offer {categories}. What catches your eye?"
                 ],
                 "my": [
-                    "ဒါကတော့ ကျွန်ုပ်တို့ရဲ့ မီနူးပါ! {categories} အပါအဝင် အရသာရှိတဲ့ အစားအစာများစွာ ရှိပါတယ်။ ဘာကို ပိုမိုသိချင်ပါသလဲ?",
-                    "ရွေးချယ်မှု ကောင်းပါတယ်! ကျွန်ုပ်တို့ရဲ့ မီနူးမှာ {categories} ပါဝင်ပါတယ်။ သီးသန့်စိတ်ဝင်စားတဲ့ အမျိုးအစား သို့မဟုတ် အစားအစာ ရှိပါသလား?",
-                    "မီနူးကို ပြပေးရတာ ဝမ်းသာပါတယ်! ကျွန်ုပ်တို့မှာ {categories} ရှိပါတယ်။ ဘာက စိတ်ဝင်စားစရာ ကောင်းပါသလဲ?"
+                    "ဒါကတော့ ကျနော်တို့ရဲ့ မီနူးပါ! {categories} အပါအဝင် အရသာရှိတဲ့ အစားအစာများစွာ ရှိပါတယ်။ ဘာကို ပိုမိုသိချင်ပါသလဲ?",
+                    "ရွေးချယ်မှု ကောင်းပါတယ်! ကျနော်တို့ရဲ့ မီနူးမှာ {categories} ပါဝင်ပါတယ်။ သီးသန့်စိတ်ဝင်စားတဲ့ အမျိုးအစား သို့မဟုတ် အစားအစာ ရှိပါသလား?",
+                    "မီနူးကို ပြပေးရတာ ဝမ်းသာပါတယ်! ကျနော်တို့မှာ {categories} ရှိပါတယ်။ ဘာက စိတ်ဝင်စားစရာ ကောင်းပါသလဲ?",
+                    "ကျနော်တို့ရဲ့ မီနူးမှာ {categories} တွေ ရှိပါတယ်။ ဘယ်အမျိုးအစားကို ကြည့်ချင်ပါသလဲ?",
+                    "အရသာရှိတဲ့ အစားအစာတွေ များစွာ ရှိပါတယ်။ {categories} စတဲ့ အမျိုးအစားတွေ ပါဝင်ပါတယ်။ ဘာကို ကြည့်ချင်ပါသလဲ?"
                 ]
             },
             "faq": {
@@ -164,19 +169,32 @@ class EnhancedResponseGenerator(BaseAgent):
             # Get conversation history for context
             conversation_history = self._get_conversation_context(state)
             
-            # Create AI prompt with memory
-            prompt = self._create_ai_prompt_with_memory(user_message, intent, language, context_data, conversation_history)
+            # For Burmese, use enhanced prompt
+            if language in ["my", "myanmar"]:
+                prompt = create_burmese_aware_prompt(user_message, intent)
+                # Add context data to prompt
+                prompt += f"\n\nCONTEXT DATA:\n{json.dumps(context_data, indent=2, ensure_ascii=False)}"
+            else:
+                # Create AI prompt with memory for other languages
+                prompt = self._create_ai_prompt_with_memory(user_message, intent, language, context_data, conversation_history)
             
             # Get AI response
             response = await self.llm.ainvoke(prompt)
+            
+            # For Burmese, enhance the response with cultural context
+            response_text = response.content.strip()
+            if language in ["my", "myanmar"]:
+                cultural_context = state.get("burmese_cultural_context", {})
+                response_text = enhance_burmese_response(response_text, cultural_context)
             
             # Debug: Log the prompt and response for troubleshooting
             logger.info("ai_prompt_debug", 
                        prompt_length=len(prompt),
                        conversation_history_length=len(conversation_history),
-                       response_length=len(response.content))
+                       response_length=len(response_text),
+                       language=language)
             
-            return response.content.strip()
+            return response_text
             
         except Exception as e:
             logger.error("ai_response_generation_error", error=str(e))
@@ -612,7 +630,7 @@ Return only the category name, or "unknown" if unclear.
             
             # Format natural response
             if lang_key == "my":
-                response = "ကျွန်ုပ်တို့ရဲ့ မီနူးမှာ ဒီအမျိုးအစားတွေ ရှိပါတယ်:\n\n"
+                response = "ကျနော်တို့ရဲ့ မီနူးမှာ ဒီအမျိုးအစားတွေ ရှိပါတယ်:\n\n"
                 for category in categories:
                     display_name = category["display_name"]
                     response += f"• **{display_name}**\n"
@@ -757,13 +775,13 @@ Return only the category name, or "unknown" if unclear.
             if lang_key == "my":
                 # Natural Burmese response
                 response = f"**{image_info['item_name']}** ပုံပါ ခင်ဗျာ။ "
-                response += f"ဈေးနှုန်းလေးကတော့ {image_info['price']} ဖြစ်ပါတယ်။\n\n"
-                response += "အခြားအစားအစာများကို ကြည့်ချင်ပါသလား?"
+                response += f"ဈေးနှုန်းလေးကတော့ {image_info['price']} ဖြစ်ပါတယ်။"
+               
             else:
                 # Natural English response
                 response = f"Here is the photo of **{image_info['item_name']}**. "
-                response += f"The price is {image_info['price']}.\n\n"
-                response += "Would you like to see other items?"
+                response += f"The price is {image_info['price']}."
+                
             
             # Add a special marker to indicate this response should include an image
             # The main agent will detect this marker and extract the image info
@@ -780,13 +798,26 @@ Return only the category name, or "unknown" if unclear.
         Use AI to understand and translate Burmese food requests to English menu item names
         """
         try:
+            # First, try using the Burmese processor for direct translation
+            translations = translate_burmese_food_request(burmese_text)
+            
+            if translations and len(translations) > 1:
+                # Return the first non-original translation
+                for translation in translations:
+                    if translation != burmese_text:
+                        logger.info("burmese_request_understood_via_processor", 
+                                   original=burmese_text,
+                                   translated_item=translation)
+                        return translation
+            
+            # Fallback to AI-based translation with enhanced prompt
             from src.config.settings import get_settings
             from openai import OpenAI
             
             settings = get_settings()
             client = OpenAI(api_key=settings.openai_api_key)
             
-            # Create a prompt that helps the AI understand the specific request
+            # Enhanced prompt with comprehensive Burmese food vocabulary
             prompt = f"""
             You are a helpful assistant that understands Burmese food requests and translates them to specific English menu item names.
             
@@ -798,36 +829,73 @@ Return only the category name, or "unknown" if unclear.
             1. The specific food item being requested
             2. Common menu item names that would match this request
             3. The context of a restaurant menu
+            4. Burmese food vocabulary and common dishes
+            
+            Common Burmese food terms and their English equivalents:
+            - ကြက်သား = chicken
+            - ငါး = fish
+            - ခေါက်ဆွဲ = noodles
+            - ခေါက်ဆွဲကြော် = fried noodles
+            - ပတ်ထိုင်းခေါက်ဆွဲကြော် = pad thai
+            - အီတလီခေါက်ဆွဲ = italian noodles/pasta
+            - ဘာဂါ = burger
+            - ဘေကွန် = bacon
+            - အမဲသားညှပ်ပေါင်မုန့် = beef sandwich
+            - ဝက်ပေါင်ခြောက် = ham
+            - ပီဇာ = pizza
+            - ဟင်းရည် = soup
+            - ကြော် = fried
+            - ချက် = cooked/curry
+            - ကြက်ဉလိပ် = omelette
+            - ထမင်း = rice
+            - ဆန် = rice
+            - ဟင်းသီးဟင်းရွက် = vegetables
+            - သီးနှံ = fruits
+            - ကော်ဖီ = coffee
+            - လက်ဖက်ရည် = tea
+            - ဖျော်ရည် = juice/drink
+            - ပင်လယ်စာ = seafood
+            - ပုံ = image/picture
+            - ပြပါ = show/display
+            - အကြောင်း = about/information
+            - ပြောပြပါ = tell me/explain
+            
+            IMPORTANT: For compound terms, combine the English equivalents logically.
+            Examples:
+            - "ဘေကွန် အမဲသားညှပ်ပေါင်မုန့်" = bacon beef sandwich
+            - "ဝက်ပေါင်ခြောက် အီတလီ ခေါက်ဆွဲ" = ham italian noodles
+            - "ပတ်ထိုင်းခေါက်ဆွဲကြော် ပင်လယ်စာ" = pad thai seafood
             
             Return only the English menu item name. Do not include explanations or additional text.
             
             If you're not sure about the exact item, return the most likely match based on the Burmese text.
             
-            Example:
-            Burmese: "ကြက်သားဟင်းရည်"
-            English: chicken soup
-            
-            Burmese: "ခေါက်ဆွဲကြော်"
-            English: fried noodles
-            
-            Burmese: "ဘာဂါ"
-            English: burger
+            Examples:
+            Burmese: "ကြက်သားဟင်းရည်" → English: chicken soup
+            Burmese: "ခေါက်ဆွဲကြော်" → English: fried noodles
+            Burmese: "ဘာဂါ" → English: burger
+            Burmese: "ကြက်ဉလိပ်ကြော်" → English: omelette
+            Burmese: "ငါးကြော်" → English: fried fish
+            Burmese: "ထမင်းကြော်" → English: fried rice
+            Burmese: "ဘေကွန် အမဲသားညှပ်ပေါင်မုန့်" → English: bacon beef sandwich
+            Burmese: "ဝက်ပေါင်ခြောက် အီတလီ ခေါက်ဆွဲ" → English: ham italian noodles
+            Burmese: "ပတ်ထိုင်းခေါက်ဆွဲကြော် ပင်လယ်စာ" → English: pad thai seafood
             """
             
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a food translation expert that helps translate Burmese food requests to specific English menu item names."},
+                    {"role": "system", "content": "You are a food translation expert that helps translate Burmese food requests to specific English menu item names. Always return only the English menu item name, nothing else."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=50,
-                temperature=0.2
+                temperature=0.1
             )
             
             # Extract the translated item name
             translated_item = response.choices[0].message.content.strip()
             
-            logger.info("burmese_request_understood", 
+            logger.info("burmese_request_understood_via_ai", 
                        original=burmese_text,
                        translated_item=translated_item)
             
@@ -1048,7 +1116,7 @@ Return only the category name, or "unknown" if unclear.
     def _get_fallback_response(self, intent: str, lang_key: str) -> str:
         """Get fallback response for failed intent processing"""
         if lang_key == "my":
-            return "အချက်အလက်များကို ရယူရာတွင် အခက်အခဲရှိနေပါသည်။ ကျေးဇူးပြု၍ နောက်မှ ပြန်လည်ကြိုးစားကြည့်ပါ။"
+            return "အချက်အလက်များကို ရယူရာတွင် အခက်အခဲရှိနေပါတယ်။ ကျေးဇူးပြု၍ နောက်မှ ပြန်လည်ကြိုးစားကြည့်ပါ။"
         else:
             return "I'm having trouble retrieving information. Please try again later."
 

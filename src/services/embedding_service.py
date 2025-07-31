@@ -343,7 +343,46 @@ class EmbeddingService:
     
     def get_embedding_status(self) -> Dict[str, Any]:
         """Get current embedding status"""
+        # Sync with actual Pinecone data first
+        self._sync_embedding_status_with_pinecone()
         return self.embedding_status
+    
+    def _sync_embedding_status_with_pinecone(self):
+        """Sync embedding status with actual data in Pinecone"""
+        if not self.pinecone_index:
+            return
+        
+        try:
+            from src.config.constants import PINECONE_NAMESPACES
+            
+            for data_type, namespace in PINECONE_NAMESPACES.items():
+                if data_type in ["menu", "faq", "events"]:
+                    try:
+                        # Query Pinecone to get actual count
+                        results = self.pinecone_index.query(
+                            vector=[0.0] * 1536,  # Dummy vector
+                            namespace=namespace,
+                            top_k=1000,  # Get all items to count properly
+                            include_metadata=False
+                        )
+                        
+                        # Update status based on actual data
+                        if results.matches:
+                            self.embedding_status[data_type]["count"] = len(results.matches)
+                            self.embedding_status[data_type]["status"] = "embedded"
+                            # Set a recent timestamp if not already set
+                            if not self.embedding_status[data_type].get("last_updated"):
+                                import time
+                                self.embedding_status[data_type]["last_updated"] = time.time()
+                        else:
+                            self.embedding_status[data_type]["count"] = 0
+                            self.embedding_status[data_type]["status"] = "not_embedded"
+                            
+                    except Exception as e:
+                        logger.error(f"error_syncing_{data_type}_status", error=str(e))
+                        
+        except Exception as e:
+            logger.error("error_syncing_embedding_status", error=str(e))
     
     def is_data_embedded(self, data_type: str) -> bool:
         """Check if specific data type is embedded"""

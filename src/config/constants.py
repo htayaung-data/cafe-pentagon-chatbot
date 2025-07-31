@@ -141,7 +141,7 @@ RESPONSE_TEMPLATES = {
     },
     "human_handoff": {
         "en": "I'm connecting you to our staff who will be happy to help you further.",
-        "my": "ကျွန်ုပ်တို့၏ ဝန်ထမ်းများနှင့် ချိတ်ဆက်ပေးနေပါသည်။ သူတို့က ဆက်လက်ကူညီပေးပါလိမ့်မည်။"
+        "my": "ကျနော်တို့၏ ဝန်ထမ်းများနှင့် ချိတ်ဆက်ပေးနေပါတယ်။ သူတို့က ဆက်လက်ကူညီပေးပါလိမ့်မယ်။"
     }
 }
 
@@ -149,15 +149,15 @@ RESPONSE_TEMPLATES = {
 ERROR_MESSAGES = {
     "api_error": {
         "en": "I'm experiencing technical difficulties. Please try again in a moment.",
-        "my": "နည်းပညာဆိုင်ရာ အခက်အခဲများ ကြုံတွေ့နေပါသည်။ ခဏအကြာတွင် ပြန်လည်ကြိုးစားကြည့်ပါ။"
+        "my": "နည်းပညာဆိုင်ရာ အခက်အခဲများ ကြုံတွေ့နေပါတယ်။ ခဏအကြာတွင် ပြန်လည်ကြိုးစားကြည့်ပါ။"
     },
     "data_error": {
         "en": "I'm having trouble accessing the information. Please try again.",
-        "my": "အချက်အလက်များကို ရယူရာတွင် အခက်အခဲရှိနေပါသည်။ ပြန်လည်ကြိုးစားကြည့်ပါ။"
+        "my": "အချက်အလက်များကို ရယူရာတွင် အခက်အခဲရှိနေပါတယ်။ ပြန်လည်ကြိုးစားကြည့်ပါ။"
     },
     "timeout": {
         "en": "The request is taking longer than expected. Please try again.",
-        "my": "တောင်းဆိုမှုက မျှော်လင့်ထားသည်ထက် ပိုကြာနေပါသည်။ ပြန်လည်ကြိုးစားကြည့်ပါ။"
+        "my": "တောင်းဆိုမှုက မျှော်လင့်ထားတာထက် ပိုကြာနေပါတယ်။ ပြန်လည်ကြိုးစားကြည့်ပါ။"
     }
 }
 

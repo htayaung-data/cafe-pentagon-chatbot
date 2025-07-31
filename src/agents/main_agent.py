@@ -1,6 +1,6 @@
 """
 Enhanced Main Agent for Cafe Pentagon Chatbot
-Uses enhanced intent classifier and response generator
+Uses AI-driven approach for Burmese and enhanced intent classifier and response generator
 """
 
 import asyncio
@@ -9,6 +9,7 @@ from src.agents.base import BaseAgent
 from src.agents.intent_classifier import AIIntentClassifier
 from src.agents.response_generator import EnhancedResponseGenerator
 from src.agents.conversation_manager import ConversationManager
+from src.agents.burmese_customer_services_handler import BurmeseCustomerServiceHandler
 from src.utils.logger import get_logger
 
 logger = get_logger("enhanced_main_agent")
@@ -27,6 +28,7 @@ class EnhancedMainAgent(BaseAgent):
         self.intent_classifier = AIIntentClassifier()
         self.response_generator = EnhancedResponseGenerator()
         self.conversation_manager = ConversationManager()
+        self.burmese_handler = BurmeseCustomerServiceHandler()
         
         logger.info("enhanced_main_agent_initialized")
 
@@ -65,19 +67,43 @@ class EnhancedMainAgent(BaseAgent):
             # Add user message to conversation history immediately
             state = self.add_message_to_history(state, "user", user_message)
             
-            # Step 1: Enhanced Intent Classification
-            logger.info("starting_enhanced_intent_classification", user_message=user_message[:100])
-            state = await self.intent_classifier.process(state)
-            
-            # Step 2: Conversation Management
-            logger.info("managing_conversation", primary_intent=state.get("primary_intent"))
-            state = await self.conversation_manager.process(state)
-            
-            # Step 3: Enhanced Response Generation
-            logger.info("generating_enhanced_response", 
-                       primary_intent=state.get("primary_intent"),
-                       user_language=state.get("user_language"))
-            response = await self.response_generator.generate_response(state)
+            # Check if this is a Burmese query and use AI-driven approach
+            if detected_language == "my":
+                logger.info("using_burmese_customer_service_handler", user_message=user_message[:100])
+                
+                # Use AI-driven Burmese handler
+                burmese_result = await self.burmese_handler.process_burmese_query(
+                    user_message, 
+                    state.get("conversation_history", [])
+                )
+                
+                # Update state with Burmese analysis
+                state.update({
+                    "primary_intent": burmese_result.get("intent", "unknown"),
+                    "detected_intents": [burmese_result.get("intent", "unknown")],
+                    "confidence": burmese_result.get("confidence", 0.0),
+                    "relevant_items": burmese_result.get("relevant_items", []),
+                    "burmese_analysis": burmese_result.get("analysis", {})
+                })
+                
+                # Use the AI-generated response
+                response = burmese_result.get("response", "ကျေးဇူးပြု၍ ပြန်လည်ကြိုးစားကြည့်ပါ။")
+                
+            else:
+                # Use existing enhanced approach for non-Burmese queries
+                # Step 1: Enhanced Intent Classification
+                logger.info("starting_enhanced_intent_classification", user_message=user_message[:100])
+                state = await self.intent_classifier.process(state)
+                
+                # Step 2: Conversation Management
+                logger.info("managing_conversation", primary_intent=state.get("primary_intent"))
+                state = await self.conversation_manager.process(state)
+                
+                # Step 3: Enhanced Response Generation
+                logger.info("generating_enhanced_response", 
+                           primary_intent=state.get("primary_intent"),
+                           user_language=state.get("user_language"))
+                response = await self.response_generator.generate_response(state)
             
             # Check if response contains image information
             image_info = None

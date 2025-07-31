@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Tuple
 from langchain_openai import ChatOpenAI
 from src.agents.base import BaseAgent
 from src.utils.language import detect_language, is_burmese_text, is_english_text
+from src.utils.burmese_processor import detect_burmese_intent_patterns, get_burmese_cultural_context
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 
@@ -47,6 +48,34 @@ INTENT CATEGORIES:
 8. goodbye - User is ending the conversation or saying thank you
 9. unknown - Cannot determine intent
 
+BURMESE LANGUAGE PATTERNS:
+For Burmese language, pay special attention to these patterns:
+
+GREETING PATTERNS:
+- "မင်္ဂလာ", "ဟယ်လို", "ဟေး", "အစ်ကို", "အစ်မ", "ဦးလေး", "အမေကြီး"
+- "ဘယ်လိုလဲ", "ဘယ်လိုရှိလဲ", "ဘယ်လိုနေလဲ"
+
+MENU BROWSE PATTERNS:
+- "မီနူး", "အစားအစာ", "ဘာတွေ ရှိလဲ", "ဘာတွေ စားလို့ရလဲ"
+- "ခေါက်ဆွဲ", "ဘာဂါ", "ပီဇာ", "ကြက်သား", "ငါး", "ဟင်းရည်"
+- "ဘယ်လို [food] တွေ ရှိလဲ", "[food] ဘာတွေ ရှိလဲ"
+
+FAQ PATTERNS:
+- "ဘယ်မှာ", "လိပ်စာ", "ဖုန်းနံပါတ်", "ဖွင့်ချိန်", "ဈေးနှုန်း"
+- "ဘယ်လို", "ဘာကြောင့်", "ဘယ်အချိန်", "ဘယ်နေရာ"
+
+ORDER PATTERNS:
+- "မှာယူ", "အမှာယူ", "ဝယ်ယူ", "အော်ဒါ", "ပြင်ဆင်ပေး"
+
+RESERVATION PATTERNS:
+- "ကြိုတင်မှာယူ", "စားပွဲကြို", "ဘွတ်ကင်", "ကြိုတင်စီစဉ်"
+
+EVENTS PATTERNS:
+- "ပွဲ", "ဖျော်ဖြေရေး", "ဂီတ", "ပြပွဲ", "အထူးအစီအစဉ်"
+
+GOODBYE PATTERNS:
+- "ကျေးဇူးတင်ပါတယ်", "ပြန်လာမယ်", "သွားပါတယ်", "နှုတ်ဆက်ပါတယ်"
+
 RESPONSE FORMAT:
 Return a JSON object with:
 - "intent": the classified intent (string)
@@ -74,6 +103,27 @@ RESPONSE:"""
         
         # AI-powered classification
         intents = await self._ai_classify_intents(user_message, state["user_language"])
+        
+        # For Burmese, also use pattern-based classification as backup
+        if state["user_language"] in ["my", "myanmar"]:
+            burmese_patterns = detect_burmese_intent_patterns(user_message)
+            cultural_context = get_burmese_cultural_context(user_message)
+            
+            # If AI classification has low confidence, use pattern-based
+            if intents and intents[0].get("confidence", 0) < 0.6:
+                for intent_type, confidence in burmese_patterns.items():
+                    if confidence > 0.5:
+                        intents = [{
+                            "intent": intent_type,
+                            "confidence": confidence,
+                            "entities": {},
+                            "reasoning": f"Burmese pattern-based classification: {intent_type}",
+                            "priority": self._get_priority(intent_type)
+                        }]
+                        break
+            
+            # Add cultural context to state
+            state["burmese_cultural_context"] = cultural_context
         
         # Update state with intents
         state["detected_intents"] = intents
@@ -153,15 +203,15 @@ RESPONSE:"""
         # Simple fallback based on basic patterns
         message_lower = message.lower()
         
-        # Check for greeting patterns
+        lang_key = "my" if language in ["my", "myanmar"] else "en"
+        
+        # Enhanced greeting patterns for Burmese
         greeting_patterns = {
             "en": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
-            "my": ["မင်္ဂလာ", "ဟယ်လို", "ဟေး"]
+            "my": ["မင်္ဂလာ", "ဟယ်လို", "ဟေး", "အစ်ကို", "အစ်မ", "ဦးလေး", "အမေကြီး", "ဘယ်လိုလဲ", "ဘယ်လိုရှိလဲ"]
         }
         
-        lang_key = "my" if language in ["my", "myanmar"] else "en"
         patterns = greeting_patterns.get(lang_key, [])
-        
         if any(pattern in message_lower for pattern in patterns):
             return [{
                 "intent": "greeting",
@@ -171,13 +221,29 @@ RESPONSE:"""
                 "priority": 1
             }]
         
-        # Check for question patterns
-        question_patterns = {
-            "en": ["what", "how", "when", "where", "why", "is there", "do you have"],
-            "my": ["ဘာ", "ဘယ်", "ဘယ်လို", "ဘာကြောင့်", "ရှိလား", "ပါသလား"]
+        # Enhanced menu browse patterns for Burmese
+        menu_patterns = {
+            "en": ["menu", "food", "dish", "what do you have", "what's available"],
+            "my": ["မီနူး", "အစားအစာ", "ဘာတွေ ရှိလဲ", "ဘာတွေ စားလို့ရလဲ", "ခေါက်ဆွဲ", "ဘာဂါ", "ပီဇာ", "ကြက်သား", "ငါး", "ဟင်းရည်"]
         }
         
-        patterns = question_patterns.get(lang_key, [])
+        patterns = menu_patterns.get(lang_key, [])
+        if any(pattern in message_lower for pattern in patterns):
+            return [{
+                "intent": "menu_browse",
+                "confidence": 0.8,
+                "entities": {},
+                "reasoning": "Detected menu browsing pattern",
+                "priority": 2
+            }]
+        
+        # Enhanced FAQ patterns for Burmese
+        faq_patterns = {
+            "en": ["what", "how", "when", "where", "why", "is there", "do you have", "location", "hours", "price"],
+            "my": ["ဘာ", "ဘယ်", "ဘယ်လို", "ဘာကြောင့်", "ရှိလား", "ပါသလား", "လိပ်စာ", "ဖုန်းနံပါတ်", "ဖွင့်ချိန်", "ဈေးနှုန်း", "ဘယ်မှာ"]
+        }
+        
+        patterns = faq_patterns.get(lang_key, [])
         if any(pattern in message_lower for pattern in patterns):
             return [{
                 "intent": "faq",
@@ -185,6 +251,54 @@ RESPONSE:"""
                 "entities": {},
                 "reasoning": "Detected question pattern",
                 "priority": 2
+            }]
+        
+        # Enhanced order patterns for Burmese
+        order_patterns = {
+            "en": ["order", "buy", "purchase", "take away", "delivery"],
+            "my": ["မှာယူ", "အမှာယူ", "ဝယ်ယူ", "အော်ဒါ", "ပြင်ဆင်ပေး", "ယူသွား", "ပို့ပေး"]
+        }
+        
+        patterns = order_patterns.get(lang_key, [])
+        if any(pattern in message_lower for pattern in patterns):
+            return [{
+                "intent": "order_place",
+                "confidence": 0.7,
+                "entities": {},
+                "reasoning": "Detected order pattern",
+                "priority": 3
+            }]
+        
+        # Enhanced reservation patterns for Burmese
+        reservation_patterns = {
+            "en": ["reservation", "book", "table", "reserve"],
+            "my": ["ကြိုတင်မှာယူ", "စားပွဲကြို", "ဘွတ်ကင်", "ကြိုတင်စီစဉ်", "စားပွဲ"]
+        }
+        
+        patterns = reservation_patterns.get(lang_key, [])
+        if any(pattern in message_lower for pattern in patterns):
+            return [{
+                "intent": "reservation",
+                "confidence": 0.7,
+                "entities": {},
+                "reasoning": "Detected reservation pattern",
+                "priority": 3
+            }]
+        
+        # Enhanced goodbye patterns for Burmese
+        goodbye_patterns = {
+            "en": ["thank you", "thanks", "bye", "goodbye", "see you"],
+            "my": ["ကျေးဇူးတင်ပါတယ်", "ပြန်လာမယ်", "သွားပါတယ်", "နှုတ်ဆက်ပါတယ်", "ကျေးဇူး"]
+        }
+        
+        patterns = goodbye_patterns.get(lang_key, [])
+        if any(pattern in message_lower for pattern in patterns):
+            return [{
+                "intent": "goodbye",
+                "confidence": 0.8,
+                "entities": {},
+                "reasoning": "Detected goodbye pattern",
+                "priority": 1
             }]
         
         # Default to unknown
