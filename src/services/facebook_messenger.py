@@ -143,10 +143,12 @@ class FacebookMessengerService:
             )
             
             # Process message with main agent (auto-detect language from message)
+            # Skip Supabase save in main agent since we handle it here
             response = await self.main_agent.chat(
                 message_text,
                 sender_id,
-                None  # Let the agent auto-detect language from message content
+                None,  # Let the agent auto-detect language from message content
+                skip_supabase_save=True  # Prevent duplicate saves
             )
             
             # Check if we need to send an image first

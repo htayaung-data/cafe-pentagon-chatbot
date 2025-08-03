@@ -5,6 +5,7 @@ Uses AI-driven approach for Burmese and enhanced intent classifier and response 
 
 import asyncio
 from typing import Dict, Any, List
+from datetime import datetime, timezone
 from src.agents.base import BaseAgent
 from src.agents.intent_classifier import AIIntentClassifier
 from src.agents.response_generator import EnhancedResponseGenerator
@@ -34,7 +35,7 @@ class EnhancedMainAgent(BaseAgent):
         
         logger.info("enhanced_main_agent_initialized")
 
-    async def chat(self, user_message: str, user_id: str, language: str = None) -> Dict[str, Any]:
+    async def chat(self, user_message: str, user_id: str, language: str = None, skip_supabase_save: bool = False) -> Dict[str, Any]:
         """Enhanced chat method with better intent classification and response generation"""
         try:
             # Detect language if not provided
@@ -180,48 +181,85 @@ class EnhancedMainAgent(BaseAgent):
             # Save updated conversation history
             await self.conversation_manager.save_conversation_history(user_id, state.get("conversation_history", []))
             
-            # Save conversation to Supabase for admin panel tracking (if not already saved by Facebook service)
-            try:
-                # Get or create conversation for tracking
-                conversation = self.conversation_tracking.get_or_create_conversation(user_id, 'streamlit')
-                
-                # Save user message
-                user_message_metadata = {
-                    "platform": "streamlit",
-                    "user_language": state.get("user_language"),
-                    "intent": state.get("primary_intent")
-                }
-                self.conversation_tracking.save_message(
-                    conversation["id"], 
-                    user_message, 
-                    "user",
-                    metadata=user_message_metadata
-                )
-                
-                # Save bot response
-                bot_message_metadata = {
-                    "intent": state.get("primary_intent"),
-                    "conversation_state": state.get("conversation_state"),
-                    "user_language": state.get("user_language"),
-                    "confidence": state.get("confidence"),
-                    "image_info": image_info
-                }
-                self.conversation_tracking.save_message(
-                    conversation["id"], 
-                    response, 
-                    "bot",
-                    confidence_score=state.get("confidence"),
-                    metadata=bot_message_metadata
-                )
-                
-                # Update conversation status
-                self.conversation_tracking.update_conversation(conversation["id"], "active")
-                
-                logger.info("conversation_saved_to_supabase", user_id=user_id, conversation_id=conversation["id"])
-                
-            except Exception as e:
-                logger.error("supabase_conversation_save_failed", user_id=user_id, error=str(e))
-                # Don't fail the main chat flow if Supabase save fails
+            # Save conversation to Supabase for admin panel tracking (only if not called from Facebook service)
+            if not skip_supabase_save:
+                try:
+                    # Get or create conversation for tracking
+                    conversation = self.conversation_tracking.get_or_create_conversation(user_id, 'streamlit')
+                    
+                    # Check for recent duplicate messages to prevent double saves
+                    recent_messages = self.conversation_tracking.get_conversation_messages(conversation["id"], limit=20)
+                    current_time = datetime.now(timezone.utc)
+                    
+                    # Check if user message already exists (within last 30 seconds and exact content match)
+                    user_message_exists = False
+                    for msg in recent_messages:
+                        if (msg["sender_type"] == "user" and 
+                            msg["content"] == user_message and
+                            abs((current_time - datetime.fromisoformat(msg["timestamp"].replace('Z', '+00:00'))).total_seconds()) < 30):
+                            user_message_exists = True
+                            logger.info("user_message_duplicate_detected", 
+                                      existing_timestamp=msg["timestamp"],
+                                      time_diff=abs((current_time - datetime.fromisoformat(msg["timestamp"].replace('Z', '+00:00'))).total_seconds()))
+                            break
+                    
+                    # Save user message only if it doesn't exist
+                    if not user_message_exists:
+                        user_message_metadata = {
+                            "platform": "streamlit",
+                            "user_language": state.get("user_language"),
+                            "intent": state.get("primary_intent")
+                        }
+                        self.conversation_tracking.save_message(
+                            conversation["id"], 
+                            user_message, 
+                            "user",
+                            metadata=user_message_metadata
+                        )
+                        logger.info("user_message_saved_to_supabase", user_id=user_id, conversation_id=conversation["id"])
+                    else:
+                        logger.info("user_message_duplicate_skipped", user_id=user_id, conversation_id=conversation["id"])
+                    
+                    # Check if bot response already exists (within last 30 seconds and exact content match)
+                    bot_message_exists = False
+                    for msg in recent_messages:
+                        if (msg["sender_type"] == "bot" and 
+                            msg["content"] == response and
+                            abs((current_time - datetime.fromisoformat(msg["timestamp"].replace('Z', '+00:00'))).total_seconds()) < 30):
+                            bot_message_exists = True
+                            logger.info("bot_message_duplicate_detected", 
+                                      existing_timestamp=msg["timestamp"],
+                                      time_diff=abs((current_time - datetime.fromisoformat(msg["timestamp"].replace('Z', '+00:00'))).total_seconds()))
+                            break
+                    
+                    # Save bot response only if it doesn't exist
+                    if not bot_message_exists:
+                        bot_message_metadata = {
+                            "intent": state.get("primary_intent"),
+                            "conversation_state": state.get("conversation_state"),
+                            "user_language": state.get("user_language"),
+                            "confidence": state.get("confidence"),
+                            "image_info": image_info
+                        }
+                        self.conversation_tracking.save_message(
+                            conversation["id"], 
+                            response, 
+                            "bot",
+                            confidence_score=state.get("confidence"),
+                            metadata=bot_message_metadata
+                        )
+                        logger.info("bot_message_saved_to_supabase", user_id=user_id, conversation_id=conversation["id"])
+                    else:
+                        logger.info("bot_message_duplicate_skipped", user_id=user_id, conversation_id=conversation["id"])
+                    
+                    # Update conversation status
+                    self.conversation_tracking.update_conversation(conversation["id"], "active")
+                    
+                    logger.info("conversation_saved_to_supabase", user_id=user_id, conversation_id=conversation["id"])
+                    
+                except Exception as e:
+                    logger.error("supabase_conversation_save_failed", user_id=user_id, error=str(e))
+                    # Don't fail the main chat flow if Supabase save fails
             
             # Prepare result
             result = {
