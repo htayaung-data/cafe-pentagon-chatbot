@@ -17,6 +17,7 @@ from src.config.settings import get_settings
 from src.data.models import UserProfile, Message, Conversation, LanguageEnum
 from src.services.user_manager import UserManager
 from src.services.image_storage_service import get_image_storage_service
+from src.services.conversation_tracking_service import get_conversation_tracking_service
 
 logger = get_logger("facebook_messenger")
 
@@ -31,6 +32,7 @@ class FacebookMessengerService:
         self.settings = get_settings()
         self.main_agent = EnhancedMainAgent()
         self.user_manager = UserManager()
+        self.conversation_tracking = get_conversation_tracking_service()
         self.page_access_token = self.settings.facebook_page_access_token
         self.verify_token = self.settings.facebook_verify_token
         self.api_url = "https://graph.facebook.com/v18.0"
@@ -124,6 +126,22 @@ class FacebookMessengerService:
             facebook_profile = await self.get_user_info(sender_id)
             user_profile = await self.user_manager.get_or_create_user(sender_id, facebook_profile)
             
+            # 1. Get or create conversation for tracking
+            conversation = self.conversation_tracking.get_or_create_conversation(sender_id, 'facebook')
+            
+            # 2. Save user message to Supabase
+            user_message_metadata = {
+                "message_type": message_type,
+                "platform": "facebook",
+                "facebook_profile": facebook_profile
+            }
+            self.conversation_tracking.save_message(
+                conversation["id"], 
+                message_text, 
+                "user",
+                metadata=user_message_metadata
+            )
+            
             # Process message with main agent (auto-detect language from message)
             response = await self.main_agent.chat(
                 message_text,
@@ -159,6 +177,26 @@ class FacebookMessengerService:
             # Send text response after image (or immediately if no image)
             await self.send_message(sender_id, response["response"])
             
+            # 3. Save bot response to Supabase
+            bot_message_metadata = {
+                "intent": response.get("primary_intent"),
+                "conversation_state": response.get("conversation_state"),
+                "user_language": response.get("user_language"),
+                "confidence": response.get("confidence"),
+                "image_sent": bool(image_info),
+                "image_info": image_info
+            }
+            self.conversation_tracking.save_message(
+                conversation["id"], 
+                response["response"], 
+                "bot",
+                confidence_score=response.get("confidence"),
+                metadata=bot_message_metadata
+            )
+            
+            # 4. Update conversation status
+            self.conversation_tracking.update_conversation(conversation["id"], "active")
+            
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
                 await self.user_manager.update_user_preferences(sender_id, {
@@ -169,14 +207,16 @@ class FacebookMessengerService:
                        sender_id=sender_id,
                        message_type=message_type,
                        intent=response.get("primary_intent"),
-                       image_sent=bool(image_info))
+                       image_sent=bool(image_info),
+                       conversation_id=conversation["id"])
             
             return {
                 "sender_id": sender_id,
                 "message_type": message_type,
                 "intent": response.get("primary_intent"),
                 "status": "processed",
-                "image_sent": bool(image_info)
+                "image_sent": bool(image_info),
+                "conversation_id": conversation["id"]
             }
             
         except Exception as e:

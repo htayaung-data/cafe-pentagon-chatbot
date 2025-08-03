@@ -10,6 +10,7 @@ from typing import Dict, Any
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.responses import PlainTextResponse
 from src.services.facebook_messenger import FacebookMessengerService
+from src.services.conversation_tracking_service import get_conversation_tracking_service
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 
@@ -26,6 +27,7 @@ app = FastAPI(
 # Initialize services
 settings = get_settings()
 facebook_service = FacebookMessengerService()
+conversation_tracking = get_conversation_tracking_service()
 
 @app.get("/")
 async def root():
@@ -137,6 +139,132 @@ async def test_message(recipient_id: str, message: str = "Hello from Cafe Pentag
         return {
             "success": False,
             "error": str(e)
+        }
+
+# Admin Panel API Endpoints
+@app.get("/admin/conversations")
+async def get_active_conversations(limit: int = 100):
+    """Get all active conversations for admin panel"""
+    try:
+        conversations = conversation_tracking.get_active_conversations(limit)
+        return {
+            "success": True,
+            "conversations": conversations,
+            "count": len(conversations)
+        }
+    except Exception as e:
+        logger.error("get_active_conversations_failed", error=str(e))
+        return {
+            "success": False,
+            "error": str(e),
+            "conversations": []
+        }
+
+@app.get("/admin/conversations/{conversation_id}")
+async def get_conversation(conversation_id: int):
+    """Get specific conversation by ID"""
+    try:
+        conversation = conversation_tracking.get_conversation_by_id(conversation_id)
+        if conversation:
+            messages = conversation_tracking.get_conversation_messages(conversation_id)
+            return {
+                "success": True,
+                "conversation": conversation,
+                "messages": messages
+            }
+        else:
+            return {
+                "success": False,
+                "error": "Conversation not found"
+            }
+    except Exception as e:
+        logger.error("get_conversation_failed", conversation_id=conversation_id, error=str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/admin/conversations/{conversation_id}/messages")
+async def get_conversation_messages(conversation_id: int, limit: int = 50):
+    """Get messages for a specific conversation"""
+    try:
+        messages = conversation_tracking.get_conversation_messages(conversation_id, limit)
+        return {
+            "success": True,
+            "messages": messages,
+            "count": len(messages)
+        }
+    except Exception as e:
+        logger.error("get_conversation_messages_failed", conversation_id=conversation_id, error=str(e))
+        return {
+            "success": False,
+            "error": str(e),
+            "messages": []
+        }
+
+@app.post("/admin/conversations/{conversation_id}/close")
+async def close_conversation(conversation_id: int):
+    """Close a conversation"""
+    try:
+        success = conversation_tracking.close_conversation(conversation_id)
+        return {
+            "success": success,
+            "conversation_id": conversation_id
+        }
+    except Exception as e:
+        logger.error("close_conversation_failed", conversation_id=conversation_id, error=str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/admin/messages/{message_id}/mark-human")
+async def mark_message_requires_human(message_id: int):
+    """Mark a message as requiring human intervention"""
+    try:
+        success = conversation_tracking.mark_message_requires_human(message_id)
+        return {
+            "success": success,
+            "message_id": message_id
+        }
+    except Exception as e:
+        logger.error("mark_message_human_failed", message_id=message_id, error=str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/admin/messages/{message_id}/mark-replied")
+async def mark_message_human_replied(message_id: int):
+    """Mark a message as having received human reply"""
+    try:
+        success = conversation_tracking.mark_message_human_replied(message_id)
+        return {
+            "success": success,
+            "message_id": message_id
+        }
+    except Exception as e:
+        logger.error("mark_message_replied_failed", message_id=message_id, error=str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/admin/stats")
+async def get_conversation_stats():
+    """Get conversation statistics for admin dashboard"""
+    try:
+        stats = conversation_tracking.get_conversation_stats()
+        return {
+            "success": True,
+            "stats": stats
+        }
+    except Exception as e:
+        logger.error("get_conversation_stats_failed", error=str(e))
+        return {
+            "success": False,
+            "error": str(e),
+            "stats": {}
         }
 
 if __name__ == "__main__":

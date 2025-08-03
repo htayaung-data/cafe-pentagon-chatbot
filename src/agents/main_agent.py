@@ -10,6 +10,7 @@ from src.agents.intent_classifier import AIIntentClassifier
 from src.agents.response_generator import EnhancedResponseGenerator
 from src.agents.conversation_manager import ConversationManager
 from src.agents.burmese_customer_services_handler import BurmeseCustomerServiceHandler
+from src.services.conversation_tracking_service import get_conversation_tracking_service
 from src.utils.logger import get_logger
 
 logger = get_logger("enhanced_main_agent")
@@ -29,6 +30,7 @@ class EnhancedMainAgent(BaseAgent):
         self.response_generator = EnhancedResponseGenerator()
         self.conversation_manager = ConversationManager()
         self.burmese_handler = BurmeseCustomerServiceHandler()
+        self.conversation_tracking = get_conversation_tracking_service()
         
         logger.info("enhanced_main_agent_initialized")
 
@@ -177,6 +179,49 @@ class EnhancedMainAgent(BaseAgent):
             
             # Save updated conversation history
             await self.conversation_manager.save_conversation_history(user_id, state.get("conversation_history", []))
+            
+            # Save conversation to Supabase for admin panel tracking (if not already saved by Facebook service)
+            try:
+                # Get or create conversation for tracking
+                conversation = self.conversation_tracking.get_or_create_conversation(user_id, 'streamlit')
+                
+                # Save user message
+                user_message_metadata = {
+                    "platform": "streamlit",
+                    "user_language": state.get("user_language"),
+                    "intent": state.get("primary_intent")
+                }
+                self.conversation_tracking.save_message(
+                    conversation["id"], 
+                    user_message, 
+                    "user",
+                    metadata=user_message_metadata
+                )
+                
+                # Save bot response
+                bot_message_metadata = {
+                    "intent": state.get("primary_intent"),
+                    "conversation_state": state.get("conversation_state"),
+                    "user_language": state.get("user_language"),
+                    "confidence": state.get("confidence"),
+                    "image_info": image_info
+                }
+                self.conversation_tracking.save_message(
+                    conversation["id"], 
+                    response, 
+                    "bot",
+                    confidence_score=state.get("confidence"),
+                    metadata=bot_message_metadata
+                )
+                
+                # Update conversation status
+                self.conversation_tracking.update_conversation(conversation["id"], "active")
+                
+                logger.info("conversation_saved_to_supabase", user_id=user_id, conversation_id=conversation["id"])
+                
+            except Exception as e:
+                logger.error("supabase_conversation_save_failed", user_id=user_id, error=str(e))
+                # Don't fail the main chat flow if Supabase save fails
             
             # Prepare result
             result = {
