@@ -2,7 +2,7 @@
 Admin Panel Webhook API Routes
 Handles communication between Admin Panel and Chatbot for conversation management
 """
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -18,6 +18,36 @@ logger = logging.getLogger(__name__)
 
 # Create router
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
+
+# Admin Authentication Middleware
+async def verify_admin_token(request: Request):
+    """
+    Verify admin authentication token
+    Checks for Bearer token in Authorization header and admin user ID in X-Admin-User-ID header
+    """
+    settings = get_settings()
+    
+    # Check if admin authentication is configured
+    if not settings.admin_api_key or not settings.admin_user_id:
+        logger.error("Admin authentication not configured - rejecting all requests")
+        raise HTTPException(status_code=401, detail="Admin authentication not configured")
+    
+    # Get Authorization header
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authentication - Bearer token required")
+    
+    # Extract and verify API key
+    token = auth_header.split(" ")[1]
+    if token != settings.admin_api_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    
+    # Verify admin user ID
+    admin_user_id = request.headers.get("X-Admin-User-ID")
+    if admin_user_id != settings.admin_user_id:
+        raise HTTPException(status_code=401, detail="Invalid admin user ID")
+    
+    logger.info(f"Admin authentication successful for user: {admin_user_id}")
 
 # Pydantic models for request/response
 class ConversationControlRequest(BaseModel):
@@ -72,7 +102,7 @@ def get_supabase_client():
         settings.supabase_service_role_key
     )
 
-@admin_router.post("/conversation/control", response_model=WebhookResponse)
+@admin_router.post("/conversation/control", response_model=WebhookResponse, dependencies=[Depends(verify_admin_token)])
 async def control_conversation(
     request: ConversationControlRequest,
     background_tasks: BackgroundTasks,
@@ -155,7 +185,7 @@ async def control_conversation(
         logger.error(f"Error in conversation control: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@admin_router.get("/conversation/{conversation_id}/status", response_model=ConversationStatusResponse)
+@admin_router.get("/conversation/{conversation_id}/status", response_model=ConversationStatusResponse, dependencies=[Depends(verify_admin_token)])
 async def get_conversation_status(
     conversation_id: UUID,
     conversation_service: ConversationTrackingService = Depends(get_conversation_service),
@@ -198,7 +228,7 @@ async def get_conversation_status(
         logger.error(f"Error getting conversation status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@admin_router.get("/conversations/escalated", response_model=List[EscalatedConversationResponse])
+@admin_router.get("/conversations/escalated", response_model=List[EscalatedConversationResponse], dependencies=[Depends(verify_admin_token)])
 async def get_escalated_conversations(
     escalation_service: EscalationService = Depends(get_escalation_service)
 ):
@@ -242,7 +272,7 @@ async def get_escalated_conversations(
         logger.error(f"Error getting escalated conversations: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@admin_router.post("/message/{message_id}/mark-human-replied", response_model=WebhookResponse)
+@admin_router.post("/message/{message_id}/mark-human-replied", response_model=WebhookResponse, dependencies=[Depends(verify_admin_token)])
 async def mark_message_human_replied(
     message_id: UUID,
     escalation_service: EscalationService = Depends(get_escalation_service)
@@ -264,7 +294,7 @@ async def mark_message_human_replied(
         logger.error(f"Error marking message as human replied: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@admin_router.get("/health", response_model=WebhookResponse)
+@admin_router.get("/health", response_model=WebhookResponse, dependencies=[Depends(verify_admin_token)])
 async def admin_health_check():
     """
     Health check endpoint for admin panel

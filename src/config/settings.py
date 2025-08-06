@@ -85,6 +85,10 @@ class Settings(BaseSettings):
     requests_per_minute: int = Field(default=60, env="REQUESTS_PER_MINUTE")
     requests_per_hour: int = Field(default=1000, env="REQUESTS_PER_HOUR")
     
+    # Admin Panel Authentication Configuration
+    admin_api_key: Optional[str] = Field(default=None, env="ADMIN_API_KEY")
+    admin_user_id: Optional[str] = Field(default=None, env="ADMIN_USER_ID")
+    
     @property
     def supported_languages_list(self) -> List[str]:
         """Get supported languages as a list"""
