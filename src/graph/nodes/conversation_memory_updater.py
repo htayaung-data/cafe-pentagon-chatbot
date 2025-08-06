@@ -39,6 +39,8 @@ class ConversationMemoryUpdaterNode:
         detected_intent = state.get("detected_intent", "unknown")
         intent_confidence = state.get("intent_confidence", 0.0)
         response_generated = state.get("response_generated", False)
+        human_handling = state.get("human_handling", False)
+        requires_human = state.get("requires_human", False)
         
         if not conversation_id:
             logger.warning("no_conversation_id_for_memory_update", user_id=user_id)
@@ -50,7 +52,8 @@ class ConversationMemoryUpdaterNode:
                 "intent": detected_intent,
                 "language": detected_language,
                 "conversation_state": "active",
-                "confidence": intent_confidence
+                "confidence": intent_confidence,
+                "requires_human": requires_human
             }
             
             self.memory_service.add_message_to_history(
@@ -67,7 +70,9 @@ class ConversationMemoryUpdaterNode:
                     "language": detected_language,
                     "conversation_state": "active",
                     "confidence": intent_confidence,
-                    "response_quality": state.get("response_quality", "standard")
+                    "response_quality": state.get("response_quality", "standard"),
+                    "human_handling": human_handling,
+                    "requires_human": requires_human
                 }
                 
                 self.memory_service.add_message_to_history(
@@ -77,18 +82,39 @@ class ConversationMemoryUpdaterNode:
                     metadata=bot_metadata
                 )
             
-            # Update conversation context
+            # Update conversation context with human assistance flags
             context_updates = {
                 "last_message_at": "now()",
                 "metadata": {
                     "last_intent": detected_intent,
                     "last_language": detected_language,
                     "last_confidence": intent_confidence,
-                    "total_messages": len(state.get("conversation_history", [])) + 2  # +2 for user and bot messages
+                    "total_messages": len(state.get("conversation_history", [])) + 2,  # +2 for user and bot messages
+                    "human_handling": human_handling,
+                    "requires_human": requires_human
                 }
             }
             
             self.memory_service.update_conversation_context(conversation_id, context_updates)
+            
+            # Update conversation tracking service with human assistance flags
+            if human_handling or requires_human:
+                from src.services.conversation_tracking_service import get_conversation_tracking_service
+                conversation_tracking = get_conversation_tracking_service()
+                
+                conversation_updates = {
+                    "human_handling": human_handling,
+                    "rag_enabled": not human_handling,
+                    "status": "escalated" if human_handling else "active",
+                    "priority": 2 if human_handling else 1
+                }
+                
+                conversation_tracking.update_conversation(conversation_id, "active", conversation_updates)
+                
+                logger.info("conversation_updated_for_human_assistance", 
+                           conversation_id=conversation_id,
+                           human_handling=human_handling,
+                           requires_human=requires_human)
             
             # Reload conversation history to include new messages
             updated_history = self.memory_service.load_conversation_history(conversation_id, user_id, limit=10)
@@ -97,7 +123,9 @@ class ConversationMemoryUpdaterNode:
                        conversation_id=conversation_id,
                        user_message_length=len(user_message),
                        bot_response_length=len(response),
-                       updated_history_length=len(updated_history))
+                       updated_history_length=len(updated_history),
+                       human_handling=human_handling,
+                       requires_human=requires_human)
             
             # Update state with refreshed conversation history
             updated_state = state.copy()

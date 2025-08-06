@@ -61,13 +61,21 @@ class ConversationTrackingService:
                           confidence_score: Optional[float] = None, metadata: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Save a message to Supabase"""
         try:
+            # Check if message requires human assistance
+            requires_human = False
+            if metadata:
+                requires_human = metadata.get("requires_human", False)
+                # Also check content for human assistance keywords
+                if not requires_human and sender_type == "user":
+                    requires_human = self._check_content_for_human_assistance(content)
+            
             message_data = {
                 "conversation_id": conversation_id,
                 "sender_type": sender_type,
                 "content": content,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "confidence_score": confidence_score,
-                "requires_human": False,
+                "requires_human": requires_human,
                 "human_replied": False,
                 "metadata": metadata or {}
             }
@@ -76,7 +84,15 @@ class ConversationTrackingService:
             
             if response.data and len(response.data) > 0:
                 message = response.data[0]
-                logger.info("message_saved", conversation_id=conversation_id, sender_type=sender_type)
+                logger.info("message_saved", 
+                           conversation_id=conversation_id, 
+                           sender_type=sender_type,
+                           requires_human=requires_human)
+                
+                # If message requires human assistance, update conversation
+                if requires_human:
+                    self._update_conversation_for_human_assistance(conversation_id)
+                
                 return message
             else:
                 logger.error("message_save_failed", conversation_id=conversation_id)
@@ -85,6 +101,81 @@ class ConversationTrackingService:
         except Exception as e:
             logger.error("message_save_exception", conversation_id=conversation_id, error=str(e))
             return None
+
+    def _check_content_for_human_assistance(self, content: str) -> bool:
+        """
+        Check if message content indicates need for human assistance
+        
+        Args:
+            content: Message content
+            
+        Returns:
+            True if human assistance is needed, False otherwise
+        """
+        content_lower = content.lower().strip()
+        
+        # English patterns
+        english_patterns = [
+            "talk to a human", "speak to someone", "talk to someone",
+            "human help", "real person", "staff member", "employee",
+            "manager", "supervisor", "customer service",
+            "i need help", "can't help", "not working",
+            "complaint", "problem", "issue", "escalate"
+        ]
+        
+        # Burmese patterns
+        burmese_patterns = [
+            "လူသားနဲ့ပြောချင်ပါတယ်", "အကူအညီလိုပါတယ်",
+            "ပိုကောင်းတဲ့အကူအညီလိုပါတယ်", "သူငယ်ချင်းနဲ့ပြောချင်ပါတယ်",
+            "လူသားနဲ့ပြောချင်တယ်", "အကူအညီလိုတယ်",
+            "မန်နေဂျာ", "အုပ်ချုပ်သူ", "ဝန်ထမ်း",
+            "ပြဿနာ", "အခက်အခဲ", "အကူအညီလိုပါတယ်"
+        ]
+        
+        # Check English patterns
+        for pattern in english_patterns:
+            if pattern in content_lower:
+                return True
+        
+        # Check Burmese patterns
+        for pattern in burmese_patterns:
+            if pattern in content_lower:
+                return True
+        
+        return False
+
+    def _update_conversation_for_human_assistance(self, conversation_id: int) -> bool:
+        """
+        Update conversation to mark for human handling
+        
+        Args:
+            conversation_id: Conversation identifier
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            update_data = {
+                "human_handling": True,
+                "rag_enabled": False,
+                "status": "escalated",
+                "priority": 2,  # Increase priority
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "last_message_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            response = self.supabase.table("conversations").update(update_data).eq("id", conversation_id).execute()
+            
+            if response.data:
+                logger.info("conversation_updated_for_human_assistance", conversation_id=conversation_id)
+                return True
+            else:
+                logger.error("conversation_update_for_human_assistance_failed", conversation_id=conversation_id)
+                return False
+                
+        except Exception as e:
+            logger.error("conversation_update_for_human_assistance_exception", conversation_id=conversation_id, error=str(e))
+            return False
 
     def update_conversation(self, conversation_id: int, status: str = 'active', 
                                  updates: Optional[Dict[str, Any]] = None) -> bool:

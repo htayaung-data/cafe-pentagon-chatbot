@@ -50,13 +50,17 @@ class ResponseGeneratorNode:
         is_goodbye = state.get("is_goodbye", False)
         is_escalation_request = state.get("is_escalation_request", False)
         
+        # Check for human assistance requests
+        requires_human = self._detect_human_assistance_request(user_message, detected_language)
+        human_handling = requires_human or is_escalation_request
+        
         try:
             # Handle special cases first
             if is_greeting:
                 response = await self._generate_greeting_response(detected_language)
             elif is_goodbye:
                 response = await self._generate_goodbye_response(detected_language)
-            elif is_escalation_request:
+            elif is_escalation_request or requires_human:
                 response = await self._generate_escalation_response(detected_language)
             elif detected_language == "my":
                 # Use enhanced Burmese handling with conversation history
@@ -79,14 +83,18 @@ class ResponseGeneratorNode:
                        language=detected_language,
                        relevance_score=relevance_score,
                        response_length=len(response),
-                       has_rag_results=bool(rag_results))
+                       has_rag_results=bool(rag_results),
+                       requires_human=requires_human,
+                       human_handling=human_handling)
             
-            # Update state with generated response
+            # Update state with generated response and human assistance flags
             updated_state = state.copy()
             updated_state.update({
                 "response": response,
                 "response_generated": True,
-                "response_quality": self._assess_response_quality(response, relevance_score)
+                "response_quality": self._assess_response_quality(response, relevance_score),
+                "requires_human": requires_human,
+                "human_handling": human_handling
             })
             
             return updated_state
@@ -103,7 +111,9 @@ class ResponseGeneratorNode:
             updated_state.update({
                 "response": fallback_response,
                 "response_generated": True,
-                "response_quality": "fallback"
+                "response_quality": "fallback",
+                "requires_human": requires_human,
+                "human_handling": human_handling
             })
             
             return updated_state
@@ -810,3 +820,52 @@ RESPONSE:"""
             return "medium"
         else:
             return "low" 
+
+    def _detect_human_assistance_request(self, user_message: str, language: str) -> bool:
+        """
+        Detect if user is requesting human assistance
+        
+        Args:
+            user_message: User's message
+            language: Detected language
+            
+        Returns:
+            True if human assistance is requested, False otherwise
+        """
+        user_lower = user_message.lower().strip()
+        
+        # English human assistance patterns
+        english_patterns = [
+            "talk to a human", "speak to someone", "talk to someone",
+            "human help", "real person", "staff member", "employee",
+            "manager", "supervisor", "customer service",
+            "i need help", "can't help", "not working",
+            "complaint", "problem", "issue", "escalate"
+        ]
+        
+        # Burmese human assistance patterns
+        burmese_patterns = [
+            "လူသားနဲ့ပြောချင်ပါတယ်", "အကူအညီလိုပါတယ်",
+            "ပိုကောင်းတဲ့အကူအညီလိုပါတယ်", "သူငယ်ချင်းနဲ့ပြောချင်ပါတယ်",
+            "လူသားနဲ့ပြောချင်တယ်", "အကူအညီလိုတယ်",
+            "မန်နေဂျာ", "အုပ်ချုပ်သူ", "ဝန်ထမ်း",
+            "ပြဿနာ", "အခက်အခဲ", "အကူအညီလိုပါတယ်",
+            "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့",
+            "အသေးစိတ် အချက်အလက်ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ်"
+        ]
+        
+        if language in ["my", "myanmar"]:
+            patterns = burmese_patterns
+        else:
+            patterns = english_patterns
+        
+        # Check if any pattern matches
+        for pattern in patterns:
+            if pattern in user_lower:
+                logger.info("human_assistance_request_detected", 
+                           pattern=pattern, 
+                           language=language,
+                           message=user_message[:50])
+                return True
+        
+        return False 
