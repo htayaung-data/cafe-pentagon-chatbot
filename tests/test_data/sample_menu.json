@@ -1,0 +1,36 @@
+{
+  "menu_items": [
+    {
+      "id": "menu_1",
+      "name": "Coffee",
+      "description": "Fresh brewed coffee",
+      "price": 3.50,
+      "category": "beverages",
+      "available": true
+    },
+    {
+      "id": "menu_2",
+      "name": "Burger",
+      "description": "Classic beef burger with fries",
+      "price": 8.99,
+      "category": "main_course",
+      "available": true
+    },
+    {
+      "id": "menu_3",
+      "name": "Pizza",
+      "description": "Margherita pizza with fresh mozzarella",
+      "price": 12.99,
+      "category": "main_course",
+      "available": true
+    },
+    {
+      "id": "menu_4",
+      "name": "Tea",
+      "description": "Hot tea with honey",
+      "price": 2.50,
+      "category": "beverages",
+      "available": true
+    }
+  ]
+} 

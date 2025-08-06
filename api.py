@@ -2,7 +2,7 @@
 FastAPI application for Cafe Pentagon Chatbot
 Handles Facebook Messenger webhooks and API endpoints
 
-Last updated: Minor test change for GitHub workflow verification
+Last updated: Added admin panel webhook endpoints for conversation management
 """
 
 import json
@@ -13,6 +13,7 @@ from src.services.facebook_messenger import FacebookMessengerService
 from src.services.conversation_tracking_service import get_conversation_tracking_service
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
+from src.api.admin_routes import admin_router
 
 # Setup logging
 logger = get_logger("api")
@@ -23,6 +24,9 @@ app = FastAPI(
     description="API for Cafe Pentagon Facebook Messenger Chatbot",
     version="1.0.0"
 )
+
+# Include admin routes
+app.include_router(admin_router)
 
 # Initialize services
 settings = get_settings()
@@ -53,6 +57,8 @@ async def verify_webhook(
         else:
             logger.error("webhook_verification_failed")
             raise HTTPException(status_code=403, detail="Verification failed")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("webhook_verification_exception", error=str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -64,13 +70,13 @@ async def webhook_handler(request: Request):
         # Read request body
         body = await request.body()
         
-        # Log the incoming webhook for debugging
+        # Log the incoming webhook
         logger.info("webhook_received", body_length=len(body))
         
-        # Verify signature for security (temporarily disabled for testing)
-        # if not await facebook_service.verify_signature(request, body):
-        #     logger.error("webhook_signature_verification_failed")
-        #     raise HTTPException(status_code=403, detail="Invalid signature")
+        # Verify signature for security
+        if not await facebook_service.verify_signature(request, body):
+            logger.error("webhook_signature_verification_failed")
+            raise HTTPException(status_code=403, detail="Invalid signature")
         
         # Parse JSON body
         try:
@@ -136,6 +142,56 @@ async def test_message(recipient_id: str, message: str = "Hello from Cafe Pentag
         }
     except Exception as e:
         logger.error("test_message_failed", error=str(e))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/chat")
+async def chat_endpoint(request: Request):
+    """Chat endpoint for testing conversation creation and escalation"""
+    try:
+        body = await request.json()
+        user_id = body.get("user_id", "test_user")
+        message = body.get("message", "Hello")
+        platform = body.get("platform", "messenger")
+        
+        # Create or get conversation
+        conversation = conversation_tracking.get_or_create_conversation(user_id, platform)
+        conversation_id = conversation["id"]
+        
+        # Save the message
+        saved_message = conversation_tracking.save_message(
+            conversation_id=conversation_id,
+            content=message,
+            sender_type="user",
+            metadata={"requires_human": "I need to talk to a human" in message.lower()}
+        )
+        
+        # Check if message requires human intervention
+        requires_human = "I need to talk to a human" in message.lower() or "talk to someone" in message.lower()
+        
+        if requires_human:
+            # Escalate conversation
+            from src.services.escalation_service import EscalationService
+            escalation_service = EscalationService()
+            escalation_service.escalate_conversation(
+                conversation_id=conversation_id,
+                user_id=user_id,
+                reason="User requested human assistance",
+                admin_id=None
+            )
+        
+        return {
+            "success": True,
+            "conversation_id": conversation_id,
+            "message_id": saved_message["id"],
+            "requires_human": requires_human,
+            "response": "Message received and processed"
+        }
+        
+    except Exception as e:
+        logger.error("chat_endpoint_failed", error=str(e))
         return {
             "success": False,
             "error": str(e)

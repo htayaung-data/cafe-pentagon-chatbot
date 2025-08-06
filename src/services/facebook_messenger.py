@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import aiohttp
 from fastapi import HTTPException, Request
-from src.agents.main_agent import EnhancedMainAgent
+from src.graph.state_graph import create_conversation_graph
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 from src.data.models import UserProfile, Message, Conversation, LanguageEnum
@@ -30,7 +30,7 @@ class FacebookMessengerService:
     def __init__(self):
         """Initialize Facebook Messenger service"""
         self.settings = get_settings()
-        self.main_agent = EnhancedMainAgent()
+        self.conversation_graph = create_conversation_graph()
         self.user_manager = UserManager()
         self.conversation_tracking = get_conversation_tracking_service()
         self.page_access_token = self.settings.facebook_page_access_token
@@ -142,14 +142,26 @@ class FacebookMessengerService:
                 metadata=user_message_metadata
             )
             
-            # Process message with main agent (auto-detect language from message)
-            # Skip Supabase save in main agent since we handle it here
-            response = await self.main_agent.chat(
-                message_text,
-                sender_id,
-                None,  # Let the agent auto-detect language from message content
-                skip_supabase_save=True  # Prevent duplicate saves
-            )
+            # Process message with LangGraph workflow (now includes conversation memory)
+            initial_state = {
+                "user_message": message_text,
+                "user_id": sender_id,
+                "conversation_id": conversation["id"],
+                "metadata": user_message_metadata
+            }
+            
+            # Run the conversation graph
+            final_state = await self.conversation_graph.ainvoke(initial_state)
+            
+            # Extract response from final state
+            response = {
+                "response": final_state.get("response", "I'm sorry, I couldn't process your message."),
+                "primary_intent": final_state.get("detected_intent", "unknown"),
+                "conversation_state": final_state.get("conversation_state", "active"),
+                "user_language": final_state.get("detected_language", "en"),
+                "confidence": final_state.get("intent_confidence", 0.0),
+                "image_info": final_state.get("image_info")
+            }
             
             # Check if we need to send an image first
             image_info = response.get("image_info")

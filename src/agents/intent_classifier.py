@@ -12,6 +12,7 @@ from src.utils.language import detect_language, is_burmese_text, is_english_text
 from src.utils.burmese_processor import detect_burmese_intent_patterns, get_burmese_cultural_context
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
+from src.utils.api_client import get_openai_client, get_fallback_manager, QuotaExceededError, APIClientError
 
 logger = get_logger("ai_intent_classifier")
 
@@ -25,6 +26,10 @@ class AIIntentClassifier(BaseAgent):
         """Initialize AI intent classifier"""
         super().__init__("ai_intent_classifier")
         self.settings = get_settings()
+        
+        # Initialize robust API client
+        self.api_client = get_openai_client()
+        self.fallback_manager = get_fallback_manager()
         
         # Initialize OpenAI model for intent classification
         self.llm = ChatOpenAI(
@@ -45,8 +50,9 @@ INTENT CATEGORIES:
 5. faq - User is asking questions about services, location, hours, policies
 6. events - User is asking about events, promotions, or entertainment
 7. complaint - User is expressing dissatisfaction or problems
-8. goodbye - User is ending the conversation or saying thank you
-9. unknown - Cannot determine intent
+8. job_application - User is asking about job opportunities, employment, or career
+9. goodbye - User is ending the conversation or saying thank you
+10. unknown - Cannot determine intent
 
 BURMESE LANGUAGE PATTERNS:
 For Burmese language, pay special attention to these patterns:
@@ -69,6 +75,10 @@ ORDER PATTERNS:
 
 RESERVATION PATTERNS:
 - "ကြိုတင်မှာယူ", "စားပွဲကြို", "ဘွတ်ကင်", "ကြိုတင်စီစဉ်"
+
+JOB APPLICATION PATTERNS:
+- "အလုပ်", "အလုပ်လျှောက်", "အလုပ်လျှောက်လို့ရလား", "အလုပ်ရှိလား", "အလုပ်ခန့်လား"
+- "အလုပ်လုပ်ချင်တယ်", "အလုပ်လျှောက်ချင်တယ်", "အလုပ်အကိုင်ရှိလား"
 
 EVENTS PATTERNS:
 - "ပွဲ", "ဖျော်ဖြေရေး", "ဂီတ", "ပြပွဲ", "အထူးအစီအစဉ်"
@@ -139,59 +149,85 @@ RESPONSE:"""
         return state
     
     async def _ai_classify_intents(self, user_message: str, language: str) -> List[Dict[str, Any]]:
-        """Classify intents using AI"""
+        """Classify intents using AI with robust error handling"""
         try:
+            # Check cache first
+            cache_key = f"intent_{language}_{hash(user_message)}"
+            cached_result = await self.fallback_manager.get_cached_response(cache_key)
+            if cached_result and self.fallback_manager.is_cache_valid(cache_key):
+                logger.info("using_cached_intent_classification", cache_key=cache_key)
+                return [cached_result]
+            
             # Prepare prompt
             prompt = self.intent_prompt.format(
                 user_message=user_message,
                 language=language
             )
             
-            # Get AI response
-            response = await self.llm.ainvoke(prompt)
-            response_text = response.content.strip()
-            
-            # Parse JSON response - handle markdown formatting
+            # Get AI response using robust API client
             try:
-                # Clean response text - remove markdown code blocks and any extra formatting
-                cleaned_response = response_text.strip()
+                response = await self.api_client.chat_completion(
+                    messages=[
+                        {"role": "system", "content": "You are an intent classifier for a restaurant chatbot."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    model="gpt-4o",
+                    temperature=0.1,
+                    max_tokens=200
+                )
+                response_text = response.choices[0].message.content.strip()
                 
-                # Remove markdown code blocks
-                if cleaned_response.startswith("```json"):
-                    cleaned_response = cleaned_response[7:]
-                elif cleaned_response.startswith("```"):
-                    cleaned_response = cleaned_response[3:]
-                
-                if cleaned_response.endswith("```"):
-                    cleaned_response = cleaned_response[:-3]
-                
-                # Remove any remaining markdown or extra characters
-                cleaned_response = cleaned_response.strip()
-                
-                # Try to find JSON content if it's wrapped in other text
-                import re
-                json_match = re.search(r'\{.*\}', cleaned_response, re.DOTALL)
-                if json_match:
-                    cleaned_response = json_match.group(0)
-                
-                result = json.loads(cleaned_response)
-                
-                # Validate and structure the result
-                intent_data = {
-                    "intent": result.get("intent", "unknown"),
-                    "confidence": float(result.get("confidence", 0.5)),
-                    "entities": result.get("entities", {}),
-                    "reasoning": result.get("reasoning", ""),
-                    "priority": self._get_priority(result.get("intent", "unknown"))
-                }
-                
-                # Ensure confidence is within bounds
-                intent_data["confidence"] = max(0.0, min(1.0, intent_data["confidence"]))
-                
-                return [intent_data]
-                
-            except json.JSONDecodeError as e:
-                logger.error("ai_response_parse_error", error=str(e), response=response_text)
+                # Parse JSON response - handle markdown formatting
+                try:
+                    # Clean response text - remove markdown code blocks and any extra formatting
+                    cleaned_response = response_text.strip()
+                    
+                    # Remove markdown code blocks
+                    if cleaned_response.startswith("```json"):
+                        cleaned_response = cleaned_response[7:]
+                    elif cleaned_response.startswith("```"):
+                        cleaned_response = cleaned_response[3:]
+                    
+                    if cleaned_response.endswith("```"):
+                        cleaned_response = cleaned_response[:-3]
+                    
+                    # Remove any remaining markdown or extra characters
+                    cleaned_response = cleaned_response.strip()
+                    
+                    # Try to find JSON content if it's wrapped in other text
+                    import re
+                    json_match = re.search(r'\{.*\}', cleaned_response, re.DOTALL)
+                    if json_match:
+                        cleaned_response = json_match.group(0)
+                    
+                    result = json.loads(cleaned_response)
+                    
+                    # Validate and structure the result
+                    intent_data = {
+                        "intent": result.get("intent", "unknown"),
+                        "confidence": float(result.get("confidence", 0.5)),
+                        "entities": result.get("entities", {}),
+                        "reasoning": result.get("reasoning", ""),
+                        "priority": self._get_priority(result.get("intent", "unknown"))
+                    }
+                    
+                    # Ensure confidence is within bounds
+                    intent_data["confidence"] = max(0.0, min(1.0, intent_data["confidence"]))
+                    
+                    # Cache the result
+                    await self.fallback_manager.cache_response(cache_key, intent_data, ttl=1800)  # 30 minutes
+                    
+                    return [intent_data]
+                    
+                except json.JSONDecodeError as e:
+                    logger.error("ai_response_parse_error", error=str(e), response=response_text)
+                    return self._fallback_classification(user_message, language)
+                    
+            except QuotaExceededError as e:
+                logger.error("openai_quota_exceeded_fallback", error=str(e))
+                return self._fallback_classification(user_message, language)
+            except APIClientError as e:
+                logger.error("openai_api_error_fallback", error=str(e))
                 return self._fallback_classification(user_message, language)
                 
         except Exception as e:
@@ -200,115 +236,13 @@ RESPONSE:"""
     
     def _fallback_classification(self, message: str, language: str) -> List[Dict[str, Any]]:
         """Fallback classification when AI fails"""
-        # Simple fallback based on basic patterns
-        message_lower = message.lower()
+        # Use the fallback manager for consistent fallback logic
+        fallback_result = self.fallback_manager.get_fallback_intent(message, language)
         
-        lang_key = "my" if language in ["my", "myanmar"] else "en"
+        # Add priority based on intent
+        fallback_result["priority"] = self._get_priority(fallback_result["intent"])
         
-        # Enhanced greeting patterns for Burmese
-        greeting_patterns = {
-            "en": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
-            "my": ["မင်္ဂလာ", "ဟယ်လို", "ဟေး", "အစ်ကို", "အစ်မ", "ဦးလေး", "အမေကြီး", "ဘယ်လိုလဲ", "ဘယ်လိုရှိလဲ"]
-        }
-        
-        patterns = greeting_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "greeting",
-                "confidence": 0.8,
-                "entities": {},
-                "reasoning": "Detected greeting pattern",
-                "priority": 1
-            }]
-        
-        # Enhanced menu browse patterns for Burmese
-        menu_patterns = {
-            "en": ["menu", "food", "dish", "what do you have", "what's available"],
-            "my": ["မီနူး", "အစားအစာ", "ဘာတွေ ရှိလဲ", "ဘာတွေ စားလို့ရလဲ", "ခေါက်ဆွဲ", "ဘာဂါ", "ပီဇာ", "ကြက်သား", "ငါး", "ဟင်းရည်"]
-        }
-        
-        patterns = menu_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "menu_browse",
-                "confidence": 0.8,
-                "entities": {},
-                "reasoning": "Detected menu browsing pattern",
-                "priority": 2
-            }]
-        
-        # Enhanced FAQ patterns for Burmese
-        faq_patterns = {
-            "en": ["what", "how", "when", "where", "why", "is there", "do you have", "location", "hours", "price"],
-            "my": ["ဘာ", "ဘယ်", "ဘယ်လို", "ဘာကြောင့်", "ရှိလား", "ပါသလား", "လိပ်စာ", "ဖုန်းနံပါတ်", "ဖွင့်ချိန်", "ဈေးနှုန်း", "ဘယ်မှာ"]
-        }
-        
-        patterns = faq_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "faq",
-                "confidence": 0.7,
-                "entities": {},
-                "reasoning": "Detected question pattern",
-                "priority": 2
-            }]
-        
-        # Enhanced order patterns for Burmese
-        order_patterns = {
-            "en": ["order", "buy", "purchase", "take away", "delivery"],
-            "my": ["မှာယူ", "အမှာယူ", "ဝယ်ယူ", "အော်ဒါ", "ပြင်ဆင်ပေး", "ယူသွား", "ပို့ပေး"]
-        }
-        
-        patterns = order_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "order_place",
-                "confidence": 0.7,
-                "entities": {},
-                "reasoning": "Detected order pattern",
-                "priority": 3
-            }]
-        
-        # Enhanced reservation patterns for Burmese
-        reservation_patterns = {
-            "en": ["reservation", "book", "table", "reserve"],
-            "my": ["ကြိုတင်မှာယူ", "စားပွဲကြို", "ဘွတ်ကင်", "ကြိုတင်စီစဉ်", "စားပွဲ"]
-        }
-        
-        patterns = reservation_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "reservation",
-                "confidence": 0.7,
-                "entities": {},
-                "reasoning": "Detected reservation pattern",
-                "priority": 3
-            }]
-        
-        # Enhanced goodbye patterns for Burmese
-        goodbye_patterns = {
-            "en": ["thank you", "thanks", "bye", "goodbye", "see you"],
-            "my": ["ကျေးဇူးတင်ပါတယ်", "ပြန်လာမယ်", "သွားပါတယ်", "နှုတ်ဆက်ပါတယ်", "ကျေးဇူး"]
-        }
-        
-        patterns = goodbye_patterns.get(lang_key, [])
-        if any(pattern in message_lower for pattern in patterns):
-            return [{
-                "intent": "goodbye",
-                "confidence": 0.8,
-                "entities": {},
-                "reasoning": "Detected goodbye pattern",
-                "priority": 1
-            }]
-        
-        # Default to unknown
-        return [{
-            "intent": "unknown",
-            "confidence": 0.5,
-            "entities": {},
-            "reasoning": "Fallback classification",
-            "priority": 5
-        }]
+        return [fallback_result]
     
     def _get_priority(self, intent_name: str) -> int:
         """Get priority for intent (1=highest, 5=lowest)"""

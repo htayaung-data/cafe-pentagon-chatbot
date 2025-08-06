@@ -40,7 +40,8 @@ class EmbeddingService:
         self.embedding_status = {
             "menu": {"last_updated": None, "count": 0, "status": "not_embedded"},
             "faq": {"last_updated": None, "count": 0, "status": "not_embedded"},
-            "events": {"last_updated": None, "count": 0, "status": "not_embedded"}
+            "events": {"last_updated": None, "count": 0, "status": "not_embedded"},
+            "jobs": {"last_updated": None, "count": 0, "status": "not_embedded"}
         }
         
         logger.info("embedding_service_initialized")
@@ -321,6 +322,98 @@ class EmbeddingService:
             self.embedding_status["events"]["status"] = "failed"
             return False
     
+    async def embed_jobs_data(self) -> bool:
+        """Embed jobs data into Pinecone"""
+        if not self.pinecone_index:
+            logger.error("pinecone_not_available")
+            return False
+        
+        try:
+            # Clear existing jobs namespace first to avoid duplicates
+            logger.info("clearing_jobs_namespace")
+            await self.clear_namespace(PINECONE_NAMESPACES["jobs"])
+            
+            # Load jobs data
+            jobs_data = self.data_loader.load_jobs_data()
+            if not jobs_data:
+                logger.error("no_jobs_data_found")
+                return False
+            
+            logger.info("embedding_jobs_data", position_count=len(jobs_data.positions))
+            
+            # Prepare vectors for embedding
+            vectors = []
+            for position in jobs_data.positions:
+                # Handle Pydantic model
+                if hasattr(position, 'model_dump'):
+                    position_dict = position.model_dump()
+                elif hasattr(position, 'dict'):
+                    position_dict = position.dict()
+                else:
+                    position_dict = position
+                
+                # Create text for embedding
+                text = f"{position_dict.get('title_en', '')} {position_dict.get('title_mm', '')} {position_dict.get('department', '')} {position_dict.get('employment_type', '')}"
+                
+                # Add requirements and responsibilities to text
+                requirements = position_dict.get('requirements', {})
+                if requirements:
+                    text += f" {requirements.get('experience', '')} {' '.join(requirements.get('languages', []))} {' '.join(requirements.get('skills', []))}"
+                
+                responsibilities = position_dict.get('responsibilities', [])
+                if responsibilities:
+                    text += f" {' '.join(responsibilities)}"
+                
+                # Generate embedding
+                embedding = self.embeddings.embed_query(text)
+                
+                # Prepare metadata
+                metadata = {
+                    "id": str(position_dict.get("position_id")),
+                    "title_en": position_dict.get("title_en", ""),
+                    "title_mm": position_dict.get("title_mm", ""),
+                    "department": position_dict.get("department", ""),
+                    "employment_type": position_dict.get("employment_type", ""),
+                    "vacancies": position_dict.get("vacancies", 0),
+                    "urgent": position_dict.get("urgent", False),
+                    "salary_min": position_dict.get("salary_range", {}).get("min", 0),
+                    "salary_max": position_dict.get("salary_range", {}).get("max", 0),
+                    "currency": position_dict.get("salary_range", {}).get("currency", "MMK"),
+                    "status": position_dict.get("status", ""),
+                    "requirements": json.dumps(position_dict.get("requirements", {})),
+                    "responsibilities": json.dumps(position_dict.get("responsibilities", [])),
+                    "benefits": json.dumps(position_dict.get("benefits", [])),
+                    "content": f"Position: {position_dict.get('title_en', '')}\nDepartment: {position_dict.get('department', '')}\nType: {position_dict.get('employment_type', '')}",
+                    "type": "job_position"
+                }
+                
+                vectors.append({
+                    "id": f"job_{position_dict.get('position_id')}",
+                    "values": embedding,
+                    "metadata": metadata
+                })
+            
+            # Insert to Pinecone (not upsert since we cleared the namespace)
+            self.pinecone_index.upsert(
+                vectors=vectors,
+                namespace=PINECONE_NAMESPACES["jobs"]
+            )
+            
+            # Update status
+            self.embedding_status["jobs"] = {
+                "last_updated": time.time(),
+                "count": len(vectors),
+                "status": "embedded"
+            }
+            
+            logger.info("jobs_data_embedded", vectors_count=len(vectors))
+            return True
+            
+        except Exception as e:
+            logger.error("jobs_embedding_failed", error=str(e))
+            self.embedding_status["jobs"]["status"] = "failed"
+            return False
+    
     async def embed_all_data(self) -> Dict[str, bool]:
         """Embed all data into Pinecone"""
         logger.info("starting_data_embedding")
@@ -328,7 +421,8 @@ class EmbeddingService:
         results = {
             "menu": await self.embed_menu_data(),
             "faq": await self.embed_faq_data(),
-            "events": await self.embed_events_data()
+            "events": await self.embed_events_data(),
+            "jobs": await self.embed_jobs_data()
         }
         
         success_count = sum(results.values())
@@ -356,7 +450,7 @@ class EmbeddingService:
             from src.config.constants import PINECONE_NAMESPACES
             
             for data_type, namespace in PINECONE_NAMESPACES.items():
-                if data_type in ["menu", "faq", "events"]:
+                if data_type in ["menu", "faq", "events", "jobs"]:
                     try:
                         # Query Pinecone to get actual count
                         results = self.pinecone_index.query(
@@ -414,7 +508,7 @@ class EmbeddingService:
         results = {}
         
         for data_type, namespace in PINECONE_NAMESPACES.items():
-            if data_type in ["menu", "faq", "events"]:  # Only clear data namespaces
+            if data_type in ["menu", "faq", "events", "jobs"]:  # Only clear data namespaces
                 results[data_type] = await self.clear_namespace(namespace)
         
         return results

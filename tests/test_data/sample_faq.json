@@ -1,0 +1,32 @@
+{
+  "faq_items": [
+    {
+      "id": "faq_1",
+      "question": "What are your opening hours?",
+      "answer": "We are open from 7 AM to 10 PM daily",
+      "category": "hours",
+      "tags": ["hours", "opening", "time"]
+    },
+    {
+      "id": "faq_2",
+      "question": "Do you have wifi?",
+      "answer": "Yes, we provide free wifi for all customers",
+      "category": "services",
+      "tags": ["wifi", "internet", "free"]
+    },
+    {
+      "id": "faq_3",
+      "question": "Can I bring my dog?",
+      "answer": "We allow well-behaved dogs in our outdoor seating area",
+      "category": "policies",
+      "tags": ["pets", "dogs", "outdoor"]
+    },
+    {
+      "id": "faq_4",
+      "question": "Do you accept reservations?",
+      "answer": "Yes, you can make reservations by calling us or through our website",
+      "category": "reservations",
+      "tags": ["reservations", "booking", "call"]
+    }
+  ]
+} 

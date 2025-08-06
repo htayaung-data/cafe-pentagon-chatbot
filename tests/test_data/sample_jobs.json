@@ -1,0 +1,40 @@
+{
+  "job_positions": [
+    {
+      "id": "job_1",
+      "title": "Waitstaff",
+      "description": "We are hiring experienced waitstaff for our restaurant",
+      "requirements": ["Experience in customer service", "Friendly attitude", "Team player"],
+      "category": "front_of_house",
+      "full_time": true,
+      "available": true
+    },
+    {
+      "id": "job_2",
+      "title": "Kitchen Staff",
+      "description": "Looking for skilled kitchen staff to join our team",
+      "requirements": ["Cooking experience", "Food safety knowledge", "Fast-paced environment"],
+      "category": "back_of_house",
+      "full_time": true,
+      "available": true
+    },
+    {
+      "id": "job_3",
+      "title": "Barista",
+      "description": "Experienced barista needed for our coffee bar",
+      "requirements": ["Coffee making skills", "Customer service", "Attention to detail"],
+      "category": "beverages",
+      "full_time": false,
+      "available": true
+    },
+    {
+      "id": "job_4",
+      "title": "Manager",
+      "description": "Restaurant manager position available",
+      "requirements": ["Management experience", "Leadership skills", "Restaurant operations"],
+      "category": "management",
+      "full_time": true,
+      "available": false
+    }
+  ]
+} 

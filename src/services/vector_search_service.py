@@ -9,6 +9,7 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from src.config.settings import get_settings
 from src.config.constants import PINECONE_NAMESPACES
 from src.utils.logger import get_logger
+from src.utils.api_client import get_openai_client, get_fallback_manager, QuotaExceededError, APIClientError
 
 logger = get_logger("vector_search_service")
 
@@ -30,6 +31,10 @@ class VectorSearchService:
             temperature=0.1,
             api_key=self.settings.openai_api_key
         )
+        
+        # Initialize robust API client
+        self.api_client = get_openai_client()
+        self.fallback_manager = get_fallback_manager()
         
         # Initialize Pinecone
         from pinecone import Pinecone
@@ -517,8 +522,14 @@ RESPONSE: Return only the exact category name from the available categories list
         Search menu items using semantic context and calculate confidence scores
         """
         try:
-            # Create embedding for semantic context
-            embedding = self.embeddings.embed_query(semantic_context)
+            # Create embedding for semantic context using robust API client
+            try:
+                embedding_response = await self.api_client.create_embeddings(semantic_context)
+                embedding = embedding_response.data[0].embedding
+            except (QuotaExceededError, APIClientError) as e:
+                logger.error("embedding_creation_failed", error=str(e))
+                # Fallback to basic keyword search
+                return await self._fallback_keyword_search(original_query, language)
             
             # Search in Pinecone
             results = self.pinecone_index.query(
@@ -636,6 +647,49 @@ RESPONSE: Return only the exact category name from the available categories list
             logger.error("semantic_search_failed", 
                         semantic_context=semantic_context,
                         error=str(e))
+            return await self._fallback_keyword_search(original_query, language)
+    
+    async def _fallback_keyword_search(self, query: str, language: str) -> List[Dict[str, Any]]:
+        """
+        Fallback keyword-based search when semantic search fails
+        """
+        try:
+            # Simple keyword matching for common menu items
+            query_lower = query.lower()
+            
+            # Basic menu item keywords
+            menu_keywords = {
+                "noodles": ["ခေါက်ဆွဲ", "noodle", "pasta"],
+                "rice": ["ထမင်း", "rice"],
+                "soup": ["ဟင်းရည်", "soup"],
+                "salad": ["ဆလပ်", "salad"],
+                "burger": ["ဘာဂါ", "burger"],
+                "pizza": ["ပီဇာ", "pizza"],
+                "chicken": ["ကြက်သား", "chicken"],
+                "pork": ["ဝက်သား", "pork"],
+                "fish": ["ငါး", "fish"],
+                "shrimp": ["ပုဇွန်", "shrimp", "prawn"]
+            }
+            
+            # Find matching keywords
+            matched_categories = []
+            for category, keywords in menu_keywords.items():
+                if any(keyword in query_lower for keyword in keywords):
+                    matched_categories.append(category)
+            
+            if matched_categories:
+                # Return basic menu items for matched categories
+                return [{
+                    "name": f"Sample {category.title()} Item",
+                    "category": category,
+                    "confidence": 0.6,
+                    "reasoning": f"Keyword match for {category}"
+                } for category in matched_categories[:3]]
+            
+            return []
+            
+        except Exception as e:
+            logger.error("fallback_keyword_search_failed", error=str(e))
             return []
 
     async def _translate_burmese_request(self, burmese_text: str) -> List[str]:

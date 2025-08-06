@@ -8,6 +8,7 @@ from typing import List, Dict, Any, Optional
 from openai import OpenAI
 from src.config import get_settings
 from src.utils.logger import get_logger
+from src.utils.api_client import get_openai_client, get_fallback_manager, QuotaExceededError, APIClientError
 
 logger = get_logger("semantic_context_extractor")
 
@@ -21,6 +22,8 @@ class SemanticContextExtractor:
         """Initialize the semantic context extractor"""
         self.settings = get_settings()
         self.client = OpenAI(api_key=self.settings.openai_api_key)
+        self.api_client = get_openai_client()
+        self.fallback_manager = get_fallback_manager()
         
     async def extract_semantic_context(self, burmese_query: str) -> Dict[str, Any]:
         """
@@ -74,16 +77,20 @@ Return a JSON object with:
 
 RESPONSE:"""
 
-            # Get AI response
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "You are a semantic context extractor that helps convert Burmese restaurant queries to English semantic context for better search results."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.1,
-                max_tokens=200
-            )
+            # Get AI response using robust API client
+            try:
+                response = await self.api_client.chat_completion(
+                    messages=[
+                        {"role": "system", "content": "You are a semantic context extractor that helps convert Burmese restaurant queries to English semantic context for better search results."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    model="gpt-4o",
+                    temperature=0.1,
+                    max_tokens=200
+                )
+            except (QuotaExceededError, APIClientError) as e:
+                logger.error("semantic_context_extraction_failed", error=str(e))
+                return self._fallback_extraction(burmese_query)
             
             response_text = response.choices[0].message.content.strip()
             
