@@ -55,13 +55,28 @@ class TestLangGraphIntegration:
             platform="test"
         )
         
-        # Mock intent classification
-        with patch('src.agents.intent_classifier.AIIntentClassifier.process') as mock_intent:
-            mock_intent.return_value = {
-                "detected_intents": [{"intent": "menu_browse", "confidence": 0.95}],
+        # Mock smart analysis instead of old intent classifier
+        with patch('src.graph.nodes.smart_analysis_node.SmartAnalysisNode._perform_smart_analysis') as mock_analysis:
+            mock_analysis.return_value = {
+                "detected_language": "en",
                 "primary_intent": "menu_browse",
-                "reasoning": "User asked about menu items",
-                "entities": {"food_type": "general"}
+                "intent_confidence": 0.95,
+                "requires_search": True,
+                "search_context": {
+                    "namespace": "menu",
+                    "keywords": ["menu", "food"],
+                    "semantic_query": "menu items"
+                },
+                "cultural_context": {
+                    "formality_level": "casual",
+                    "uses_honorifics": False,
+                    "language_mix": "english_only"
+                },
+                "conversation_context": {
+                    "is_follow_up": False,
+                    "previous_intent": None,
+                    "clarification_needed": False
+                }
             }
             
             # Mock vector search
@@ -90,12 +105,28 @@ class TestLangGraphIntegration:
             platform="test"
         )
         
-        # Mock Burmese menu analysis
-        with patch('src.graph.nodes.intent_classifier.IntentClassifierNode._analyze_burmese_menu_request') as mock_analysis:
+        # Mock smart analysis for Burmese menu query
+        with patch('src.graph.nodes.smart_analysis_node.SmartAnalysisNode._perform_smart_analysis') as mock_analysis:
             mock_analysis.return_value = {
-                "action": "MENU_BROWSE",
-                "confidence": 0.95,
-                "category": "general"
+                "detected_language": "my",
+                "primary_intent": "menu_browse",
+                "intent_confidence": 0.95,
+                "requires_search": True,
+                "search_context": {
+                    "namespace": "menu",
+                    "keywords": ["မီနူး", "အစားအစာ"],
+                    "semantic_query": "menu items"
+                },
+                "cultural_context": {
+                    "formality_level": "casual",
+                    "uses_honorifics": False,
+                    "language_mix": "burmese_only"
+                },
+                "conversation_context": {
+                    "is_follow_up": False,
+                    "previous_intent": None,
+                    "clarification_needed": False
+                }
             }
             
             # Mock vector search
@@ -145,9 +176,9 @@ class TestLangGraphIntegration:
             platform="test"
         )
         
-        # Mock intent classification to raise exception
-        with patch('src.agents.intent_classifier.AIIntentClassifier.process') as mock_intent:
-            mock_intent.side_effect = Exception("Intent classification failed")
+        # Mock smart analysis to raise exception
+        with patch('src.graph.nodes.smart_analysis_node.SmartAnalysisNode._perform_smart_analysis') as mock_analysis:
+            mock_analysis.side_effect = Exception("Smart analysis failed")
             
             # Act
             compiled_workflow = conversation_graph.compile()

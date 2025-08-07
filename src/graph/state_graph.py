@@ -1,14 +1,14 @@
 """
 LangGraph State Graph for Cafe Pentagon Chatbot
-Stateful conversation management with intent-based routing and RAG control
+Enhanced stateful conversation management with two-LLM-call architecture
 """
 
 from typing import Dict, Any, List, TypedDict, Optional
 from langgraph.graph import StateGraph, END, START
 from src.utils.logger import get_logger
-from .nodes.pattern_matcher import PatternMatcherNode
-from .nodes.rag_controller import RAGControllerNode
-from .nodes.intent_classifier import IntentClassifierNode
+from .nodes.conversation_status_checker import ConversationStatusCheckerNode
+from .nodes.smart_analysis_node import SmartAnalysisNode
+from .nodes.decision_router_node import DecisionRouterNode
 from .nodes.rag_retriever import RAGRetrieverNode
 from .nodes.response_generator import ResponseGeneratorNode
 from .nodes.conversation_memory_updater import ConversationMemoryUpdaterNode
@@ -17,27 +17,31 @@ logger = get_logger("langgraph_state")
 
 
 class StateSchema(TypedDict):
-    """Enhanced state schema for LangGraph conversation flow"""
+    """Enhanced state schema for LangGraph conversation flow with two-LLM-call architecture"""
     # User input
     user_message: str
     user_id: str
     conversation_id: str
     
-    # Language detection
+    # Conversation Status Check (Before LLM Processing)
+    conversation_escalated: bool
+    escalation_blocked: bool
+    
+    # Smart Analysis (First LLM Call)
+    analysis_result: Dict[str, Any]
     detected_language: str
-    
-    # Pattern matching
-    is_greeting: bool
-    is_goodbye: bool
-    is_escalation_request: bool
-    
-    # Intent classification
-    detected_intent: str
+    primary_intent: str
     intent_confidence: float
-    all_intents: List[Dict[str, Any]]
-    target_namespace: str
-    intent_reasoning: str
-    intent_entities: Dict[str, Any]
+    requires_search: bool
+    search_context: Dict[str, Any]
+    cultural_context: Dict[str, Any]
+    conversation_context: Dict[str, Any]
+    
+    # Decision Router
+    routing_decision: Dict[str, Any]
+    action_type: str
+    decision_confidence: float
+    decision_reasoning: str
     
     # RAG processing
     rag_results: List[Dict[str, Any]]
@@ -45,7 +49,7 @@ class StateSchema(TypedDict):
     rag_enabled: bool
     human_handling: bool
     
-    # Response generation
+    # Response generation (Second LLM Call)
     response: str
     response_generated: bool
     response_quality: str
@@ -65,18 +69,22 @@ class StateSchema(TypedDict):
 
 def create_conversation_graph() -> StateGraph:
     """
-    Create the LangGraph conversation flow
+    Create the LangGraph conversation flow with two-LLM-call architecture
     
     Flow:
-    START → pattern_matcher → intent_classifier → rag_controller → 
-    [if rag_enabled: namespace_router → rag_retriever → response_generator] → 
-    [if not rag_enabled: human_response_handler] → escalation_detector → END
+    START → conversation_status_checker → 
+    [if escalated: skip LLM processing → conversation_memory_updater] → 
+    [if not escalated: smart_analysis → decision_router → 
+    [if action_type == "perform_search": rag_retriever → response_generator] → 
+    [if action_type == "direct_response": response_generator] → 
+    [if action_type == "escalate_to_human": response_generator]] → 
+    conversation_memory_updater → END
     """
     
     # Initialize nodes
-    pattern_matcher = PatternMatcherNode()
-    intent_classifier = IntentClassifierNode()
-    rag_controller = RAGControllerNode()
+    conversation_status_checker = ConversationStatusCheckerNode()
+    smart_analysis = SmartAnalysisNode()
+    decision_router = DecisionRouterNode()
     rag_retriever = RAGRetrieverNode()
     response_generator = ResponseGeneratorNode()
     conversation_memory_updater = ConversationMemoryUpdaterNode()
@@ -85,24 +93,45 @@ def create_conversation_graph() -> StateGraph:
     workflow = StateGraph(StateSchema)
     
     # Add nodes
-    workflow.add_node("pattern_matcher", pattern_matcher.process)
-    workflow.add_node("intent_classifier", intent_classifier.process)
-    workflow.add_node("rag_controller", rag_controller.process)
+    workflow.add_node("conversation_status_checker", conversation_status_checker.process)
+    workflow.add_node("smart_analysis", smart_analysis.process)
+    workflow.add_node("decision_router", decision_router.process)
     workflow.add_node("rag_retriever", rag_retriever.process)
     workflow.add_node("response_generator", response_generator.process)
     workflow.add_node("conversation_memory_updater", conversation_memory_updater.process)
     
     # Define edges
-    workflow.add_edge(START, "pattern_matcher")
-    workflow.add_edge("pattern_matcher", "intent_classifier")
-    workflow.add_edge("intent_classifier", "rag_controller")
-    workflow.add_edge("rag_controller", "rag_retriever")
+    workflow.add_edge(START, "conversation_status_checker")
+    
+    # Conditional routing based on escalation status
+    workflow.add_conditional_edges(
+        "conversation_status_checker",
+        lambda state: "escalated_conversation" if state.get("conversation_escalated", False) else "continue_processing",
+        {
+            "escalated_conversation": "conversation_memory_updater",
+            "continue_processing": "smart_analysis"
+        }
+    )
+    
+    workflow.add_edge("smart_analysis", "decision_router")
+    
+    # Conditional routing based on action_type
+    workflow.add_conditional_edges(
+        "decision_router",
+        lambda state: state.get("action_type", "perform_search"),
+        {
+            "perform_search": "rag_retriever",
+            "direct_response": "response_generator",
+            "escalate_to_human": "response_generator"
+        }
+    )
+    
     workflow.add_edge("rag_retriever", "response_generator")
     workflow.add_edge("response_generator", "conversation_memory_updater")
     workflow.add_edge("conversation_memory_updater", END)
     
     # Set entry point
-    workflow.set_entry_point("pattern_matcher")
+    workflow.set_entry_point("conversation_status_checker")
     
     logger.info("langgraph_conversation_flow_created")
     
@@ -148,29 +177,33 @@ def create_initial_state(
         user_id=user_id,
         conversation_id=conversation_id,
         
-        # Language detection (will be set by pattern matcher)
+        # Conversation Status Check (Before LLM Processing)
+        conversation_escalated=False,
+        escalation_blocked=False,
+        
+        # Smart Analysis (will be set by smart_analysis)
+        analysis_result={},
         detected_language="",
-        
-        # Pattern matching (will be set by pattern matcher)
-        is_greeting=False,
-        is_goodbye=False,
-        is_escalation_request=False,
-        
-        # Intent classification (will be set by intent classifier)
-        detected_intent="",
+        primary_intent="",
         intent_confidence=0.0,
-        all_intents=[],
-        target_namespace="",
-        intent_reasoning="",
-        intent_entities={},
+        requires_search=False,
+        search_context={},
+        cultural_context={},
+        conversation_context={},
         
-        # RAG processing (will be set by RAG controller)
+        # Decision Router (will be set by decision_router)
+        routing_decision={},
+        action_type="",
+        decision_confidence=0.0,
+        decision_reasoning="",
+        
+        # RAG processing (will be set by rag_retriever)
         rag_results=[],
         relevance_score=0.0,
         rag_enabled=True,  # Default to enabled
         human_handling=False,
         
-        # Response generation (will be set by response generator)
+        # Response generation (will be set by response_generator)
         response="",
         response_generated=False,
         response_quality="",
@@ -191,7 +224,7 @@ def create_initial_state(
 
 def validate_state(state: Dict[str, Any]) -> bool:
     """
-    Validate state structure and required fields
+    Validate state structure and required fields for two-LLM-call architecture
     
     Args:
         state: State dictionary to validate
@@ -201,7 +234,8 @@ def validate_state(state: Dict[str, Any]) -> bool:
     """
     required_fields = [
         "user_message", "user_id", "conversation_id", 
-        "detected_language", "rag_enabled", "human_handling"
+        "detected_language", "primary_intent", "action_type",
+        "rag_enabled", "human_handling"
     ]
     
     for field in required_fields:
@@ -218,7 +252,7 @@ def log_state_transition(
     state: Dict[str, Any]
 ) -> None:
     """
-    Log state transition for debugging
+    Log state transition for debugging with two-LLM-call architecture
     
     Args:
         from_node: Source node name
@@ -232,8 +266,10 @@ def log_state_transition(
         user_id=state.get("user_id"),
         conversation_id=state.get("conversation_id"),
         detected_language=state.get("detected_language"),
-        is_greeting=state.get("is_greeting"),
-        is_goodbye=state.get("is_goodbye"),
+        primary_intent=state.get("primary_intent"),
+        action_type=state.get("action_type"),
+        intent_confidence=state.get("intent_confidence"),
+        decision_confidence=state.get("decision_confidence"),
         rag_enabled=state.get("rag_enabled"),
         human_handling=state.get("human_handling")
     ) 

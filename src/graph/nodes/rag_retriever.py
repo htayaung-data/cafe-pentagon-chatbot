@@ -23,19 +23,35 @@ class RAGRetrieverNode:
     
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Retrieve relevant documents using adapted logic from previous implementation
+        Retrieve relevant documents using analysis results and routing decisions
         
         Args:
-            state: Current conversation state with intent classification
+            state: Current conversation state with analysis and routing results
             
         Returns:
             Updated state with retrieved documents and relevance scores
         """
         user_message = state.get("user_message", "")
-        target_namespace = state.get("target_namespace", "")
-        detected_language = state.get("detected_language", "en")
-        detected_intent = state.get("detected_intent", "")
-        intent_confidence = state.get("intent_confidence", 0.0)
+        analysis_result = state.get("analysis_result", {})
+        routing_decision = state.get("routing_decision", {})
+        
+        # Extract information from analysis result
+        detected_language = analysis_result.get("detected_language", "en")
+        primary_intent = analysis_result.get("primary_intent", "")
+        intent_confidence = analysis_result.get("intent_confidence", 0.0)
+        search_context = analysis_result.get("search_context", {})
+        target_namespace = search_context.get("namespace", "")
+        
+        # Extract information from routing decision
+        action_type = routing_decision.get("action_type", "")
+        rag_enabled = routing_decision.get("rag_enabled", True)
+        
+        # Skip if RAG is not enabled or action type is not perform_search
+        if not rag_enabled or action_type != "perform_search":
+            logger.info("rag_skipped", 
+                       action_type=action_type,
+                       rag_enabled=rag_enabled)
+            return self._set_empty_results(state)
         
         if not user_message or not target_namespace:
             logger.warning("missing_required_fields", 
@@ -46,7 +62,7 @@ class RAGRetrieverNode:
         # Skip RAG if confidence is too low
         if intent_confidence < 0.3:
             logger.info("low_intent_confidence_skip_rag", 
-                       intent=detected_intent,
+                       intent=primary_intent,
                        confidence=intent_confidence)
             return self._set_empty_results(state)
         
@@ -67,7 +83,7 @@ class RAGRetrieverNode:
             # Log retrieval results
             logger.info("rag_retrieval_completed",
                        namespace=target_namespace,
-                       intent=detected_intent,
+                       intent=primary_intent,
                        results_count=len(documents),
                        relevance_score=relevance_score,
                        language=detected_language)

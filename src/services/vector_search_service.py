@@ -88,7 +88,8 @@ Return a JSON object with:
 RESPONSE:"""
 
             # Get AI analysis
-            response = await self.llm.ainvoke(prompt)
+            from langchain_core.messages import HumanMessage
+            response = self.llm.invoke([HumanMessage(content=prompt)])
             response_text = response.content.strip()
             
             # Parse JSON response
@@ -223,7 +224,8 @@ EXAMPLES:
 RESPONSE: Return only the exact category name from the available categories list.
 """
             
-            mapping_response = await self.llm.ainvoke(category_mapping_prompt)
+            from langchain_core.messages import HumanMessage
+            mapping_response = self.llm.invoke([HumanMessage(content=category_mapping_prompt)])
             best_category = mapping_response.content.strip()
             
             # If AI didn't return a valid category, try direct match
@@ -651,45 +653,62 @@ RESPONSE: Return only the exact category name from the available categories list
     
     async def _fallback_keyword_search(self, query: str, language: str) -> List[Dict[str, Any]]:
         """
-        Fallback keyword-based search when semantic search fails
+        Fallback search when semantic search fails - uses LLM-based analysis instead of keyword matching
         """
         try:
-            # Simple keyword matching for common menu items
-            query_lower = query.lower()
+            # Use LLM to analyze the query and generate search terms
+            from src.config.settings import get_settings
+            from openai import OpenAI
             
-            # Basic menu item keywords
-            menu_keywords = {
-                "noodles": ["ခေါက်ဆွဲ", "noodle", "pasta"],
-                "rice": ["ထမင်း", "rice"],
-                "soup": ["ဟင်းရည်", "soup"],
-                "salad": ["ဆလပ်", "salad"],
-                "burger": ["ဘာဂါ", "burger"],
-                "pizza": ["ပီဇာ", "pizza"],
-                "chicken": ["ကြက်သား", "chicken"],
-                "pork": ["ဝက်သား", "pork"],
-                "fish": ["ငါး", "fish"],
-                "shrimp": ["ပုဇွန်", "shrimp", "prawn"]
-            }
+            settings = get_settings()
+            client = OpenAI(api_key=settings.openai_api_key)
             
-            # Find matching keywords
-            matched_categories = []
-            for category, keywords in menu_keywords.items():
-                if any(keyword in query_lower for keyword in keywords):
-                    matched_categories.append(category)
+            prompt = f"""
+            Analyze this query and suggest relevant search terms for a restaurant menu database:
+            Query: "{query}"
+            Language: {language}
             
-            if matched_categories:
-                # Return basic menu items for matched categories
-                return [{
-                    "name": f"Sample {category.title()} Item",
-                    "category": category,
-                    "confidence": 0.6,
-                    "reasoning": f"Keyword match for {category}"
-                } for category in matched_categories[:3]]
+            Return 3-5 relevant search terms that would help find menu items.
+            Focus on food items, ingredients, or dish types.
+            
+            Return only the search terms, separated by commas.
+            """
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=100,
+                temperature=0.1
+            )
+            
+            search_terms = response.choices[0].message.content.strip().split(',')
+            search_terms = [term.strip() for term in search_terms if term.strip()]
+            
+            # Use the generated search terms for semantic search
+            if search_terms:
+                return await self._semantic_search_with_terms(search_terms, query, language)
             
             return []
             
         except Exception as e:
-            logger.error("fallback_keyword_search_failed", error=str(e))
+            logger.error("fallback_search_failed", error=str(e))
+            return []
+    
+    async def _semantic_search_with_terms(self, search_terms: List[str], original_query: str, language: str) -> List[Dict[str, Any]]:
+        """
+        Perform semantic search using generated search terms
+        """
+        try:
+            # Combine search terms into a semantic query
+            semantic_query = " ".join(search_terms)
+            
+            # Perform semantic search
+            results = await self._semantic_search_menu_items(semantic_query, original_query, language)
+            
+            return results[:3]  # Return top 3 results
+            
+        except Exception as e:
+            logger.error("semantic_search_with_terms_failed", error=str(e))
             return []
 
     async def _translate_burmese_request(self, burmese_text: str) -> List[str]:

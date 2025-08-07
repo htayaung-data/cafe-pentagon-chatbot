@@ -33,68 +33,88 @@ class ResponseGeneratorNode:
     
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Generate contextual response based on retrieved documents and user intent
+        Generate contextual response based on analysis results and routing decisions
+        Enhanced for two-LLM-call architecture with better Burmese support
         
         Args:
-            state: Current conversation state with RAG results
+            state: Current conversation state with analysis and routing results
             
         Returns:
-            Updated state with generated response
+            Updated state with generated response and HITL metadata
         """
         user_message = state.get("user_message", "")
-        detected_language = state.get("detected_language", "en")
-        detected_intent = state.get("detected_intent", "")
+        analysis_result = state.get("analysis_result", {})
+        routing_decision = state.get("routing_decision", {})
         rag_results = state.get("rag_results", [])
-        relevance_score = state.get("relevance_score", 0.0)
-        is_greeting = state.get("is_greeting", False)
-        is_goodbye = state.get("is_goodbye", False)
-        is_escalation_request = state.get("is_escalation_request", False)
         
-        # Check for human assistance requests
-        requires_human = self._detect_human_assistance_request(user_message, detected_language)
-        human_handling = requires_human or is_escalation_request
+        # Extract information from analysis result
+        detected_language = analysis_result.get("detected_language", "en")
+        primary_intent = analysis_result.get("primary_intent", "unknown")
+        intent_confidence = analysis_result.get("intent_confidence", 0.0)
+        cultural_context = analysis_result.get("cultural_context", {})
+        conversation_context = analysis_result.get("conversation_context", {})
+        
+        # Extract information from routing decision
+        action_type = routing_decision.get("action_type", "perform_search")
+        rag_enabled = routing_decision.get("rag_enabled", True)
+        human_handling = routing_decision.get("human_handling", False)
+        escalation_reason = routing_decision.get("escalation_reason")
+        decision_confidence = routing_decision.get("confidence", 0.5)
+        
+        # Human assistance is determined by routing decision only - no pattern matching
+        requires_human = human_handling
         
         try:
-            # Handle special cases first
-            if is_greeting:
-                response = await self._generate_greeting_response(detected_language)
-            elif is_goodbye:
-                response = await self._generate_goodbye_response(detected_language)
-            elif is_escalation_request or requires_human:
-                response = await self._generate_escalation_response(detected_language)
-            elif detected_language == "my":
-                # Use enhanced Burmese handling with conversation history
-                conversation_history = state.get("conversation_history", [])
-                response = await self._generate_enhanced_burmese_response(
-                    user_message, detected_intent, rag_results, relevance_score, conversation_history
-                )
-            elif relevance_score < 0.3 or not rag_results:
-                # Low relevance or no results - generate fallback response
-                response = await self._generate_fallback_response(user_message, detected_language, detected_intent)
+            # Handle different action types based on routing decision
+            if action_type == "escalate_to_human":
+                response = await self._generate_escalation_response(detected_language, escalation_reason)
+            elif action_type == "direct_response":
+                if primary_intent == "greeting":
+                    response = await self._generate_greeting_response(detected_language, cultural_context)
+                elif primary_intent == "goodbye":
+                    response = await self._generate_goodbye_response(detected_language, cultural_context)
+                else:
+                    response = await self._generate_direct_response(user_message, detected_language, primary_intent, cultural_context)
+            elif action_type == "perform_search" and rag_enabled:
+                if detected_language == "my":
+                    # Use enhanced Burmese handling with conversation history
+                    conversation_history = state.get("conversation_history", [])
+                    response = await self._generate_enhanced_burmese_response(
+                            user_message, primary_intent, rag_results, cultural_context, conversation_context
+                    )
+                else:
+                    # Generate contextual response based on RAG results
+                    response = await self._generate_contextual_response(
+                            user_message, detected_language, primary_intent, rag_results, cultural_context
+                    )
             else:
-                # Generate contextual response based on RAG results
-                response = await self._generate_contextual_response(
-                    user_message, detected_language, detected_intent, rag_results
-                )
+                # Fallback for unknown action types
+                response = await self._generate_fallback_response(user_message, detected_language, primary_intent, cultural_context)
             
             # Log response generation
             logger.info("response_generated",
-                       intent=detected_intent,
+                       intent=primary_intent,
                        language=detected_language,
-                       relevance_score=relevance_score,
+                       action_type=action_type,
+                       intent_confidence=intent_confidence,
+                       decision_confidence=decision_confidence,
                        response_length=len(response),
                        has_rag_results=bool(rag_results),
+                       rag_enabled=rag_enabled,
                        requires_human=requires_human,
                        human_handling=human_handling)
             
-            # Update state with generated response and human assistance flags
+            # Update state with generated response and HITL metadata
             updated_state = state.copy()
             updated_state.update({
                 "response": response,
                 "response_generated": True,
-                "response_quality": self._assess_response_quality(response, relevance_score),
+                "response_quality": self._assess_response_quality(response, intent_confidence, decision_confidence),
                 "requires_human": requires_human,
-                "human_handling": human_handling
+                "human_handling": human_handling,
+                "escalation_reason": escalation_reason,
+                "action_type": action_type,
+                "rag_enabled": rag_enabled
             })
             
             return updated_state
@@ -105,7 +125,7 @@ class ResponseGeneratorNode:
                         user_message=user_message[:100])
             
             # Generate fallback response on error
-            fallback_response = await self._generate_fallback_response(user_message, detected_language, detected_intent)
+            fallback_response = await self._generate_fallback_response(user_message, detected_language, primary_intent, cultural_context)
             
             updated_state = state.copy()
             updated_state.update({
@@ -113,12 +133,15 @@ class ResponseGeneratorNode:
                 "response_generated": True,
                 "response_quality": "fallback",
                 "requires_human": requires_human,
-                "human_handling": human_handling
+                "human_handling": human_handling,
+                "escalation_reason": escalation_reason,
+                "action_type": action_type,
+                "rag_enabled": rag_enabled
             })
             
             return updated_state
     
-    async def _generate_enhanced_burmese_response(self, user_message: str, intent: str, rag_results: List[Dict[str, Any]], relevance_score: float, conversation_history: List[Dict[str, Any]]) -> str:
+    async def _generate_enhanced_burmese_response(self, user_message: str, intent: str, rag_results: List[Dict[str, Any]], cultural_context: Dict[str, Any], conversation_context: Dict[str, Any]) -> str:
         """
         Enhanced Burmese response generation with menu-specific handling
         (Extracted from burmese_customer_services_handler.py)
@@ -127,10 +150,11 @@ class ResponseGeneratorNode:
             # Check if this is a menu-related query that needs special handling
             if intent == "menu_browse":
                 # Handle menu-specific responses
+                relevance_score = rag_results[0].get("score", 0.5) if rag_results else 0.0
                 return await self._handle_burmese_menu_response(user_message, rag_results, relevance_score)
             
             # Check if we have relevant data
-            has_relevant_data = relevance_score > 0.4 and len(rag_results) > 0
+            has_relevant_data = len(rag_results) > 0
             
             if has_relevant_data:
                 # Use RAG results to generate contextual response
@@ -139,7 +163,6 @@ class ResponseGeneratorNode:
                 # Log the actual data being used
                 logger.info("using_rag_data_for_response",
                            rag_results_count=len(rag_results),
-                           relevance_score=relevance_score,
                            context_preview=context[:200])
                 
                 # Create a prompt that uses the actual Burmese content directly
@@ -164,13 +187,13 @@ IMPORTANT: Use the Burmese content directly from the data. Do not translate or i
 
 RESPONSE:"""
                 
-                response = await self.llm.ainvoke(prompt)
+                from langchain_core.messages import HumanMessage
+                response = self.llm.invoke([HumanMessage(content=prompt)])
                 return response.content.strip()
             else:
                 # No relevant data found - use sophisticated fallback like the working implementation
                 logger.info("no_relevant_rag_data_found", 
-                           rag_results_count=len(rag_results),
-                           relevance_score=relevance_score)
+                           rag_results_count=len(rag_results))
                 return await self._generate_enhanced_burmese_fallback(user_message)
                 
         except Exception as e:
@@ -256,33 +279,16 @@ WiFi စကားဝှက်ကို စားပွဲတင်ဝန်ထ�
     
     async def _handle_burmese_menu_response(self, user_message: str, rag_results: List[Dict[str, Any]], relevance_score: float) -> str:
         """
-        Handle Burmese menu-specific responses
-        (Extracted from burmese_customer_services_handler.py)
+        Handle Burmese menu-specific responses using LLM - NO PATTERN MATCHING
         """
         try:
-            # Check if this is a general menu question
-            if self._is_general_menu_question(user_message):
-                return await self._generate_categories_response()
+            # Use LLM to generate menu response based on RAG results
+            context = self._prepare_rag_context(rag_results)
+            prompt = self._create_enhanced_menu_prompt(user_message, context)
             
-            # Check if this is a specific category question
-            elif self._is_specific_category_question(user_message):
-                category = self._extract_category_from_message(user_message)
-                if category:
-                    return await self._generate_category_items_response(category)
-                else:
-                    return await self._generate_categories_response()
-            
-            # Check if this is a specific item question
-            elif self._is_specific_item_question(user_message):
-                item_name = self._extract_item_name_from_message(user_message)
-                if item_name:
-                    return await self._generate_item_details_response(item_name)
-                else:
-                    return await self._generate_categories_response()
-            
-            # Default menu response
-            else:
-                return await self._generate_categories_response()
+            from langchain_core.messages import HumanMessage
+            response = self.llm.invoke([HumanMessage(content=prompt)])
+            return response.content.strip()
                 
         except Exception as e:
             logger.error("burmese_menu_response_handling_failed", error=str(e))
@@ -392,82 +398,7 @@ WiFi စကားဝှက်ကို စားပွဲတင်ဝန်ထ�
             logger.error("item_details_response_generation_failed", error=str(e))
             return f"'{item_name}' အစားအစာနဲ့ပတ်သက်တဲ့ အသေးစိတ်အချက်အလက်ကို ရယူရာတွင် ပြဿနာတစ်ခု ဖြစ်နေပါတယ်။"
     
-    def _is_general_menu_question(self, user_message: str) -> bool:
-        """Check if this is a general menu question asking for categories (extracted from burmese_customer_services_handler.py)"""
-        general_menu_keywords = [
-            "ဘာ", "အစားအစာ", "ရှိလား", "ရလဲ", "menu", "food", "dish", "item",
-            "ဘယ်လို", "ဘာတွေ", "ဘာများ", "ဘာရှိ", "what", "kind", "available",
-            "အမျိုးအစား", "category", "ဘာတွေ", "ဘာများ", "ဘာရှိ"
-        ]
-        
-        user_lower = user_message.lower()
-        return any(keyword in user_lower for keyword in general_menu_keywords)
-    
-    def _is_specific_category_question(self, user_message: str) -> bool:
-        """Check if this is asking for specific category items (extracted from burmese_customer_services_handler.py)"""
-        category_keywords = [
-            "burger", "ဘာဂါ", "noodle", "ခေါက်ဆွဲ", "pasta", "ပါစတာ",
-            "rice", "ထမင်း", "salad", "ဆလပ်", "sandwich", "ဆန်းဝစ်",
-            "breakfast", "မနက်စာ", "main", "အဓိက", "appetizer", "အစာစား",
-            "soup", "ဟင်းချို", "drink", "သောက်စရာ", "dessert", "အချိုပွဲ"
-        ]
-        
-        user_lower = user_message.lower()
-        return any(keyword in user_lower for keyword in category_keywords)
-    
-    def _is_specific_item_question(self, user_message: str) -> bool:
-        """Check if this is asking for specific item details (extracted from burmese_customer_services_handler.py)"""
-        specific_item_keywords = [
-            "ဈေးနှုန်း", "price", "ပါဝင်ပစ္စည်း", "ingredient", "အသေးစိတ်", "detail",
-            "ဘယ်လို", "ဘယ်လောက်", "ဘာပါ", "ဘာတွေ", "ဘာများ", "ဘာရှိ",
-            "အရသာ", "taste", "ပြင်ဆင်ချိန်", "preparation", "အစပ်", "spice"
-        ]
-        
-        user_lower = user_message.lower()
-        return any(keyword in user_lower for keyword in specific_item_keywords)
-    
-    def _extract_category_from_message(self, user_message: str) -> str:
-        """Extract category from user message"""
-        # Simple extraction - can be enhanced
-        category_keywords = {
-            "burger": "burgers",
-            "ဘာဂါ": "burgers",
-            "noodle": "noodles",
-            "ခေါက်ဆွဲ": "noodles",
-            "pasta": "pasta",
-            "ပါစတာ": "pasta",
-            "rice": "rice",
-            "ထမင်း": "rice",
-            "salad": "salads",
-            "ဆလပ်": "salads",
-            "sandwich": "sandwiches",
-            "ဆန်းဝစ်": "sandwiches",
-            "breakfast": "breakfast",
-            "မနက်စာ": "breakfast",
-            "main": "main_courses",
-            "အဓိက": "main_courses",
-            "appetizer": "appetizers",
-            "အစာစား": "appetizers",
-            "soup": "soups",
-            "ဟင်းချို": "soups",
-            "drink": "drinks",
-            "သောက်စရာ": "drinks",
-            "dessert": "desserts",
-            "အချိုပွဲ": "desserts"
-        }
-        
-        user_lower = user_message.lower()
-        for keyword, category in category_keywords.items():
-            if keyword in user_lower:
-                return category
-        
-        return ""
-    
-    def _extract_item_name_from_message(self, user_message: str) -> str:
-        """Extract item name from user message"""
-        # Simple extraction - can be enhanced with more sophisticated NLP
-        # For now, return the message as is for the vector search to handle
-        return user_message.strip()
+
 
     def _create_enhanced_menu_prompt(self, user_message: str, context: str) -> str:
         """Create enhanced menu response prompt that uses actual Burmese data"""
@@ -569,36 +500,70 @@ IMPORTANT: Use the Burmese content directly from the data. Do not translate or i
 
 RESPONSE:"""
 
-    async def _generate_greeting_response(self, language: str) -> str:
-        """Generate greeting response"""
+    async def _generate_greeting_response(self, language: str, cultural_context: Dict[str, Any]) -> str:
+        """Generate greeting response with cultural context awareness"""
+        formality_level = cultural_context.get("formality_level", "casual")
+        uses_honorifics = cultural_context.get("uses_honorifics", False)
+        
         if language == "my":
-            return "မင်္ဂလာပါ ခင်ဗျာ! ကျနော်တို့ Cafe Pentagon မှာ ကြိုဆိုပါတယ်။ ဘာကူညီပေးရမလဲ ခင်ဗျာ?"
+            if formality_level == "very_formal" or uses_honorifics:
+                return "မင်္ဂလာပါ ခင်ဗျာ! ကျနော်တို့ Cafe Pentagon မှာ ကြိုဆိုပါတယ်။ ဘာကူညီပေးရမလဲ ခင်ဗျာ?"
+            elif formality_level == "formal":
+                return "မင်္ဂလာပါ! ကျနော်တို့ Cafe Pentagon မှာ ကြိုဆိုပါတယ်။ ဘာကူညီပေးရမလဲ?"
+            else:
+                return "မင်္ဂလာ! ကျနော်တို့ Cafe Pentagon မှာ ကြိုဆိုပါတယ်။ ဘာကူညီပေးရမလဲ?"
         else:
             return "Hello! Welcome to Cafe Pentagon. How can I help you today?"
     
-    async def _generate_goodbye_response(self, language: str) -> str:
-        """Generate goodbye response"""
+    async def _generate_goodbye_response(self, language: str, cultural_context: Dict[str, Any]) -> str:
+        """Generate goodbye response with cultural context awareness"""
+        formality_level = cultural_context.get("formality_level", "casual")
+        uses_honorifics = cultural_context.get("uses_honorifics", False)
+        
         if language == "my":
-            return "ကျေးဇူးတင်ပါတယ် ခင်ဗျာ! အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော်.."
+            if formality_level == "very_formal" or uses_honorifics:
+                return "ကျေးဇူးတင်ပါတယ် ခင်ဗျာ! အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော် ခင်ဗျာ။"
+            elif formality_level == "formal":
+                return "ကျေးဇူးတင်ပါတယ်! အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော်။"
+            else:
+                return "ကျေးဇူးပါ! အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော်။"
         else:
             return "Thank you! Feel free to ask if you need anything else."
     
-    async def _generate_escalation_response(self, language: str) -> str:
-        """Generate escalation response"""
+    async def _generate_escalation_response(self, language: str, escalation_reason: Optional[str]) -> str:
+        """Generate escalation response with specific reason"""
         if language == "my":
-            return "ကျေးဇူးပြု၍ စောင့်ဆိုင်းပေးပါ။ လူသားဝန်ထမ်းတစ်ဦးက သင့်ကို ကူညီပေးပါမယ်။"
+            if escalation_reason and "human assistance" in escalation_reason.lower():
+                return "တာဝန်ရှိ ဝန်ထမ်းတစ်ယောက် လာပြီး ကူညီပေးပါလိမ့်မယ်..၊ ခဏစောင့်ပေးပါ ခင်ဗျာ.."
+            elif escalation_reason:
+                return f"ကျေးဇူးပြု၍ ခဏစောင့်ပေးပါ ခင်ဗျာ...။ {escalation_reason} အတွက် သက်ဆိုင်ရာ ဝန်ထမ်းက ကူညီပေးပါလိမ့်မယ်။"
+            else:
+                return "တာဝန်ရှိ ဝန်ထမ်းတစ်ယောက် လာပြီး ကူညီပေးပါလိမ့်မယ်..၊ ခဏစောင့်ပေးပါ ခင်ဗျာ.."
         else:
-            return "Please wait while I connect you to a human staff member who can help you."
+            if escalation_reason and "human assistance" in escalation_reason.lower():
+                return "The responsible staff will be here and assist to you. could you wait a moment"
+            elif escalation_reason:
+                return f"Please wait while I connect you to a human staff member who can help you with {escalation_reason.lower()}."
+            else:
+                return "The responsible staff will be here and assist to you. could you wait a moment"
     
-    async def _generate_fallback_response(self, user_message: str, language: str, intent: str) -> str:
+    async def _generate_fallback_response(self, user_message: str, language: str, intent: str, cultural_context: Dict[str, Any]) -> str:
         """Generate fallback response when no relevant information is found"""
+        formality_level = cultural_context.get("formality_level", "casual")
+        uses_honorifics = cultural_context.get("uses_honorifics", False)
+        
         if language == "my":
-            return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ် ခင်ဗျာ။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ် ခင်ဗျာ။ နားလည်ပေးတဲ့အတွက် ကျေးဇူး အများကြီး တင်ပါတယ်။"
+            if formality_level == "very_formal" or uses_honorifics:
+                return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ် ခင်ဗျာ။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ် ခင်ဗျာ။ နားလည်ပေးတဲ့အတွက် ကျေးဇူး အများကြီး တင်ပါတယ်။"
+            elif formality_level == "formal":
+                return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ်။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ်။"
+            else:
+                return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ်။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ်။"
         else:
             return "I'm sorry, I don't have specific information about that. Please call +959979732781 for detailed assistance. Thank you for your understanding."
     
-    async def _generate_contextual_response(self, user_message: str, language: str, intent: str, rag_results: List[Dict[str, Any]]) -> str:
-        """Generate contextual response based on RAG results"""
+    async def _generate_contextual_response(self, user_message: str, language: str, intent: str, rag_results: List[Dict[str, Any]], cultural_context: Dict[str, Any]) -> str:
+        """Generate contextual response based on RAG results with cultural context"""
         
         # Prepare context from RAG results
         context = self._prepare_rag_context(rag_results)
@@ -615,12 +580,13 @@ RESPONSE:"""
         
         try:
             # Generate response using LLM
-            response = await self.llm.ainvoke(prompt)
+            from langchain_core.messages import HumanMessage
+            response = self.llm.invoke([HumanMessage(content=prompt)])
             return response.content.strip()
             
         except Exception as e:
             logger.error("llm_response_generation_failed", error=str(e))
-            return await self._generate_fallback_response(user_message, language, intent)
+            return await self._generate_fallback_response(user_message, language, intent, cultural_context)
     
     def _prepare_rag_context(self, rag_results: List[Dict[str, Any]]) -> str:
         """Prepare context string from RAG results with detailed information"""
@@ -812,60 +778,42 @@ INSTRUCTIONS:
 
 RESPONSE:"""
     
-    def _assess_response_quality(self, response: str, relevance_score: float) -> str:
-        """Assess the quality of the generated response"""
-        if relevance_score > 0.7:
+    def _assess_response_quality(self, response: str, intent_confidence: float, decision_confidence: float) -> str:
+        """Assess the quality of the generated response based on confidence scores"""
+        # Calculate overall confidence
+        overall_confidence = (intent_confidence + decision_confidence) / 2
+        
+        if overall_confidence > 0.7:
             return "high"
-        elif relevance_score > 0.4:
+        elif overall_confidence > 0.4:
             return "medium"
         else:
             return "low" 
 
-    def _detect_human_assistance_request(self, user_message: str, language: str) -> bool:
-        """
-        Detect if user is requesting human assistance
+ 
+
+    async def _generate_direct_response(self, user_message: str, language: str, intent: str, cultural_context: Dict[str, Any]) -> str:
+        """Generate direct response for non-search intents"""
+        formality_level = cultural_context.get("formality_level", "casual")
+        uses_honorifics = cultural_context.get("uses_honorifics", False)
         
-        Args:
-            user_message: User's message
-            language: Detected language
-            
-        Returns:
-            True if human assistance is requested, False otherwise
-        """
-        user_lower = user_message.lower().strip()
-        
-        # English human assistance patterns
-        english_patterns = [
-            "talk to a human", "speak to someone", "talk to someone",
-            "human help", "real person", "staff member", "employee",
-            "manager", "supervisor", "customer service",
-            "i need help", "can't help", "not working",
-            "complaint", "problem", "issue", "escalate"
-        ]
-        
-        # Burmese human assistance patterns
-        burmese_patterns = [
-            "လူသားနဲ့ပြောချင်ပါတယ်", "အကူအညီလိုပါတယ်",
-            "ပိုကောင်းတဲ့အကူအညီလိုပါတယ်", "သူငယ်ချင်းနဲ့ပြောချင်ပါတယ်",
-            "လူသားနဲ့ပြောချင်တယ်", "အကူအညီလိုတယ်",
-            "မန်နေဂျာ", "အုပ်ချုပ်သူ", "ဝန်ထမ်း",
-            "ပြဿနာ", "အခက်အခဲ", "အကူအညီလိုပါတယ်",
-            "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့",
-            "အသေးစိတ် အချက်အလက်ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ်"
-        ]
-        
-        if language in ["my", "myanmar"]:
-            patterns = burmese_patterns
+        if language == "my":
+            if intent == "greeting":
+                return await self._generate_greeting_response(language, cultural_context)
+            elif intent == "goodbye":
+                return await self._generate_goodbye_response(language, cultural_context)
+            else:
+                # Generic direct response
+                if formality_level == "very_formal" or uses_honorifics:
+                    return "နားလည်ပေးတဲ့အတွက် ကျေးဇူးတင်ပါတယ် ခင်ဗျာ။ အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော် ခင်ဗျာ။"
+                elif formality_level == "formal":
+                    return "နားလည်ပေးတဲ့အတွက် ကျေးဇူးတင်ပါတယ်။ အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော်။"
+                else:
+                    return "ကျေးဇူးပါ။ အခြား သိလိုတာ ရှိရင်လည်း ပြောပါနော်။"
         else:
-            patterns = english_patterns
-        
-        # Check if any pattern matches
-        for pattern in patterns:
-            if pattern in user_lower:
-                logger.info("human_assistance_request_detected", 
-                           pattern=pattern, 
-                           language=language,
-                           message=user_message[:50])
-                return True
-        
-        return False 
+            if intent == "greeting":
+                return await self._generate_greeting_response(language, cultural_context)
+            elif intent == "goodbye":
+                return await self._generate_goodbye_response(language, cultural_context)
+            else:
+                return "Thank you for your message. Feel free to ask if you need anything else." 

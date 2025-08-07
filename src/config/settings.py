@@ -96,6 +96,11 @@ class Settings(BaseSettings):
             return [lang.strip() for lang in self.supported_languages.split(",")]
         return self.supported_languages
     
+    @property
+    def pinecone_namespaces(self) -> List[str]:
+        """Get Pinecone namespaces as a list"""
+        return ["faq", "menu", "jobs", "events"]
+    
     @validator("log_level")
     def validate_log_level(cls, v):
         """Validate log level"""

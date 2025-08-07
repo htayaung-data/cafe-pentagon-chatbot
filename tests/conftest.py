@@ -97,6 +97,7 @@ TEST_USER_MESSAGES = {
     "burmese_complex_job_salary": "အလုပ်ရှိလား နဲ့ လစာ ဘယ်လောက်လဲ",
     "burmese_complex_delivery_hours": "ပို့ပေးလား နဲ့ ဘယ်အချိန်ထိလဲ",
     "burmese_complex_menu_recommend": "ဘာညွှန်းလဲ နဲ့ ဘယ်လောက်လဲ",
+    "burmese_menu": "ခေါက်ဆွဲ ဘာတွေ ရှိလဲ",
     
     # Edge cases and problematic patterns
     "burmese_edge_empty": "",

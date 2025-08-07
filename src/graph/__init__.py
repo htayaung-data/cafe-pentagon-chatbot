@@ -4,12 +4,12 @@ Stateful conversation management with intent-based routing
 """
 
 from .state_graph import create_conversation_graph, StateSchema
-from .nodes.pattern_matcher import PatternMatcherNode
-from .nodes.rag_controller import RAGControllerNode
+from .nodes.smart_analysis_node import SmartAnalysisNode
+from .nodes.decision_router_node import DecisionRouterNode
 
 __all__ = [
     "create_conversation_graph",
     "StateSchema",
-    "PatternMatcherNode", 
-    "RAGControllerNode"
+    "SmartAnalysisNode", 
+    "DecisionRouterNode"
 ] 

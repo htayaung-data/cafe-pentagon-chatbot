@@ -47,6 +47,34 @@ class ConversationMemoryUpdaterNode:
             return state
         
         try:
+            # Ensure conversation exists in Supabase
+            from src.services.conversation_tracking_service import get_conversation_tracking_service
+            conversation_tracking = get_conversation_tracking_service()
+            
+            # Check if conversation was already escalated and blocked from LLM processing
+            conversation_escalated = state.get("conversation_escalated", False)
+            escalation_blocked = state.get("escalation_blocked", False)
+            
+            if conversation_escalated and escalation_blocked:
+                logger.info("conversation_escalated_skipping_processing", 
+                           conversation_id=conversation_id,
+                           user_id=user_id)
+                # Return state unchanged - don't process escalated conversations
+                return state
+            
+            # Get or create conversation
+            conversation = conversation_tracking.get_or_create_conversation(
+                user_id=user_id,
+                platform="streamlit",
+                conversation_id=conversation_id
+            )
+            
+            if not conversation:
+                logger.error("failed_to_get_or_create_conversation", 
+                           conversation_id=conversation_id,
+                           user_id=user_id)
+                return state
+            
             # Add user message to history
             user_metadata = {
                 "intent": detected_intent,
@@ -105,11 +133,12 @@ class ConversationMemoryUpdaterNode:
                 conversation_updates = {
                     "human_handling": human_handling,
                     "rag_enabled": not human_handling,
-                    "status": "escalated" if human_handling else "active",
                     "priority": 2 if human_handling else 1
                 }
                 
-                conversation_tracking.update_conversation(conversation_id, "active", conversation_updates)
+                # Use the correct status based on human handling
+                status = "escalated" if human_handling else "active"
+                conversation_tracking.update_conversation(conversation_id, status, conversation_updates)
                 
                 logger.info("conversation_updated_for_human_assistance", 
                            conversation_id=conversation_id,

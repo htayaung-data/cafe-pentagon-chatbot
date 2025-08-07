@@ -93,7 +93,7 @@ class ConversationMemoryService:
     def add_message_to_history(self, conversation_id: str, role: str, content: str, 
                               metadata: Optional[Dict[str, Any]] = None) -> bool:
         """
-        Add a message to conversation history and update cache
+        Add a message to conversation history and save to Supabase
         
         Args:
             conversation_id: Conversation identifier
@@ -105,7 +105,35 @@ class ConversationMemoryService:
             True if successful, False otherwise
         """
         try:
-            # Create message entry
+            # Map role to sender_type for Supabase
+            sender_type = "user" if role == "user" else "bot"
+            
+            # Prepare metadata for Supabase
+            supabase_metadata = {
+                "intent": metadata.get("intent", "unknown") if metadata else "unknown",
+                "user_language": metadata.get("language", "en") if metadata else "en",
+                "conversation_state": metadata.get("conversation_state", "active") if metadata else "active",
+                "requires_human": metadata.get("requires_human", False) if metadata else False,
+                "human_handling": metadata.get("human_handling", False) if metadata else False,
+                "langgraph_processing": True
+            }
+            
+            # Save message to Supabase
+            saved_message = self.conversation_tracking.save_message(
+                conversation_id=conversation_id,
+                content=content,
+                sender_type=sender_type,
+                confidence_score=metadata.get("confidence", 0.0) if metadata else 0.0,
+                metadata=supabase_metadata
+            )
+            
+            if not saved_message:
+                logger.error("failed_to_save_message_to_supabase", 
+                           conversation_id=conversation_id,
+                           role=role)
+                return False
+            
+            # Create message entry for cache
             message_entry = {
                 "role": role,
                 "content": content,
@@ -130,10 +158,11 @@ class ConversationMemoryService:
             # Update cache
             self.cache.set(cache_key, cached_history, ttl=3600)
             
-            logger.info("message_added_to_conversation_history", 
+            logger.info("message_added_to_conversation_history_and_supabase", 
                        conversation_id=conversation_id,
                        role=role,
-                       content_length=len(content))
+                       content_length=len(content),
+                       message_id=saved_message.get("id"))
             
             return True
             

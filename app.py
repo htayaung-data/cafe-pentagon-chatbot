@@ -105,6 +105,7 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
         detected_language = final_state.get("detected_language", "")
         rag_enabled = final_state.get("rag_enabled", True)
         human_handling = final_state.get("human_handling", False)
+        requires_human = final_state.get("requires_human", False)
         rag_results_count = len(final_state.get("rag_results", []))
         relevance_score = final_state.get("relevance_score", 0.0)
         
@@ -118,51 +119,13 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
                    detected_language=detected_language,
                    rag_enabled=rag_enabled,
                    human_handling=human_handling,
+                   requires_human=requires_human,
                    rag_results_count=rag_results_count,
                    relevance_score=relevance_score)
         
-        # Save conversation to tracking service
-        try:
-            conversation = st.session_state.conversation_tracking.get_or_create_conversation(user_id, 'streamlit')
-            
-            # Save user message
-            user_message_metadata = {
-                "platform": "streamlit",
-                "user_language": detected_language,
-                "intent": detected_intent,
-                "langgraph_processing": True
-            }
-            st.session_state.conversation_tracking.save_message(
-                conversation["id"], 
-                user_message, 
-                "user",
-                metadata=user_message_metadata
-            )
-            
-            # Save bot response
-            bot_message_metadata = {
-                "intent": detected_intent,
-                "intent_confidence": intent_confidence,
-                "user_language": detected_language,
-                "rag_enabled": rag_enabled,
-                "human_handling": human_handling,
-                "rag_results_count": rag_results_count,
-                "relevance_score": relevance_score,
-                "langgraph_processing": True
-            }
-            st.session_state.conversation_tracking.save_message(
-                conversation["id"], 
-                response, 
-                "bot",
-                confidence_score=intent_confidence,
-                metadata=bot_message_metadata
-            )
-            
-            # Update conversation status
-            st.session_state.conversation_tracking.update_conversation(conversation["id"], "active")
-            
-        except Exception as e:
-            logger.error("conversation_tracking_save_failed", error=str(e))
+        # Note: Conversation tracking is handled by LangGraph workflow
+        # No need to duplicate the conversation tracking here
+        # LangGraph already saves messages and updates conversation status
         
         return {
             "response": response,
@@ -171,6 +134,7 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
             "language": detected_language,
             "rag_enabled": rag_enabled,
             "human_handling": human_handling,
+            "requires_human": requires_human,
             "rag_results_count": rag_results_count,
             "relevance_score": relevance_score
         }
@@ -185,6 +149,7 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
             "language": "my",
             "rag_enabled": False,
             "human_handling": False,
+            "requires_human": False,
             "rag_results_count": 0,
             "relevance_score": 0.0
         }
@@ -317,6 +282,7 @@ def main():
                         "language": result["language"],
                         "rag_enabled": result["rag_enabled"],
                         "human_handling": result["human_handling"],
+                        "requires_human": result["requires_human"],
                         "rag_results_count": result["rag_results_count"],
                         "relevance_score": result["relevance_score"]
                     }
