@@ -63,9 +63,10 @@ class ConversationMemoryUpdaterNode:
                 return state
             
             # Get or create conversation
+            platform = state.get("platform", "streamlit")  # Use platform from state
             conversation = conversation_tracking.get_or_create_conversation(
                 user_id=user_id,
-                platform="streamlit",
+                platform=platform,
                 conversation_id=conversation_id
             )
             

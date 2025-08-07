@@ -191,9 +191,28 @@ class FacebookMessengerService:
             # Send text response after image (or immediately if no image)
             await self.send_message(sender_id, response["response"])
             
-            # Note: Conversation tracking is handled by LangGraph workflow (same as Streamlit)
-            # No need to duplicate the conversation tracking here
-            # LangGraph already saves messages and updates conversation status
+            # Ensure conversation is properly saved to Supabase
+            # LangGraph workflow handles the conversation tracking, but let's verify it worked
+            try:
+                conversation = self.conversation_tracking.get_conversation_by_id(conversation_id)
+                if not conversation:
+                    logger.warning("conversation_not_found_in_supabase", 
+                                  conversation_id=conversation_id,
+                                  sender_id=sender_id)
+                    # Create conversation if it doesn't exist
+                    self.conversation_tracking.get_or_create_conversation(
+                        user_id=sender_id,
+                        platform="facebook",
+                        conversation_id=conversation_id
+                    )
+                else:
+                    logger.info("conversation_found_in_supabase", 
+                              conversation_id=conversation_id,
+                              status=conversation.get("status", "unknown"))
+            except Exception as e:
+                logger.error("conversation_verification_failed", 
+                           conversation_id=conversation_id,
+                           error=str(e))
             
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
