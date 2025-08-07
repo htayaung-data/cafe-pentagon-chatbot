@@ -123,7 +123,6 @@ Project 7/
 │   ├── agents/                    # AI agents
 │   │   ├── base.py               # Base agent class
 │   │   ├── conversation_manager.py # Conversation management
-│   │   ├── intent_classifier.py  # AI-powered intent classification
 │   │   ├── main_agent.py         # Main orchestrator agent
 │   │   └── response_generator.py # AI-enhanced response generation
 │   ├── config/                   # Configuration
@@ -169,7 +168,7 @@ The chatbot uses JSON files in the `data/` directory:
 
 ### Intent Classification
 
-The new AI-powered intent classifier uses OpenAI GPT-4 to dynamically classify user messages into intents:
+The AI-powered intent classification uses OpenAI GPT-4 to dynamically classify user messages into intents:
 
 - **greeting**: User greetings and conversation starters
 - **menu_browse**: Menu and food-related queries

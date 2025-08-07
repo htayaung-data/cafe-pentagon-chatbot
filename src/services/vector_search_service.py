@@ -574,49 +574,8 @@ RESPONSE: Return only the exact category name from the available categories list
                         "ငါး": ["ငါး", "fish"]
                     }
                     
-                    for protein_burmese, keywords in protein_keywords.items():
-                        if protein_burmese in query_lower:
-                            if any(keyword in myanmar_name for keyword in keywords):
-                                semantic_bonus += 0.25  # Increased from 0.15
-                            else:
-                                semantic_bonus -= 0.25  # Increased penalty
-                    
-                    # Check for noodle type matches with higher weight
-                    noodle_keywords = {
-                        "ကြာဇံ": ["ကြာဇံ", "vermicelli", "glass noodle"],
-                        "ခေါက်ဆွဲ": ["ခေါက်ဆွဲ", "noodle"]
-                    }
-                    
-                    for noodle_burmese, keywords in noodle_keywords.items():
-                        if noodle_burmese in query_lower:
-                            if any(keyword in myanmar_name for keyword in keywords):
-                                semantic_bonus += 0.2  # Increased from 0.1
-                            else:
-                                semantic_bonus -= 0.2  # Increased penalty
-                    
-                    # Check for cooking method matches (critical distinction)
-                    cooking_keywords = {
-                        "ကြော်": ["ကြော်", "fried", "stir-fry"],
-                        "ပြုတ်": ["ပြုတ်", "soup", "boiled"]
-                    }
-                    
-                    for cooking_burmese, keywords in cooking_keywords.items():
-                        if cooking_burmese in query_lower:
-                            if any(keyword in myanmar_name for keyword in keywords):
-                                semantic_bonus += 0.3  # Increased from 0.2
-                            else:
-                                semantic_bonus -= 0.3  # Increased penalty
-                    
-                    # Special handling for "နဲ့" (with) queries - boost score for items containing both ingredients
-                    if "နဲ့" in query_lower:
-                        # Check if both ingredients are present in the item name
-                        query_parts = query_lower.split("နဲ့")
-                        if len(query_parts) == 2:
-                            part1, part2 = query_parts[0].strip(), query_parts[1].strip()
-                            # Check if both parts are found in the item name
-                            if (any(keyword in myanmar_name for keyword in part1.split()) and 
-                                any(keyword in myanmar_name for keyword in part2.split())):
-                                semantic_bonus += 0.15  # Bonus for "with" queries that match both ingredients
+                    # No pattern matching - let LLM handle semantic analysis
+                    # Semantic bonus is now determined by vector similarity only
                 
                 # Combine scores with semantic bonus
                 if text_similarity > 0:
@@ -902,24 +861,14 @@ RESPONSE: Return only the exact category name from the available categories list
             menu_results = []
             events_results = []
             
-            # For Burmese queries, use semantic context extraction
+            # For Burmese queries, use direct semantic search (no pattern matching)
             if language in ["my", "myanmar", "mm"]:
-                from src.services.semantic_context_extractor import get_semantic_context_extractor
-                semantic_extractor = get_semantic_context_extractor()
+                logger.info("using_direct_semantic_search_for_burmese", 
+                           burmese_query=user_message[:50])
                 
-                # Extract English semantic context from Burmese query
-                semantic_context = await semantic_extractor.extract_semantic_context(user_message)
-                english_context = semantic_context.get("english_context", user_message)
-                query_type = semantic_context.get("query_type", "general")
-                
-                logger.info("using_semantic_context", 
-                           burmese_query=user_message[:50],
-                           english_context=english_context,
-                           query_type=query_type)
-                
-                # Strategy 1: Search with English semantic context
+                # Strategy 1: Direct semantic search with Burmese query
                 faq_query_results = self.pinecone_index.query(
-                    vector=self.embeddings.embed_query(english_context),
+                    vector=self.embeddings.embed_query(user_message),
                     namespace="faq",
                     top_k=10,
                     include_metadata=True
@@ -927,9 +876,9 @@ RESPONSE: Return only the exact category name from the available categories list
                 if faq_query_results.matches:
                     faq_results.extend([match.metadata for match in faq_query_results.matches if match.score > 0.4])
                 
-                # Strategy 2: Search menu with English semantic context
+                # Strategy 2: Search menu namespace
                 menu_query_results = self.pinecone_index.query(
-                    vector=self.embeddings.embed_query(english_context),
+                    vector=self.embeddings.embed_query(user_message),
                     namespace="menu",
                     top_k=15,
                     include_metadata=True
@@ -939,85 +888,13 @@ RESPONSE: Return only the exact category name from the available categories list
                 
                 # Strategy 3: Search events namespace
                 events_query_results = self.pinecone_index.query(
-                    vector=self.embeddings.embed_query(english_context),
+                    vector=self.embeddings.embed_query(user_message),
                     namespace="events",
                     top_k=8,
                     include_metadata=True
                 )
                 if events_query_results.matches:
                     events_results.extend([match.metadata for match in events_query_results.matches if match.score > 0.4])
-                
-                # Strategy 4: Additional search with original Burmese query as fallback
-                faq_fallback_results = self.pinecone_index.query(
-                    vector=self.embeddings.embed_query(user_message),
-                    namespace="faq",
-                    top_k=5,
-                    include_metadata=True
-                )
-                if faq_fallback_results.matches:
-                    fallback_faqs = [match.metadata for match in faq_fallback_results.matches if match.score > 0.5]
-                    # Add unique results
-                    for faq in fallback_faqs:
-                        if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                            faq_results.append(faq)
-                
-                # Strategy 5: Direct keyword search for specific Burmese queries
-                # Photo-related queries
-                if any(word in user_message.lower() for word in ["ဓါတ်ပုံ", "photo", "ရိုက်ကူး", "shooting", "ကင်မရာ", "camera"]):
-                    photo_queries = [
-                        "photo camera professional mobile phone",
-                        "ဓါတ်ပုံ ရိုက်ကူး ကင်မရာ professional",
-                        "photography policy camera phone"
-                    ]
-                    for photo_query in photo_queries:
-                        photo_results = self.pinecone_index.query(
-                            vector=self.embeddings.embed_query(photo_query),
-                            namespace="faq",
-                            top_k=3,
-                            include_metadata=True
-                        )
-                        if photo_results.matches:
-                            for match in photo_results.matches:
-                                if match.score > 0.4 and not any(existing.get('id') == match.metadata.get('id') for existing in faq_results):
-                                    faq_results.append(match.metadata)
-                
-                # Opening hours queries
-                if any(word in user_message.lower() for word in ["ဖွင့်ချိန်", "opening", "ပိတ်ချိန်", "closing", "အချိန်", "time", "ဘယ်အချိန်"]):
-                    time_queries = [
-                        "opening hours time schedule cafe restaurant",
-                        "ဖွင့်ချိန် ပိတ်ချိန် အချိန် ဆိုင်",
-                        "cafe hours opening closing time"
-                    ]
-                    for time_query in time_queries:
-                        time_results = self.pinecone_index.query(
-                            vector=self.embeddings.embed_query(time_query),
-                            namespace="faq",
-                            top_k=3,
-                            include_metadata=True
-                        )
-                        if time_results.matches:
-                            for match in time_results.matches:
-                                if match.score > 0.4 and not any(existing.get('id') == match.metadata.get('id') for existing in faq_results):
-                                    faq_results.append(match.metadata)
-                
-                # Band/music queries
-                if any(word in user_message.lower() for word in ["တီးဝိုင်း", "band", "ဂီတ", "music", "သီချင်း", "song", "ဖျော်ဖြေ", "entertainment"]):
-                    music_queries = [
-                        "live music band entertainment",
-                        "တီးဝိုင်း ဂီတ ဖျော်ဖြေ",
-                        "music band live entertainment"
-                    ]
-                    for music_query in music_queries:
-                        music_results = self.pinecone_index.query(
-                            vector=self.embeddings.embed_query(music_query),
-                            namespace="faq",
-                            top_k=3,
-                            include_metadata=True
-                        )
-                        if music_results.matches:
-                            for match in music_results.matches:
-                                if match.score > 0.4 and not any(existing.get('id') == match.metadata.get('id') for existing in faq_results):
-                                    faq_results.append(match.metadata)
                 
             else:
                 # For English queries, use original strategy
@@ -1032,129 +909,7 @@ RESPONSE: Return only the exact category name from the available categories list
                     if faq_query_results.matches:
                         faq_results.extend([match.metadata for match in faq_query_results.matches if match.score > 0.6])
                     
-                    # Strategy 2: Extract key Burmese words and search (for Burmese queries)
-                    if language in ["my", "myanmar", "mm"]:
-                        burmese_keywords = self._extract_burmese_keywords(user_message)
-                        if burmese_keywords:
-                            keyword_query = " ".join(burmese_keywords[:3])  # Use top 3 keywords
-                            keyword_results = self.pinecone_index.query(
-                                vector=self.embeddings.embed_query(keyword_query),
-                                namespace="faq",
-                                top_k=5,
-                                include_metadata=True
-                            )
-                            if keyword_results.matches:
-                                keyword_faqs = [match.metadata for match in keyword_results.matches if match.score > 0.5]
-                                # Add unique results
-                                for faq in keyword_faqs:
-                                    if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                                        faq_results.append(faq)
-                    
-                    # Strategy 3: Direct category search for location queries
-                    if any(word in user_message.lower() for word in ["ဘယ်မှာ", "လိပ်စာ", "တည်နေရာ", "where", "location", "address"]):
-                        # Try multiple location-related queries to ensure we find the location FAQ
-                        location_queries = [
-                            "location address where cafe restaurant",
-                            "ဆိုင်တည်နေရာ လိပ်စာ ဘယ်မှာ",
-                            "cafe location address yangon",
-                            "restaurant address location"
-                        ]
-                        
-                        for location_query in location_queries:
-                            location_results = self.pinecone_index.query(
-                                vector=self.embeddings.embed_query(location_query),
-                                namespace="faq",
-                                top_k=5,
-                                include_metadata=True
-                            )
-                            if location_results.matches:
-                                location_faqs = [match.metadata for match in location_results.matches if match.score > 0.3]
-                                # Add unique results, prioritizing location category
-                                for faq in location_faqs:
-                                    if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                                        faq_results.append(faq)
-                                        # If we found a location FAQ, break early
-                                        if faq.get('category') == 'location':
-                                            break
-                    
-                    # Strategy 4: Direct search for photo-related queries
-                    if any(word in user_message.lower() for word in ["ဓါတ်ပုံ", "photo", "ရိုက်ကူး", "shooting", "ကင်မရာ", "camera", "professional"]):
-                        # Try multiple photo-related queries to ensure we find the photo policy FAQ
-                        photo_queries = [
-                            "photo camera professional mobile phone",
-                            "ဓါတ်ပုံ ရိုက်ကူး ကင်မရာ professional",
-                            "photography policy camera phone",
-                            "photo taking allowed camera"
-                        ]
-                        
-                        for photo_query in photo_queries:
-                            photo_results = self.pinecone_index.query(
-                                vector=self.embeddings.embed_query(photo_query),
-                                namespace="faq",
-                                top_k=5,
-                                include_metadata=True
-                            )
-                            if photo_results.matches:
-                                photo_faqs = [match.metadata for match in photo_results.matches if match.score > 0.3]
-                                # Add unique results, prioritizing photo/policy category
-                                for faq in photo_faqs:
-                                    if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                                        faq_results.append(faq)
-                                        # If we found a photo policy FAQ, break early
-                                        if faq.get('category') == 'policies' and 'photo' in str(faq).lower():
-                                            break
-                    
-                    # Strategy 5: Direct search for opening hours queries
-                    if any(word in user_message.lower() for word in ["ဖွင့်ချိန်", "opening", "ပိတ်ချိန်", "closing", "အချိန်", "time", "schedule", "ဘယ်အချိန်"]):
-                        # Try multiple time-related queries to ensure we find the hours FAQ
-                        time_queries = [
-                            "opening hours time schedule cafe restaurant",
-                            "ဖွင့်ချိန် ပိတ်ချိန် အချိန် ဆိုင်",
-                            "cafe hours opening closing time"
-                        ]
-                        
-                        for time_query in time_queries:
-                            time_results = self.pinecone_index.query(
-                                vector=self.embeddings.embed_query(time_query),
-                                namespace="faq",
-                                top_k=5,
-                                include_metadata=True
-                            )
-                            if time_results.matches:
-                                time_faqs = [match.metadata for match in time_results.matches if match.score > 0.3]
-                                # Add unique results, prioritizing hours category
-                                for faq in time_faqs:
-                                    if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                                        faq_results.append(faq)
-                                        # If we found a hours FAQ, break early
-                                        if faq.get('category') == 'hours':
-                                            break
-                    
-                    # Strategy 6: Direct search for band/music queries
-                    if any(word in user_message.lower() for word in ["တီးဝိုင်း", "band", "ဂီတ", "music", "သီချင်း", "song", "ဖျော်ဖြေ", "entertainment"]):
-                        # Try multiple music-related queries to ensure we find the entertainment FAQ
-                        music_queries = [
-                            "live music band entertainment",
-                            "တီးဝိုင်း ဂီတ ဖျော်ဖြေ",
-                            "music band live entertainment"
-                        ]
-                        
-                        for music_query in music_queries:
-                            music_results = self.pinecone_index.query(
-                                vector=self.embeddings.embed_query(music_query),
-                                namespace="faq",
-                                top_k=5,
-                                include_metadata=True
-                            )
-                            if music_results.matches:
-                                music_faqs = [match.metadata for match in music_results.matches if match.score > 0.3]
-                                # Add unique results, prioritizing entertainment category
-                                for faq in music_faqs:
-                                    if not any(existing.get('id') == faq.get('id') for existing in faq_results):
-                                        faq_results.append(faq)
-                                        # If we found an entertainment FAQ, break early
-                                        if faq.get('category') == 'entertainment':
-                                            break
+                    # No pattern matching - use semantic search only
                 
                 except Exception as e:
                     logger.error(f"FAQ search error: {str(e)}")
@@ -1197,12 +952,7 @@ RESPONSE: Return only the exact category name from the available categories list
             menu_results = self._remove_duplicates(menu_results)
             events_results = self._remove_duplicates(events_results)
             
-            # For location queries, prioritize location FAQs
-            if any(word in user_message.lower() for word in ["ဘယ်မှာ", "လိပ်စာ", "တည်နေရာ", "where", "location", "address"]):
-                location_faqs = [faq for faq in faq_results if faq.get('category') == 'location']
-                other_faqs = [faq for faq in faq_results if faq.get('category') != 'location']
-                # Put location FAQs first, then others
-                faq_results = location_faqs + other_faqs
+            # No pattern matching - let LLM handle location prioritization
             
             faq_results = faq_results[:5]
             menu_results = menu_results[:8]
@@ -1262,73 +1012,13 @@ RESPONSE: Return only the exact category name from the available categories list
                         "reasoning": f"Query type '{query_type}' is typically handled by events data"
                     }
             
-            # Fallback: Analyze the message content
-            message_lower = user_message.lower()
-            
-            # FAQ-related keywords
-            faq_keywords = [
-                "ဘယ်မှာ", "လိပ်စာ", "တည်နေရာ", "where", "location", "address",
-                "ဖွင့်ချိန်", "ဘယ်အချိန်", "opening", "hours", "time",
-                "ဖုန်း", "ဆက်သွယ်", "phone", "contact",
-                "ဓါတ်ပုံ", "photo", "ကြောင်လေး", "pet", "ခွေး", "dog",
-                "မီးပျက်", "generator", "wifi", "အင်တာနက်", "internet",
-                "ဆေးလိပ်", "smoking", "အပြင်ထိုင်ခုံ", "outdoor",
-                "အစားအစာ", "outside food", "ပို့ပေးမှု", "delivery",
-                "ကြိုတင်မှာယူ", "reservation", "ငွေပေးချေမှု", "payment"
-            ]
-            
-            # Menu-related keywords
-            menu_keywords = [
-                "အစားအစာ", "မီနူး", "food", "menu", "items", "dishes",
-                "ခေါက်ဆွဲ", "noodles", "ပါစတာ", "pasta", "ဘာဂါ", "burger",
-                "ကြက်ဉလိပ်", "omelette", "ဟင်းချို", "soup", "ဆလပ်", "salad",
-                "သောက်စရာ", "drink", "အချိုပွဲ", "dessert", "မနက်စာ", "breakfast",
-                "ဈေးနှုန်း", "price", "ပါဝင်ပစ္စည်း", "ingredient", "အရသာ", "taste"
-            ]
-            
-            # Events-related keywords
-            events_keywords = [
-                "တီးဝိုင်း", "band", "ဂီတ", "music", "သီချင်း", "song",
-                "ဖျော်ဖြေ", "entertainment", "အစီအစဉ်", "program", "ပွဲ", "event",
-                "ရိုက်ကူးရေး", "shooting", "ဓါတ်ပုံ", "photo", "ကင်မရာ", "camera",
-                "ငှားလို့", "rental", "ဝန်ဆောင်မှု", "service"
-            ]
-            
-            # Count matches for each category
-            faq_matches = sum(1 for keyword in faq_keywords if keyword in message_lower)
-            menu_matches = sum(1 for keyword in menu_keywords if keyword in message_lower)
-            events_matches = sum(1 for keyword in events_keywords if keyword in message_lower)
-            
-            # Determine primary source based on highest match count
-            if faq_matches > menu_matches and faq_matches > events_matches:
-                return {
-                    "primary_source": "faq",
-                    "secondary_sources": ["menu"] if menu_matches > 0 else [],
-                    "confidence": min(0.9, 0.5 + (faq_matches * 0.1)),
-                    "reasoning": f"FAQ-related keywords detected ({faq_matches} matches)"
-                }
-            elif menu_matches > faq_matches and menu_matches > events_matches:
-                return {
-                    "primary_source": "menu",
-                    "secondary_sources": ["faq"] if faq_matches > 0 else [],
-                    "confidence": min(0.9, 0.5 + (menu_matches * 0.1)),
-                    "reasoning": f"Menu-related keywords detected ({menu_matches} matches)"
-                }
-            elif events_matches > 0:
-                return {
-                    "primary_source": "events",
-                    "secondary_sources": ["faq"],
-                    "confidence": min(0.8, 0.4 + (events_matches * 0.1)),
-                    "reasoning": f"Events-related keywords detected ({events_matches} matches)"
-                }
-            else:
-                # Default to FAQ for general queries
-                return {
-                    "primary_source": "faq",
-                    "secondary_sources": ["menu"],
-                    "confidence": 0.5,
-                    "reasoning": "No specific keywords detected, defaulting to FAQ"
-                }
+            # No pattern matching - use default FAQ source
+            return {
+                "primary_source": "faq",
+                "secondary_sources": ["menu", "events"],
+                "confidence": 0.5,
+                "reasoning": "No pattern matching - using default FAQ source with fallbacks"
+            }
                 
         except Exception as e:
             logger.error(f"Data source determination error: {str(e)}")
@@ -1341,52 +1031,17 @@ RESPONSE: Return only the exact category name from the available categories list
 
     def _extract_burmese_keywords(self, user_message: str) -> List[str]:
         """
-        Extract key Burmese words for better semantic search
+        Extract key Burmese words for better semantic search - NO PATTERN MATCHING
         """
-        # Common Burmese keywords for restaurant queries
-        burmese_keywords = [
-            "ဓါတ်ပုံ", "photo", "ဖွင့်ချိန်", "opening", "ဈေးနှုန်း", "price", "လိပ်စာ", "address",
-            "ဘယ်မှာ", "where", "တည်နေရာ", "location", "ဘာဂါ", "burger", "ခေါက်ဆွဲ", "noodle", 
-            "ပါစတာ", "pasta", "ကြက်ဥလိပ်", "omelette", "အစားအစာ", "food", "မီနူး", "menu", 
-            "ဟင်းချို", "soup", "ဆလပ်", "salad", "သောက်စရာ", "drink", "အချိုပွဲ", "dessert", 
-            "မနက်စာ", "breakfast", "ပါဝင်ပစ္စည်း", "ingredient", "အရသာ", "taste", 
-            "ပြင်ဆင်ချိန်", "preparation", "ကြောင်လေး", "pet", "ခွေး", "dog", "မီးပျက်", 
-            "generator", "wifi", "အင်တာနက်"
-        ]
-        
-        found_keywords = []
-        user_lower = user_message.lower()
-        
-        for keyword in burmese_keywords:
-            if keyword in user_lower:
-                found_keywords.append(keyword)
-        
-        return found_keywords
+        # No pattern matching - let LLM handle keyword extraction
+        return []
     
     def _extract_category_keywords(self, user_message: str) -> List[str]:
         """
-        Extract category-specific keywords for menu search
+        Extract category-specific keywords for menu search - NO PATTERN MATCHING
         """
-        category_mappings = {
-            "ဘာဂါ": ["burger", "hamburger", "ဘာဂါ"],
-            "ခေါက်ဆွဲ": ["noodle", "noodles", "ခေါက်ဆွဲ", "pasta"],
-            "ပါစတာ": ["pasta", "spaghetti", "ပါစတာ"],
-            "ကြက်ဥလိပ်": ["omelette", "egg", "ကြက်ဥ", "လိပ်"],
-            "ဟင်းချို": ["soup", "ဟင်းချို"],
-            "ဆလပ်": ["salad", "ဆလပ်"],
-            "သောက်စရာ": ["drink", "beverage", "သောက်စရာ"],
-            "အချိုပွဲ": ["dessert", "sweet", "အချိုပွဲ"],
-            "မနက်စာ": ["breakfast", "မနက်စာ"]
-        }
-        
-        user_lower = user_message.lower()
-        found_categories = []
-        
-        for burmese_cat, english_cats in category_mappings.items():
-            if burmese_cat in user_lower or any(cat in user_lower for cat in english_cats):
-                found_categories.extend(english_cats)
-        
-        return found_categories
+        # No pattern matching - let LLM handle keyword extraction
+        return []
     
     def _remove_duplicates(self, items: List[Dict]) -> List[Dict]:
         """
@@ -1405,17 +1060,10 @@ RESPONSE: Return only the exact category name from the available categories list
     
     def _is_specific_category_question(self, user_message: str) -> bool:
         """
-        Check if this is asking for specific category items
+        Check if this is asking for specific category items - NO PATTERN MATCHING
         """
-        category_keywords = [
-            "burger", "ဘာဂါ", "noodle", "ခေါက်ဆွဲ", "pasta", "ပါစတာ",
-            "rice", "ထမင်း", "salad", "ဆလပ်", "sandwich", "ဆန်းဝစ်",
-            "breakfast", "မနက်စာ", "main", "အဓိက", "appetizer", "အစာစား",
-            "soup", "ဟင်းချို", "drink", "သောက်စရာ", "dessert", "အချိုပွဲ"
-        ]
-        
-        user_lower = user_message.lower()
-        return any(keyword in user_lower for keyword in category_keywords)
+        # No pattern matching - let LLM handle category detection
+        return False
 
     def _create_conversation_context(self, conversation_history: List[Dict[str, Any]]) -> str:
         """Create context string from conversation history"""

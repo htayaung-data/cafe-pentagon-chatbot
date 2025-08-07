@@ -432,23 +432,9 @@ class EnhancedVectorSearchService:
         return min(0.3, boost)  # Cap at 0.3
     
     def _calculate_intent_alignment_boost(self, match: Any, search_context: SearchContext) -> float:
-        """Calculate boost for intent alignment"""
-        intent = search_context.primary_intent
-        content = match.metadata.get("content", "").lower()
-        
-        intent_keywords = {
-            "menu_browse": ["menu", "food", "dish", "item", "အစားအသောက်"],
-            "order_place": ["order", "buy", "purchase", "လျှောက်ထား"],
-            "reservation": ["reservation", "book", "table", "ကြိုတင်စာရင်း"],
-            "faq": ["question", "answer", "information", "သိတာ"],
-            "events": ["event", "promotion", "special", "ပွဲ"],
-            "job_application": ["job", "career", "employment", "အလုပ်"]
-        }
-        
-        keywords = intent_keywords.get(intent, [])
-        matches = sum(1 for keyword in keywords if keyword in content)
-        
-        return min(0.2, matches * 0.05)  # 0.05 per keyword match, cap at 0.2
+        """Calculate boost for intent alignment - NO PATTERN MATCHING"""
+        # No pattern matching - return base score
+        return 0.1
     
     def _calculate_cultural_relevance(self, match: Any, search_context: SearchContext) -> float:
         """Calculate cultural relevance score"""
@@ -465,12 +451,7 @@ class EnhancedVectorSearchService:
             if burmese_chars > 0:
                 relevance += 0.3
         
-        # Formality match
-        formality_level = cultural_context.get("formality_level", "casual")
-        if formality_level in ["formal", "very_formal"]:
-            formal_indicators = ["please", "kindly", "would you", "could you", "ကျေးဇူးပြု"]
-            if any(indicator in content.lower() for indicator in formal_indicators):
-                relevance += 0.2
+        # No pattern matching for formality - use base relevance
         
         return min(1.0, relevance)
     

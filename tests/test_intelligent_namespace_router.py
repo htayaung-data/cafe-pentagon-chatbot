@@ -88,7 +88,7 @@ class TestIntelligentNamespaceRouter:
             assert result == expected_namespace
     
     def test_entity_based_namespace_selection(self, mock_namespace_router):
-        """Test namespace selection based on extracted entities"""
+        """Test namespace selection based on extracted entities (simplified)"""
         # Test food items -> menu
         food_entities = {
             "food_items": [{"item": "pizza"}],
@@ -98,23 +98,23 @@ class TestIntelligentNamespaceRouter:
         result = mock_namespace_router._get_entity_based_namespace(food_entities)
         assert result == "menu"
         
-        # Test job-related locations -> jobs
-        job_entities = {
+        # Test no food items -> faq (default)
+        no_food_entities = {
             "food_items": [],
             "locations": [{"location": "job center"}],
             "time_references": []
         }
-        result = mock_namespace_router._get_entity_based_namespace(job_entities)
-        assert result == "jobs"
+        result = mock_namespace_router._get_entity_based_namespace(no_food_entities)
+        assert result == "faq"
         
-        # Test event-related time -> events
+        # Test event-related time -> faq (default)
         event_entities = {
             "food_items": [],
             "locations": [],
             "time_references": [{"time": "event tomorrow"}]
         }
         result = mock_namespace_router._get_entity_based_namespace(event_entities)
-        assert result == "events"
+        assert result == "faq"
     
     def test_cultural_based_namespace_selection(self, mock_namespace_router):
         """Test namespace selection based on cultural context"""

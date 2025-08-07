@@ -1,6 +1,6 @@
 """
 Test Smart Analysis Node
-Tests the new SmartAnalysisNode that replaces Pattern Matcher + Intent Classifier
+Tests the new SmartAnalysisNode that provides comprehensive LLM-based analysis
 """
 
 import pytest
@@ -191,8 +191,8 @@ class TestSmartAnalysisNode:
         # Verify fallback analysis
         # The fallback should detect Burmese based on the message content
         assert result["detected_language"] in ["my", "en"]  # Could be either depending on detection
-        # The fallback pattern matching might not catch "ဘာတွေ" specifically, so check for either menu_browse or unknown
-        assert result["primary_intent"] in ["menu_browse", "unknown"]  # Could be either depending on pattern matching
+        # The fallback analysis might not catch "ဘာတွေ" specifically, so check for either menu_browse or unknown
+        assert result["primary_intent"] in ["menu_browse", "unknown"]  # Could be either depending on LLM analysis
         # If menu_browse is detected, it should require search
         if result["primary_intent"] == "menu_browse":
             assert result["requires_search"] is True

@@ -160,27 +160,16 @@ async def chat_endpoint(request: Request):
         conversation = conversation_tracking.get_or_create_conversation(user_id, platform)
         conversation_id = conversation["id"]
         
-        # Save the message
+        # Save the message - no pattern matching, let LLM handle escalation
         saved_message = conversation_tracking.save_message(
             conversation_id=conversation_id,
             content=message,
             sender_type="user",
-            metadata={"requires_human": "I need to talk to a human" in message.lower()}
+            metadata={}
         )
         
-        # Check if message requires human intervention
-        requires_human = "I need to talk to a human" in message.lower() or "talk to someone" in message.lower()
-        
-        if requires_human:
-            # Escalate conversation
-            from src.services.escalation_service import EscalationService
-            escalation_service = EscalationService()
-            escalation_service.escalate_conversation(
-                conversation_id=conversation_id,
-                user_id=user_id,
-                reason="User requested human assistance",
-                admin_id=None
-            )
+        # No pattern matching - let the LangGraph workflow handle escalation decisions
+        requires_human = False
         
         return {
             "success": True,

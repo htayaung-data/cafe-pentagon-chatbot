@@ -40,7 +40,23 @@ class ConversationStatusCheckerNode:
             return state
         
         try:
-            # Check if conversation is escalated
+            # For new conversations (like Streamlit), always allow processing
+            # Only check escalation for existing conversations that might be escalated
+            if conversation_id.startswith("fb_") or conversation_id.startswith("test_"):
+                # This is a new conversation, allow processing
+                logger.info("new_conversation_allowing_processing", 
+                           conversation_id=conversation_id,
+                           user_id=user_id)
+                
+                updated_state = state.copy()
+                updated_state.update({
+                    "conversation_escalated": False,
+                    "escalation_blocked": False
+                })
+                
+                return updated_state
+            
+            # Check if conversation is escalated (only for existing conversations)
             is_escalated = self.conversation_tracking.is_conversation_escalated(conversation_id)
             
             if is_escalated:

@@ -131,29 +131,20 @@ class FacebookMessengerService:
             facebook_profile = await self.get_user_info(sender_id)
             user_profile = await self.user_manager.get_or_create_user(sender_id, facebook_profile)
             
-            # 1. Get or create conversation for tracking
-            conversation = self.conversation_tracking.get_or_create_conversation(sender_id, 'facebook')
+            # Create conversation ID (same as Streamlit approach)
+            conversation_id = f"fb_{sender_id}_{int(datetime.now().timestamp())}"
             
-            # 2. Save user message to Supabase
-            user_message_metadata = {
-                "message_type": message_type,
-                "platform": "facebook",
-                "facebook_profile": facebook_profile
-            }
-            self.conversation_tracking.save_message(
-                conversation["id"], 
-                message_text, 
-                "user",
-                metadata=user_message_metadata
-            )
-            
-            # Process message with LangGraph workflow (now includes conversation memory)
+            # Process message with LangGraph workflow (EXACTLY like Streamlit)
             initial_state = {
                 "user_message": message_text,
                 "user_id": sender_id,
-                "conversation_id": conversation["id"],
+                "conversation_id": conversation_id,
                 "platform": "facebook",
-                "metadata": user_message_metadata
+                "metadata": {
+                    "message_type": message_type,
+                    "platform": "facebook",
+                    "facebook_profile": facebook_profile
+                }
             }
             
             # Run the conversation graph
@@ -200,32 +191,9 @@ class FacebookMessengerService:
             # Send text response after image (or immediately if no image)
             await self.send_message(sender_id, response["response"])
             
-            # 3. Save bot response to Supabase
-            bot_message_metadata = {
-                "intent": response.get("primary_intent"),
-                "conversation_state": response.get("conversation_state"),
-                "user_language": response.get("user_language"),
-                "confidence": response.get("confidence"),
-                "image_sent": bool(image_info),
-                "image_info": image_info,
-                "human_handling": response.get("human_handling", False),
-                "requires_human": response.get("requires_human", False)
-            }
-            self.conversation_tracking.save_message(
-                conversation["id"], 
-                response["response"], 
-                "bot",
-                confidence_score=response.get("confidence"),
-                metadata=bot_message_metadata
-            )
-            
-            # 4. Update conversation status
-            conversation_updates = {
-                "status": "active",
-                "human_handling": response.get("human_handling", False),
-                "rag_enabled": not response.get("human_handling", False)
-            }
-            self.conversation_tracking.update_conversation(conversation["id"], "active", conversation_updates)
+            # Note: Conversation tracking is handled by LangGraph workflow (same as Streamlit)
+            # No need to duplicate the conversation tracking here
+            # LangGraph already saves messages and updates conversation status
             
             # Update user profile with language preference
             if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
@@ -238,7 +206,7 @@ class FacebookMessengerService:
                        message_type=message_type,
                        intent=response.get("primary_intent"),
                        image_sent=bool(image_info),
-                       conversation_id=conversation["id"],
+                       conversation_id=conversation_id,
                        human_handling=response.get("human_handling", False),
                        requires_human=response.get("requires_human", False))
             
@@ -248,7 +216,7 @@ class FacebookMessengerService:
                 "intent": response.get("primary_intent"),
                 "status": "processed",
                 "image_sent": bool(image_info),
-                "conversation_id": conversation["id"],
+                "conversation_id": conversation_id,
                 "human_handling": response.get("human_handling", False),
                 "requires_human": response.get("requires_human", False)
             }

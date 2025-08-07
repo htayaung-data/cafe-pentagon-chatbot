@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional
 from langchain_openai import ChatOpenAI
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
-from src.services.semantic_context_extractor import get_semantic_context_extractor
+# Removed semantic_context_extractor import - no longer needed
 
 logger = get_logger("response_generator_node")
 
@@ -28,7 +28,7 @@ class ResponseGeneratorNode:
             temperature=0.7,
             api_key=self.settings.openai_api_key
         )
-        self.semantic_extractor = get_semantic_context_extractor()
+        # No semantic extractor needed - LLM handles all analysis
         logger.info("response_generator_node_initialized")
     
     async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -201,77 +201,10 @@ RESPONSE:"""
             return await self._generate_enhanced_burmese_fallback(user_message)
     
     async def _generate_enhanced_burmese_fallback(self, user_message: str) -> str:
-        """Generate sophisticated Burmese fallback response with specific answers for common queries"""
+        """Generate Burmese fallback response - NO PATTERN MATCHING"""
         try:
-            # Check for specific common queries and provide direct answers
-            user_lower = user_message.lower()
-            
-            # Location queries
-            if any(keyword in user_lower for keyword in ["ဘယ်မှာ", "တည်နေရာ", "လိပ်စာ", "address", "location", "where"]):
-                return """အမှတ် ၂၈၅၊ မဟာဗန္ဓုလလမ်း၊ ၃၉ ရပ်ကွက်၊ မြောက်ဒဂုံမြို့နယ်၊ ရန်ကုန်မှာ တည်ရှိပါတယ်။ 
-
-Google Map Link: https://maps.app.goo.gl/G5aFQDUkuW4RuTKe9
-
-ပိုမိုသိရှိလိုပါက +959979732781 ကို ဆက်သွယ်နိုင်ပါတယ်။"""
-            
-            # Hours queries
-            elif any(keyword in user_lower for keyword in ["ဘယ်အချိန်", "ပိတ်ချိန်", "ဖွင့်ချိန်", "opening", "closing", "hours"]):
-                return """ကျွန်ုပ်တို့က ၉ နာရီကနေ ၁၀ နာရီအထိ နေ့စဉ်ဖွင့်ပါတယ်။ ၁၀ နာရီမှာပိတ်ပါတယ်။
-
-နောက်ထပ်မေးမြန်းရန်ရှိလျှင် ကျေးဇူးပြု၍ +959979732781 ကို ဆက်သွယ်ပါ။"""
-            
-            # Photo queries
-            elif any(keyword in user_lower for keyword in ["ဓါတ်ပုံ", "ရိုက်ကူး", "photo", "photography"]):
-                return """ဓါတ်ပုံရိုက်ကူးခွင့်ရှိပါတယ်။ သို့သော် Professional Camera များအတွက် ခွင့်ပြုချက်လိုအပ်ပါတယ်။
-
-Mobile Phone ဖြင့်ရိုက်ကူးခြင်းကို ခွင့်ပြုထားပါတယ်။
-
-ပိုမိုသိရှိလိုပါက +959979732781 ကို ဆက်သွယ်နိုင်ပါတယ်။"""
-            
-            # Menu queries
-            elif any(keyword in user_lower for keyword in ["ဘာ", "အစားအစာ", "menu", "food", "dish"]):
-                return """ကျနော်တို့ရဲ့ မီနူးမှာ ဒီအမျိုးအစားတွေ ရှိပါတယ်:
-
-• **ခေါက်ဆွဲ**
-• **ဆလပ်**
-• **ထမင်းဟင်း**
-• **နံနက်စာ**
-• **ပါစတာ**
-• **ဟင်းရည်**
-• **အဓိကဟင်း**
-• **အရံဟင်း**
-• **အသားညှပ် နှင့် ဘာဂါ**
-
-ဘယ်အမျိုးအစားကို ကြည့်ချင်ပါသလဲ?"""
-            
-            # Contact queries
-            elif any(keyword in user_lower for keyword in ["ဖုန်း", "ဆက်သွယ်", "phone", "contact", "call"]):
-                return """ကျွန်ုပ်တို့ကို ဆက်သွယ်ရန်:
-
-📞 Phone: +959979732781
-📍 Address: အမှတ် ၂၈၅၊ မဟာဗန္ဓုလလမ်း၊ ၃၉ ရပ်ကွက်၊ မြောက်ဒဂုံမြို့နယ်၊ ရန်ကုန်
-
-အသေးစိတ်သိရှိလိုပါက ဖုန်းဆက်သွယ်နိုင်ပါတယ်။"""
-            
-            # Delivery queries
-            elif any(keyword in user_lower for keyword in ["ပို့ပေးမှု", "delivery", "ပို့ဆောင်မှု"]):
-                return """ပို့ဆောင်မှုဝန်ဆောင်မှုရှိပါတယ်။ 
-
-ပို့ဆောင်မှုအတွက် +959979732781 ကို ဆက်သွယ်ပါ။
-
-ပို့ဆောင်ခမှာ အကွာအဝေးပေါ်မူတည်ပြီး ပြောင်းလဲနိုင်ပါတယ်။"""
-            
-            # WiFi queries
-            elif any(keyword in user_lower for keyword in ["ဝိုင်ဖိုင်", "wifi", "အင်တာနက်", "internet"]):
-                return """အခမဲ့ WiFi ဝန်ဆောင်မှုရှိပါတယ်။
-
-WiFi စကားဝှက်ကို စားပွဲတင်ဝန်ထမ်းများထံ မေးမြန်းနိုင်ပါတယ်။
-
-အင်တာနက်အသုံးပြုရာတွင် ပြဿနာရှိပါက +959979732781 ကို ဆက်သွယ်နိုင်ပါတယ်။"""
-            
-            # General fallback for other queries
-            else:
-                return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ် ခင်ဗျာ။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ် ခင်ဗျာ။ နားလည်ပေးတဲ့အတွက် ကျေးဇူး အများကြီး တင်ပါတယ်။"
+            # No pattern matching - return general fallback
+            return "ဒီအကြောင်းအရာနဲ့ ပတ်သက်ပြီး သေချာ မသိရှိလို့ တောင်းပန်ပါတယ် ခင်ဗျာ။ အသေးစိတ် အချက်အလက်ကို +959979732781 ကို ဆက်သွယ် မေးမြန်းနိုင်ပါတယ် ခင်ဗျာ။ နားလည်ပေးတဲ့အတွက် ကျေးဇူး အများကြီး တင်ပါတယ်။"
             
         except Exception as e:
             logger.error("enhanced_burmese_fallback_failed", error=str(e))

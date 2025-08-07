@@ -1,6 +1,6 @@
 """
 Smart Analysis Node for LangGraph
-Replaces Pattern Matcher + Intent Classifier with comprehensive LLM analysis
+Provides comprehensive LLM-based analysis with enhanced Burmese language understanding
 Enhanced Burmese language understanding with cultural context awareness
 """
 
@@ -19,7 +19,7 @@ logger = get_logger("smart_analysis_node")
 
 class SmartAnalysisNode:
     """
-    Smart analysis node that combines pattern matching and intent classification
+    Smart analysis node that provides comprehensive LLM-based analysis
     Uses a single LLM call for comprehensive analysis with enhanced Burmese support
     """
     

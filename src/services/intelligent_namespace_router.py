@@ -201,10 +201,8 @@ class IntelligentNamespaceRouter:
         
         if food_items:
             return "menu"
-        elif any("job" in str(loc).lower() or "career" in str(loc).lower() for loc in locations):
-            return "jobs"
-        elif any("event" in str(time).lower() or "promotion" in str(time).lower() for time in time_references):
-            return "events"
+        # No pattern matching - use intent-based routing only
+        return "faq"
         
         return "faq"
     

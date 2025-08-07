@@ -11,7 +11,7 @@ from langchain_openai import ChatOpenAI
 from src.utils.logger import get_logger
 from src.utils.api_client import get_openai_client, get_fallback_manager
 from src.config.settings import get_settings
-from src.controllers.advanced_prompt_engine import get_advanced_prompt_engine, PromptContext
+# Removed advanced_prompt_engine import - no longer needed
 
 logger = get_logger("unified_prompt_controller")
 
@@ -28,8 +28,7 @@ class UnifiedPromptController:
         self.api_client = get_openai_client()
         self.fallback_manager = get_fallback_manager()
         
-        # Initialize Advanced Prompt Engine for context-aware prompt generation
-        self.advanced_prompt_engine = get_advanced_prompt_engine()
+        # Advanced Prompt Engine removed - no longer needed
         
         # Initialize OpenAI model
         self.llm = ChatOpenAI(
@@ -242,35 +241,12 @@ IMPORTANT: Return ONLY valid JSON. Do not include any other text or formatting.
             # Prepare conversation history for context
             history_context = self._format_conversation_history(conversation_history)
             
-            # Create PromptContext for advanced prompt generation
-            prompt_context = PromptContext(
+            # Use fallback prompt directly - no advanced prompt engine
+            prompt = self.fallback_prompt.format(
                 user_message=user_message,
                 detected_language=detected_language,
-                conversation_history=conversation_history,
-                cultural_context=state.get("cultural_context", {}),
-                previous_intents=self._extract_previous_intents(conversation_history),
-                confidence_thresholds={
-                    "high": 0.8,
-                    "medium": 0.6,
-                    "low": 0.4
-                },
-                platform=state.get("platform", "messenger"),
-                user_preferences=state.get("user_preferences", {})
+                conversation_history=history_context
             )
-            
-            # Generate context-aware prompt using Advanced Prompt Engine
-            try:
-                prompt = self.advanced_prompt_engine.generate_enhanced_prompt(prompt_context)
-                logger.info("advanced_prompt_generated", 
-                           template_type=self.advanced_prompt_engine._determine_template_type(prompt_context))
-            except Exception as e:
-                logger.warning("advanced_prompt_generation_failed", error=str(e))
-                # Fallback to basic prompt
-                prompt = self.fallback_prompt.format(
-                    user_message=user_message,
-                    detected_language=detected_language,
-                    conversation_history=history_context
-                )
             
             # Get AI response
             try:

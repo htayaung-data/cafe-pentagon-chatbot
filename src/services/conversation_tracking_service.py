@@ -140,17 +140,12 @@ class ConversationTrackingService:
                           confidence_score: Optional[float] = None, metadata: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Save a message to Supabase"""
         try:
-            # Check if message requires human assistance
+            # Check if message requires human assistance - ONLY from metadata, NO pattern matching
             requires_human = False
             if metadata:
-                # First check if requires_human is explicitly set in metadata
+                # Only check if requires_human is explicitly set in metadata
                 requires_human = metadata.get("requires_human", False)
-                # If not explicitly set and it's a user message, check content for human assistance keywords
-                if not requires_human and sender_type == "user":
-                    requires_human = self._check_content_for_human_assistance(content)
-            elif sender_type == "user":
-                # If no metadata provided, check content for user messages
-                requires_human = self._check_content_for_human_assistance(content)
+            # No pattern matching - let the LLM decide through the normal workflow
             
             message_data = {
                 "conversation_id": conversation_id,
@@ -179,9 +174,7 @@ class ConversationTrackingService:
                            sender_type=sender_type,
                            requires_human=requires_human)
                 
-                # If message requires human assistance, update conversation
-                if requires_human:
-                    self._update_conversation_for_human_assistance(conversation_id)
+                # Let the LLM workflow decide on escalation - no automatic escalation here
                 
                 return message
             else:
@@ -192,56 +185,7 @@ class ConversationTrackingService:
             logger.error("message_save_exception", conversation_id=conversation_id, error=str(e))
             return None
 
-    def _check_content_for_human_assistance(self, content: str) -> bool:
-        """
-        Check if message content indicates need for human assistance
-        
-        Args:
-            content: Message content
-            
-        Returns:
-            True if human assistance is needed, False otherwise
-        """
-        content_lower = content.lower().strip()
-        
-        # English patterns
-        english_patterns = [
-            "talk to a human", "speak to someone", "talk to someone",
-            "human help", "real person", "staff member", "employee",
-            "manager", "supervisor", "customer service",
-            "i need help", "can't help", "not working",
-            "complaint", "problem", "issue", "escalate"
-        ]
-        
-        # Burmese patterns
-        burmese_patterns = [
-            "လူသားနဲ့ပြောချင်ပါတယ်", "အကူအညီလိုပါတယ်", "ဝာာဝန်ရှိသူ နဲ့ပြောချင်ပါတယ်",
-            "ပိုကောင်းတဲ့အကူအညီလိုပါတယ်", "သူငယ်ချင်းနဲ့ပြောချင်ပါတယ်", "သက်ဆိုင်ရာ ဝန်ထမ်းနဲ့ ပြောချင်ပါတယ်",
-            "လူသားနဲ့ပြောချင်တယ်", "အကူအညီလိုတယ်", "မန်နေဂျာနဲ့ ပြောချင်ပါတယ်", "Page Admin နဲ့ ပြောချင်ပါတယ်",
-            "လူသားနဲ့ပြောချင်ပါတယ်", "အကူအညီလိုပါတယ်",
-            # Additional patterns for better detection
-            "ဆိုင်မှာ အဆင်မပြေတာ", "အဆင်မပြေတာတွေ",
-            "ကြုံခဲ့တယ်", "ကြုံတွေ့ခဲ့ရတာ",
-            "ဘယ်သူနဲ့ စကားပြောလို့ ရလဲ", "ဘယ်သူနဲ့ ပြောလို့ရလဲ",
-            "စကားပြောလို့ ရလဲ", "ပြောလို့ရလဲ",
-            "ဝန်ထမ်းနဲ့ ပြောချင်ပါတယ်", "ဝန်ထမ်းနဲ့ပြောချင်ပါတယ်", "ဝန်ထမ်းနဲ့ စကားပြောချင်ပါတယ်",
-            "သက်ဆိုင်ရာ ဝန်ထမ်း", "သက်ဆိုင်ရာ ဝန်ထမ်းနဲ့ ပြောချင်ပါတယ်",
-            "အကူအညီရယူ", "အကူအညီရယူရန်",
-            "ဆက်သွယ်ပေးပါ", "ဆက်သွယ်ပေးပါမည်",
-            "အကြောင်းကြားရန်", "အကြောင်းကြားပေးပါ"
-        ]
-        
-        # Check English patterns
-        for pattern in english_patterns:
-            if pattern in content_lower:
-                return True
-        
-        # Check Burmese patterns
-        for pattern in burmese_patterns:
-            if pattern in content_lower:
-                return True
-        
-        return False
+
 
     def _update_conversation_for_human_assistance(self, conversation_id: str) -> bool:
         """

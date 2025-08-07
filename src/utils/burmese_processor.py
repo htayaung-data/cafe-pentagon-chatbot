@@ -232,15 +232,10 @@ def detect_burmese_language(text: str) -> Dict[str, Any]:
         r'[ပါတယ်|ပါသလား|ခင်ဗျာ|အစ်ကို|အစ်မ]'  # Common Burmese phrases
     ]
     
-    pattern_matches = 0
-    for pattern in burmese_patterns:
-        if re.search(pattern, text):
-            pattern_matches += 1
-    
-    # If we find Burmese patterns, boost confidence
-    if pattern_matches > 0:
+    # Simple Burmese character detection only
+    if burmese_chars > 0:
         is_burmese = True
-        confidence = max(confidence, 0.6 + (pattern_matches * 0.1))
+        confidence = max(confidence, 0.6)
         detected_language = "my"
     
     # Check for mixed language (Burmese + English)
@@ -264,7 +259,7 @@ def detect_burmese_language(text: str) -> Dict[str, Any]:
         "total_character_count": total_chars,
         "burmese_ratio": burmese_ratio,
         "detected_language": detected_language,
-        "pattern_matches": pattern_matches,
+        "pattern_matches": 0,
         "english_words": english_words
     }
 
@@ -285,10 +280,7 @@ def extract_burmese_food_terms(text: str) -> List[str]:
         if burmese_term in text_lower:
             found_terms.extend(english_terms)
     
-    # Also check for partial matches
-    for burmese_term, english_terms in BURMESE_FOOD_VOCABULARY.items():
-        if any(word in text_lower for word in burmese_term.split()):
-            found_terms.extend(english_terms)
+    # No partial matching - only exact matches
     
     return list(set(found_terms))  # Remove duplicates
 
@@ -314,32 +306,7 @@ def detect_burmese_intent_patterns(text: str) -> Dict[str, float]:
         if score > 0:
             intent_scores[intent_type] = score / len(patterns)
     
-    # Enhanced pattern matching for complex queries
-    # Check for compound patterns
-    compound_patterns = {
-        "menu_browse": [
-            ("မီနူး", "ဘာတွေ"),
-            ("အစားအစာ", "ရှိလဲ"),
-            ("ဘာတွေ", "စားလို့ရလဲ")
-        ],
-        "faq": [
-            ("ဘယ်မှာ", "လိပ်စာ"),
-            ("ဖွင့်ချိန်", "ဘယ်အချိန်"),
-            ("ဈေးနှုန်း", "ဘယ်လောက်")
-        ],
-        "escalation": [
-            ("လူသားနဲ့", "ပြောချင်ပါတယ်"),
-            ("အကူအညီ", "လိုပါတယ်"),
-            ("ပြဿနာ", "ရှိပါတယ်")
-        ]
-    }
-    
-    for intent_type, patterns in compound_patterns.items():
-        for pattern_tuple in patterns:
-            if all(word in text_lower for word in pattern_tuple):
-                current_score = intent_scores.get(intent_type, 0)
-                intent_scores[intent_type] = current_score + 0.3
-    
+    # No pattern matching - let LLM handle intent classification
     return intent_scores
 
 def translate_burmese_food_request(text: str) -> List[str]:
@@ -394,12 +361,11 @@ def enhance_burmese_response(response: str, context: Dict[str, Any] = None) -> s
     Returns:
         Enhanced response text
     """
-    # Add polite particles if not present
-    if not any(polite in response for polite in ["ပါ", "ပါတယ်", "ပါသလား"]):
-        # Add polite ending
+    # Add polite ending if not present
+    if not response.endswith("ပါ။"):
         if response.endswith("။"):
             response = response[:-1] + "ပါ။"
-        elif not response.endswith("ပါ။"):
+        else:
             response += "ပါ။"
     
     # Add cultural context if needed
@@ -462,31 +428,29 @@ def get_burmese_cultural_context(text: str) -> Dict[str, Any]:
     
     text_lower = text.lower()
     
-    # Check for polite patterns
-    for pattern in BURMESE_CULTURAL_PATTERNS["polite_greetings"]:
-        if pattern in text_lower:
-            context["is_polite"] = True
-            context["uses_honorifics"] = True
-            context["formality_level"] = "formal"
-            break
+    # Simple checks without pattern matching
+    if "မင်္ဂလာ" in text_lower or "ခင်ဗျာ" in text_lower:
+        context["is_polite"] = True
+        context["uses_honorifics"] = True
+        context["formality_level"] = "formal"
     
-    # Check for honorifics
-    for honorific in BURMESE_CULTURAL_PATTERNS["honorifics"]:
-        if honorific in text_lower:
-            context["uses_honorifics"] = True
-            context["formality_level"] = "formal"
-            context["honorifics_detected"].append(honorific)
+    if "ခင်ဗျာ" in text_lower or "အစ်ကို" in text_lower or "အစ်မ" in text_lower:
+        context["uses_honorifics"] = True
+        context["formality_level"] = "formal"
+        context["honorifics_detected"].append("honorific")
     
-    # Check for polite requests
-    for pattern in BURMESE_CULTURAL_PATTERNS["polite_requests"]:
-        if pattern in text_lower:
-            context["is_polite"] = True
-            context["formality_level"] = "formal"
-            break
+    if "ကျေးဇူးပြု" in text_lower or "ကျေးဇူးတင်" in text_lower:
+        context["is_polite"] = True
+        context["formality_level"] = "formal"
     
-    # Check for formality indicators
-    formality_count = sum(1 for indicator in BURMESE_CULTURAL_PATTERNS["formality_indicators"] 
-                         if indicator in text_lower)
+    # Simple formality check
+    formality_count = 0
+    if "ကျေးဇူးပြု" in text_lower:
+        formality_count += 1
+    if "ခင်ဗျာ" in text_lower:
+        formality_count += 1
+    if "အစ်ကို" in text_lower or "အစ်မ" in text_lower:
+        formality_count += 1
     
     if formality_count >= 3:
         context["formality_level"] = "very_formal"
@@ -580,10 +544,11 @@ def analyze_burmese_complexity(text: str) -> Dict[str, Any]:
     conditional_indicators = ["ဆိုရင်", "ဆိုလျှင်", "ဆိုပါက", "ဆိုလျှင်", "ဆိုပါက"]
     emotional_indicators = ["စိတ်မကောင်း", "ဝမ်းနည်း", "ဒေါသထွက်", "စိတ်ဆိုး", "အံ့အားသင့်", "အံ့ဩ", "ရှက်လို့", "အားငယ်"]
     
-    has_questions = any(indicator in text for indicator in question_indicators)
-    has_negatives = any(indicator in text for indicator in negative_indicators)
-    has_conditionals = any(indicator in text for indicator in conditional_indicators)
-    has_emotions = any(indicator in text for indicator in emotional_indicators)
+    # No pattern matching - use simple metrics only
+    has_questions = "?" in text or "လား" in text or "လဲ" in text
+    has_negatives = "မဟုတ်" in text or "မဖြစ်" in text
+    has_conditionals = "ဆိုရင်" in text or "ဆိုလျှင်" in text
+    has_emotions = "စိတ်မကောင်း" in text or "ဝမ်းနည်း" in text
     
     # Determine complexity level
     complexity_score = 0

@@ -185,63 +185,13 @@ class FallbackManager:
         return time.time() - cached_data["timestamp"] < cached_data["ttl"]
     
     def get_fallback_intent(self, message: str, language: str) -> Dict[str, Any]:
-        """Get fallback intent classification"""
-        # Simple rule-based intent classification
-        message_lower = message.lower()
-        
-        # Greeting patterns
-        greeting_patterns = {
-            "en": ["hello", "hi", "hey", "good morning", "good afternoon"],
-            "my": ["မင်္ဂလာ", "ဟယ်လို", "ဟေး", "ဘယ်လိုလဲ"]
-        }
-        
-        patterns = greeting_patterns.get(language, greeting_patterns["en"])
-        if any(pattern in message_lower for pattern in patterns):
-            return {
-                "intent": "greeting",
-                "confidence": 0.8,
-                "entities": {},
-                "reasoning": "Fallback greeting detection",
-                "priority": 1
-            }
-        
-        # Menu patterns (check before FAQ to avoid conflicts)
-        menu_patterns = {
-            "en": ["menu", "food", "dish", "what do you have", "what's available", "what's on the menu"],
-            "my": ["မီနူး", "အစားအစာ", "ဘာတွေ ရှိလဲ", "ဘာတွေ စားလို့ရလဲ"]
-        }
-        
-        patterns = menu_patterns.get(language, menu_patterns["en"])
-        if any(pattern in message_lower for pattern in patterns):
-            return {
-                "intent": "menu_browse",
-                "confidence": 0.8,
-                "entities": {},
-                "reasoning": "Fallback menu detection",
-                "priority": 2
-            }
-        
-        # FAQ patterns
-        faq_patterns = {
-            "en": ["what", "how", "when", "where", "why", "is there", "do you have"],
-            "my": ["ဘာ", "ဘယ်", "ဘယ်လို", "ဘာကြောင့်", "ရှိလား", "ပါသလား"]
-        }
-        
-        patterns = faq_patterns.get(language, faq_patterns["en"])
-        if any(pattern in message_lower for pattern in patterns):
-            return {
-                "intent": "faq",
-                "confidence": 0.7,
-                "entities": {},
-                "reasoning": "Fallback FAQ detection",
-                "priority": 3
-            }
-        
+        """Get fallback intent classification - NO PATTERN MATCHING"""
+        # No pattern matching - return unknown intent
         return {
             "intent": "unknown",
             "confidence": 0.5,
             "entities": {},
-            "reasoning": "Fallback unknown intent",
+            "reasoning": "No pattern matching - LLM should handle intent",
             "priority": 10
         }
 
