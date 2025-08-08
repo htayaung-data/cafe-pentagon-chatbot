@@ -105,6 +105,9 @@ class EscalationService:
             ).eq("id", conversation_id).execute()
             
             if response.data:
+                # Force refresh conversation status to update cache
+                self.conversation_tracking.force_refresh_conversation_status(conversation_id)
+                
                 logger.info(
                     "conversation_deescalated",
                     conversation_id=conversation_id,

@@ -1,6 +1,7 @@
 """
 Facebook Messenger Integration Service for Cafe Pentagon Chatbot
 Handles webhook, message processing, and user management
+Uses the same LangGraph workflow as Streamlit for consistency
 """
 
 import hashlib
@@ -11,7 +12,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import aiohttp
 from fastapi import HTTPException, Request
-from src.graph.state_graph import create_conversation_graph
+from src.graph.state_graph import create_conversation_graph, create_initial_state
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 from src.data.models import UserProfile, Message, Conversation, LanguageEnum
@@ -25,6 +26,7 @@ logger = get_logger("facebook_messenger")
 class FacebookMessengerService:
     """
     Facebook Messenger integration service
+    Uses the same LangGraph workflow as Streamlit for consistency
     """
     
     def __init__(self):
@@ -109,7 +111,7 @@ class FacebookMessengerService:
             return {"status": "error", "error": str(e)}
 
     async def _handle_message(self, event: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle incoming message from user"""
+        """Handle incoming message from user using the same LangGraph workflow as Streamlit"""
         try:
             sender_id = event["sender"]["id"]
             message_data = event["message"]
@@ -135,36 +137,51 @@ class FacebookMessengerService:
             conversation_id = f"fb_{sender_id}_{int(datetime.now().timestamp())}"
             
             # Process message with LangGraph workflow (EXACTLY like Streamlit)
-            initial_state = {
-                "user_message": message_text,
-                "user_id": sender_id,
-                "conversation_id": conversation_id,
+            # Use the same create_initial_state function as Streamlit
+            initial_state = create_initial_state(
+                user_message=message_text,
+                user_id=sender_id,
+                conversation_id=conversation_id,
+                platform="facebook"
+            )
+            
+            # Add Facebook-specific metadata
+            initial_state["metadata"] = {
+                "message_type": message_type,
                 "platform": "facebook",
-                "metadata": {
-                    "message_type": message_type,
-                    "platform": "facebook",
-                    "facebook_profile": facebook_profile
-                }
+                "facebook_profile": facebook_profile
             }
             
-            # Run the conversation graph
+            # Run the conversation graph (EXACTLY like Streamlit)
             compiled_workflow = self.conversation_graph.compile()
             final_state = await compiled_workflow.ainvoke(initial_state)
             
-            # Extract response from final state
-            response = {
-                "response": final_state.get("response", "I'm sorry, I couldn't process your message."),
-                "primary_intent": final_state.get("detected_intent", "unknown"),
-                "conversation_state": final_state.get("conversation_state", "active"),
-                "user_language": final_state.get("detected_language", "en"),
-                "confidence": final_state.get("intent_confidence", 0.0),
-                "image_info": final_state.get("image_info"),
-                "human_handling": final_state.get("human_handling", False),
-                "requires_human": final_state.get("requires_human", False)
-            }
+            # Extract response from final state (same as Streamlit)
+            response = final_state.get("response", "I'm sorry, I couldn't process your message.")
+            detected_intent = final_state.get("primary_intent", "unknown")
+            intent_confidence = final_state.get("intent_confidence", 0.0)
+            detected_language = final_state.get("detected_language", "en")
+            rag_enabled = final_state.get("rag_enabled", True)
+            human_handling = final_state.get("human_handling", False)
+            requires_human = final_state.get("requires_human", False)
+            rag_results_count = len(final_state.get("rag_results", []))
+            relevance_score = final_state.get("relevance_score", 0.0)
+            
+            # Log the processing results (same as Streamlit)
+            logger.info("langgraph_processing_completed",
+                       user_id=sender_id,
+                       conversation_id=conversation_id,
+                       detected_intent=detected_intent,
+                       intent_confidence=intent_confidence,
+                       detected_language=detected_language,
+                       rag_enabled=rag_enabled,
+                       human_handling=human_handling,
+                       requires_human=requires_human,
+                       rag_results_count=rag_results_count,
+                       relevance_score=relevance_score)
             
             # Check if we need to send an image first
-            image_info = response.get("image_info")
+            image_info = final_state.get("image_info")
             if image_info:
                 logger.info("image_info_found", 
                            sender_id=sender_id,
@@ -186,58 +203,35 @@ class FacebookMessengerService:
             else:
                 logger.info("no_image_info_in_response", 
                            sender_id=sender_id,
-                           response_keys=list(response.keys()))
+                           response_keys=list(final_state.keys()))
             
             # Send text response after image (or immediately if no image)
-            await self.send_message(sender_id, response["response"])
+            await self.send_message(sender_id, response)
             
-            # Ensure conversation is properly saved to Supabase
-            # LangGraph workflow handles the conversation tracking, but let's verify it worked
-            try:
-                conversation = self.conversation_tracking.get_conversation_by_id(conversation_id)
-                if not conversation:
-                    logger.warning("conversation_not_found_in_supabase", 
-                                  conversation_id=conversation_id,
-                                  sender_id=sender_id)
-                    # Create conversation if it doesn't exist
-                    self.conversation_tracking.get_or_create_conversation(
-                        user_id=sender_id,
-                        platform="facebook",
-                        conversation_id=conversation_id
-                    )
-                else:
-                    logger.info("conversation_found_in_supabase", 
-                              conversation_id=conversation_id,
-                              status=conversation.get("status", "unknown"))
-            except Exception as e:
-                logger.error("conversation_verification_failed", 
-                           conversation_id=conversation_id,
-                           error=str(e))
-            
-            # Update user profile with language preference
-            if response.get("user_language") and response["user_language"] != user_profile.preferences.preferred_language.value:
+            # Update user profile with language preference (same as Streamlit)
+            if detected_language and detected_language != user_profile.preferences.preferred_language.value:
                 await self.user_manager.update_user_preferences(sender_id, {
-                    "preferred_language": response["user_language"]
+                    "preferred_language": detected_language
                 })
             
             logger.info("message_processed", 
                        sender_id=sender_id,
                        message_type=message_type,
-                       intent=response.get("primary_intent"),
+                       intent=detected_intent,
                        image_sent=bool(image_info),
                        conversation_id=conversation_id,
-                       human_handling=response.get("human_handling", False),
-                       requires_human=response.get("requires_human", False))
+                       human_handling=human_handling,
+                       requires_human=requires_human)
             
             return {
                 "sender_id": sender_id,
                 "message_type": message_type,
-                "intent": response.get("primary_intent"),
+                "intent": detected_intent,
                 "status": "processed",
                 "image_sent": bool(image_info),
                 "conversation_id": conversation_id,
-                "human_handling": response.get("human_handling", False),
-                "requires_human": response.get("requires_human", False)
+                "human_handling": human_handling,
+                "requires_human": requires_human
             }
             
         except Exception as e:

@@ -71,14 +71,48 @@ class ConversationTrackingService:
 
     def _invalidate_conversation_cache(self, conversation_id: str) -> None:
         """
-        Invalidate cache for a specific conversation
+        Invalidate conversation status cache
         
         Args:
             conversation_id: Conversation identifier
         """
-        if conversation_id in self._conversation_status_cache:
-            del self._conversation_status_cache[conversation_id]
-            logger.info("conversation_status_cache_invalidated", conversation_id=conversation_id)
+        try:
+            if conversation_id in self._conversation_status_cache:
+                del self._conversation_status_cache[conversation_id]
+                logger.info("conversation_status_cache_invalidated", conversation_id=conversation_id)
+        except Exception as e:
+            logger.error("cache_invalidation_failed", conversation_id=conversation_id, error=str(e))
+    
+    def force_refresh_conversation_status(self, conversation_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Force refresh conversation status from database, bypassing cache
+        
+        Args:
+            conversation_id: Conversation identifier
+            
+        Returns:
+            Conversation status or None if not found
+        """
+        try:
+            # Invalidate cache first
+            self._invalidate_conversation_cache(conversation_id)
+            
+            # Fetch fresh from database
+            response = self.supabase.table("conversations").select("*").eq("id", conversation_id).limit(1).execute()
+            
+            if response.data:
+                conversation = response.data[0]
+                # Update cache with fresh data
+                self._cache_conversation_status(conversation_id, conversation)
+                logger.info("conversation_status_force_refreshed", conversation_id=conversation_id)
+                return conversation
+            else:
+                logger.warning("conversation_not_found_for_refresh", conversation_id=conversation_id)
+                return None
+                
+        except Exception as e:
+            logger.error("force_refresh_failed", conversation_id=conversation_id, error=str(e))
+            return None
 
     def get_conversation_status(self, conversation_id: str) -> Optional[Dict[str, Any]]:
         """
