@@ -114,7 +114,6 @@ class ConversationMemoryService:
                 "user_language": metadata.get("language", "en") if metadata else "en",
                 "conversation_state": metadata.get("conversation_state", "active") if metadata else "active",
                 "requires_human": metadata.get("requires_human", False) if metadata else False,
-                "human_handling": metadata.get("human_handling", False) if metadata else False,
                 "langgraph_processing": True
             }
             

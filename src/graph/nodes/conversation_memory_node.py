@@ -117,8 +117,7 @@ class ConversationMemoryNode:
                 "language": user_language,
                 "conversation_state": "active",
                 "confidence": analysis_confidence,
-                "requires_human": requires_human,
-                "human_handling": human_handling
+                "requires_human": requires_human
             }
             
             self.memory_service.add_message_to_history(
@@ -136,7 +135,6 @@ class ConversationMemoryNode:
                     "conversation_state": "active",
                     "confidence": analysis_confidence,
                     "response_quality": "standard" if data_found else "fallback",
-                    "human_handling": human_handling,
                     "requires_human": requires_human,
                     "escalation_reason": escalation_reason
                 }
