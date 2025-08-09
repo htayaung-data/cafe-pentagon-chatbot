@@ -86,6 +86,27 @@ def clear_conversation():
 async def process_user_message_langgraph(user_message, user_id, conversation_id):
     """Process user message using LangGraph workflow"""
     try:
+        # Entry guard: if admin has locked the conversation, skip processing and show notice
+        from src.services.conversation_tracking_service import get_conversation_tracking_service
+        tracking = get_conversation_tracking_service()
+        try:
+            status = tracking.get_conversation_status(conversation_id)
+            if status and (status.get("human_handling") or not status.get("rag_enabled") or status.get("status") == "escalated"):
+                # Indicate to UI to suppress assistant message entirely
+                return {
+                    "response": None,
+                    "language": "en",
+                    "strategy": "hitl_locked",
+                    "confidence": 0.0,
+                    "data_found": False,
+                    "search_performed": False,
+                    "search_namespace": "",
+                    "search_terms": [],
+                    "response_quality": "blocked"
+                }
+        except Exception:
+            pass
+
         # Create initial state
         initial_state = create_initial_state(
             user_message=user_message,
@@ -94,49 +115,68 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
             platform="streamlit"
         )
         
-        # Execute LangGraph workflow
-        compiled_workflow = st.session_state.langgraph_workflow.compile()
-        final_state = await compiled_workflow.ainvoke(initial_state)
+        # Execute LangGraph workflow (compile once and reuse)
+        if 'compiled_langgraph' not in st.session_state:
+            st.session_state.compiled_langgraph = st.session_state.langgraph_workflow.compile()
+        final_state = await st.session_state.compiled_langgraph.ainvoke(initial_state)
         
-        # Extract response and metadata
+        # Extract response and metadata from simplified system
         response = final_state.get("response", "")
-        detected_intent = final_state.get("detected_intent", "")
-        intent_confidence = final_state.get("intent_confidence", 0.0)
-        detected_language = final_state.get("detected_language", "")
-        rag_enabled = final_state.get("rag_enabled", True)
-        human_handling = final_state.get("human_handling", False)
-        requires_human = final_state.get("requires_human", False)
-        rag_results_count = len(final_state.get("rag_results", []))
-        relevance_score = final_state.get("relevance_score", 0.0)
+        user_language = final_state.get("user_language", "en")
+        response_strategy = final_state.get("response_strategy", "polite_fallback")
+        analysis_confidence = final_state.get("analysis_confidence", 0.0)
+        data_found = final_state.get("data_found", False)
+        search_performed = final_state.get("search_performed", False)
+        search_namespace = final_state.get("search_namespace_used", "")
+        search_terms = final_state.get("search_terms_used", [])
+        response_quality = final_state.get("response_quality", "fallback")
         
         # Log the processing results
         logger = get_logger("langgraph_app")
-        logger.info("langgraph_processing_completed",
+        logger.info("simplified_processing_completed",
                    user_id=user_id,
                    conversation_id=conversation_id,
-                   detected_intent=detected_intent,
-                   intent_confidence=intent_confidence,
-                   detected_language=detected_language,
-                   rag_enabled=rag_enabled,
-                   human_handling=human_handling,
-                   requires_human=requires_human,
-                   rag_results_count=rag_results_count,
-                   relevance_score=relevance_score)
+                   user_language=user_language,
+                   response_strategy=response_strategy,
+                   analysis_confidence=analysis_confidence,
+                   data_found=data_found,
+                   search_performed=search_performed,
+                   search_namespace=search_namespace,
+                   response_quality=response_quality)
         
         # Note: Conversation tracking is handled by LangGraph workflow
         # No need to duplicate the conversation tracking here
         # LangGraph already saves messages and updates conversation status
         
+        # Before returning to UI, re-check lock to avoid showing a message if admin just locked
+        try:
+            status_after = tracking.get_conversation_status(conversation_id)
+            if status_after and (status_after.get("human_handling") or not status_after.get("rag_enabled") or status_after.get("status") == "escalated"):
+                # Indicate to UI to suppress assistant message entirely
+                return {
+                    "response": None,
+                    "language": user_language,
+                    "strategy": response_strategy,
+                    "confidence": analysis_confidence,
+                    "data_found": data_found,
+                    "search_performed": search_performed,
+                    "search_namespace": search_namespace,
+                    "search_terms": search_terms,
+                    "response_quality": "blocked"
+                }
+        except Exception:
+            pass
+
         return {
             "response": response,
-            "intent": detected_intent,
-            "confidence": intent_confidence,
-            "language": detected_language,
-            "rag_enabled": rag_enabled,
-            "human_handling": human_handling,
-            "requires_human": requires_human,
-            "rag_results_count": rag_results_count,
-            "relevance_score": relevance_score
+            "language": user_language,
+            "strategy": response_strategy,
+            "confidence": analysis_confidence,
+            "data_found": data_found,
+            "search_performed": search_performed,
+            "search_namespace": search_namespace,
+            "search_terms": search_terms,
+            "response_quality": response_quality
         }
         
     except Exception as e:
@@ -144,18 +184,18 @@ async def process_user_message_langgraph(user_message, user_id, conversation_id)
         logger.error("langgraph_processing_failed", error=str(e))
         return {
             "response": "တောင်းပန်ပါတယ်၊ ပြဿနာတစ်ခု ဖြစ်နေပါတယ်။ ကျေးဇူးပြု၍ နောက်တစ်ကြိမ် ပြန်လည်မေးမြန်းပေးပါ။",
-            "intent": "error",
-            "confidence": 0.0,
             "language": "my",
-            "rag_enabled": False,
-            "human_handling": False,
-            "requires_human": False,
-            "rag_results_count": 0,
-            "relevance_score": 0.0
+            "strategy": "polite_fallback",
+            "confidence": 0.0,
+            "data_found": False,
+            "search_performed": False,
+            "search_namespace": "",
+            "search_terms": [],
+            "response_quality": "fallback"
         }
 
 def main():
-    st.title("☕ Cafe Pentagon RAG Chatbot (LangGraph)")
+    st.title("☕ Cafe Pentagon RAG Chatbot (Simplified)")
     st.markdown("---")
     
     # Initialize LangGraph once
@@ -184,16 +224,16 @@ def main():
         if st.button("🗑️ Clear Conversation", type="primary"):
             clear_conversation()
         
-        # LangGraph Status
-        st.header("📊 LangGraph Status")
-        st.success("✅ LangGraph Workflow Active")
-        st.info("🔄 Stateful Conversation Management")
-        st.info("🧠 Enhanced Burmese Processing")
-        st.info("🔍 Intelligent Intent Classification")
-        st.info("📚 RAG-Enabled Responses")
+        # Simplified System Status
+        st.header("📊 Simplified System Status")
+        st.success("✅ 3-Node Workflow Active")
+        st.info("🔄 Ultra-Simple Processing")
+        st.info("🧠 Pure LLM-Driven Analysis")
+        st.info("🔍 Direct Vector Search")
+        st.info("📚 Real Data Responses")
     
     # Main chat area
-    st.header("💬 Chat (LangGraph)")
+    st.header("💬 Chat (Simplified)")
     
     # Initialize messages in session state
     if "messages" not in st.session_state:
@@ -204,7 +244,7 @@ def main():
         with st.chat_message(message["role"]):
             # Check if the message contains HTML images or markdown images
             content = message["content"]
-            if "<img" in content or "![(" in content:
+            if isinstance(content, str) and ("<img" in content or "![(" in content):
                 # Split content to separate text and images
                 import re
                 # Split by HTML img tags
@@ -219,16 +259,17 @@ def main():
                         st.markdown(part, unsafe_allow_html=True)
                     else:
                         # This is regular text
-                        if part.strip():
+                        if isinstance(part, str) and part.strip():
                             st.markdown(part)
             else:
                 # Regular message without images
-                st.markdown(content)
+                if isinstance(content, str) and content.strip():
+                    st.markdown(content)
             
             # Show metadata if available
             if "metadata" in message:
                 metadata = message["metadata"]
-                with st.expander("🔍 LangGraph Metadata"):
+                with st.expander("🔍 Simplified System Metadata"):
                     st.json(metadata)
     
     # Chat input
@@ -240,7 +281,7 @@ def main():
         
         # Show processing message
         with st.chat_message("assistant"):
-            with st.spinner("Processing with LangGraph..."):
+            with st.spinner("Processing with Simplified System..."):
                 # Get response from LangGraph workflow
                 result = asyncio.run(process_user_message_langgraph(
                     prompt, 
@@ -251,7 +292,7 @@ def main():
                 response = result["response"]
                 
                 # Display response with proper image handling
-                if "<img" in response or "![(" in response:
+                if isinstance(response, str) and ("<img" in response or "![(" in response):
                     # Split content to separate text and images
                     import re
                     # Split by HTML img tags
@@ -266,39 +307,42 @@ def main():
                             st.markdown(part, unsafe_allow_html=True)
                         else:
                             # This is regular text
-                            if part.strip():
+                            if isinstance(part, str) and part.strip():
                                 st.markdown(part)
                 else:
-                    # Regular response without images
-                    st.markdown(response)
+                    # Regular response without images; suppress if blocked/None
+                    if response is not None and response.strip():
+                        st.markdown(response)
                 
-                # Add assistant message to chat with metadata
-                st.session_state.messages.append({
-                    "role": "assistant", 
-                    "content": response,
-                    "metadata": {
-                        "intent": result["intent"],
-                        "confidence": result["confidence"],
-                        "language": result["language"],
-                        "rag_enabled": result["rag_enabled"],
-                        "human_handling": result["human_handling"],
-                        "requires_human": result["requires_human"],
-                        "rag_results_count": result["rag_results_count"],
-                        "relevance_score": result["relevance_score"]
-                    }
-                })
+                # Add assistant message only if there is actual content
+                if response is not None and isinstance(response, str) and response.strip():
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": response,
+                        "metadata": {
+                            "language": result["language"],
+                            "strategy": result["strategy"],
+                            "confidence": result["confidence"],
+                            "data_found": result["data_found"],
+                            "search_performed": result["search_performed"],
+                            "search_namespace": result["search_namespace"],
+                            "search_terms": result["search_terms"],
+                            "response_quality": result["response_quality"]
+                        }
+                    })
                 
-                # Show processing summary
-                with st.expander("📊 LangGraph Processing Summary"):
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.metric("Intent", result["intent"])
-                        st.metric("Confidence", f"{result['confidence']:.2f}")
-                        st.metric("Language", result["language"])
-                    with col2:
-                        st.metric("RAG Enabled", "✅" if result["rag_enabled"] else "❌")
-                        st.metric("RAG Results", result["rag_results_count"])
-                        st.metric("Relevance Score", f"{result['relevance_score']:.2f}")
+                # Show processing summary only when we actually produced a response
+                if response is not None and isinstance(response, str) and response.strip():
+                    with st.expander("📊 Simplified System Processing Summary"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Language", result["language"])
+                            st.metric("Strategy", result["strategy"])
+                            st.metric("Confidence", f"{result['confidence']:.2f}")
+                        with col2:
+                            st.metric("Data Found", "✅" if result["data_found"] else "❌")
+                            st.metric("Search Performed", "✅" if result["search_performed"] else "❌")
+                            st.metric("Quality", result["response_quality"])
 
 if __name__ == "__main__":
     main() 

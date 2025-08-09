@@ -1,89 +1,57 @@
 """
-Simplified LangGraph State Graph for Cafe Pentagon Chatbot
-Uses unified prompt controller for better performance and accuracy
+Simplified State Graph for LangGraph
+Ultra-simple 3-node workflow: Analysis → Search → Response
+Replaces complex 6-node system with linear flow
 """
 
 from typing import Dict, Any, List, TypedDict, Optional
 from langgraph.graph import StateGraph, END, START
 from src.utils.logger import get_logger
-from src.controllers.unified_prompt_controller import get_unified_prompt_controller
-from .nodes.rag_retriever import RAGRetrieverNode
-from .nodes.response_generator import ResponseGeneratorNode
-from .nodes.conversation_memory_updater import ConversationMemoryUpdaterNode
+from .nodes.simple_analysis_node import SimpleAnalysisNode
+from .nodes.direct_search_node import DirectSearchNode
+from .nodes.contextual_response_node import ContextualResponseNode
 
-logger = get_logger("simplified_langgraph_state")
+logger = get_logger("simplified_state_graph")
 
 
-class SimplifiedStateSchema(TypedDict):
-    """Enhanced simplified state schema for unified multi-modal conversation flow"""
+class SimpleStateSchema(TypedDict):
+    """Simplified state schema for ultra-simple conversation flow with HITL and memory integration"""
     # User input
     user_message: str
     user_id: str
     conversation_id: str
     
-    # Language detection
-    detected_language: str
-    
-    # Enhanced unified analysis (from enhanced unified prompt controller)
-    detected_intent: str
-    intent_confidence: float
-    intent_reasoning: str
-    
-    # Multi-intent support
-    secondary_intents: List[Dict[str, Any]]  # List of secondary intents with confidence
-    
-    # Enhanced namespace routing
-    target_namespace: str
-    namespace_confidence: float
-    fallback_namespaces: List[Dict[str, Any]]  # List of fallback namespaces
-    cross_domain_detected: bool
-    routing_reasoning: str
-    
-    # Enhanced HITL assessment
-    requires_human: bool
-    escalation_confidence: float
-    escalation_reason: str
-    escalation_urgency: str  # low, medium, high, critical
-    escalation_triggers: List[str]
-    hitl_reasoning: str
-    
-    # Enhanced cultural context
-    cultural_context: Dict[str, Any]  # formality_level, honorifics, cultural_nuances
-    cultural_confidence: float
-    cultural_reasoning: str
-    
-    # Enhanced entity extraction
-    entity_extraction: Dict[str, Any]  # food_items, locations, time_references, quantities
-    extraction_confidence: float
-    entity_reasoning: str
-    
-    # Enhanced response guidance
-    response_guidance: Dict[str, Any]  # tone, language, include_greeting, include_farewell
-    guidance_confidence: float
-    guidance_reasoning: str
-    
-    # Overall analysis quality
+    # Analysis results (Step 1)
+    analysis_result: Dict[str, Any]
+    user_language: str
+    search_terms: List[str]
+    search_namespace: Optional[str]
+    response_strategy: str
     analysis_confidence: float
-    quality_score: float
-    fallback_required: bool
-    fallback_reason: str
-    processing_time_estimate: str
-    recommendations: List[str]
     
-    # RAG processing
-    rag_results: List[Dict[str, Any]]
-    relevance_score: float
-    rag_enabled: bool
-    human_handling: bool
+    # Search results (Step 2)
+    search_results: List[Any]
+    data_found: bool
+    search_performed: bool
+    search_namespace_used: Optional[str]
+    search_terms_used: List[str]
     
-    # Response generation
+    # Response (Step 3)
     response: str
+    response_language: str
     response_generated: bool
     response_quality: str
     
-    # Conversation management
+    # HITL (Human-in-the-Loop) integration
+    requires_human: bool
+    human_handling: bool
+    escalation_reason: Optional[str]
+    escalation_blocked: bool
+    
+    # Conversation memory integration
     conversation_history: List[Dict[str, Any]]
     conversation_state: str
+    memory_loaded: bool
     memory_updated: bool
     
     # Metadata
@@ -92,88 +60,62 @@ class SimplifiedStateSchema(TypedDict):
     metadata: Dict[str, Any]
 
 
-class UnifiedAnalysisNode:
-    """
-    LangGraph node that uses unified prompt controller
-    Replaces multiple separate nodes with single comprehensive analysis
-    """
-    
-    def __init__(self):
-        """Initialize unified analysis node"""
-        self.unified_controller = get_unified_prompt_controller()
-        logger.info("unified_analysis_node_initialized")
-    
-    async def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Process state using unified prompt controller
-        
-        Args:
-            state: Current conversation state
-            
-        Returns:
-            Updated state with comprehensive analysis
-        """
-        try:
-            # Use unified prompt controller for comprehensive analysis
-            updated_state = await self.unified_controller.process_query(state)
-            
-            logger.info("unified_analysis_completed",
-                       intent=updated_state.get("detected_intent"),
-                       confidence=updated_state.get("intent_confidence"),
-                       namespace=updated_state.get("target_namespace"),
-                       requires_human=updated_state.get("requires_human"))
-            
-            return updated_state
-            
-        except Exception as e:
-            logger.error("unified_analysis_failed", error=str(e))
-            # Return state with default values
-            state.update({
-                "detected_intent": "unknown",
-                "intent_confidence": 0.0,
-                "target_namespace": "faq",
-                "requires_human": False,
-                "rag_enabled": True,
-                "human_handling": False
-            })
-            return state
-
-
 def create_simplified_conversation_graph() -> StateGraph:
     """
-    Create simplified LangGraph conversation flow
+    Create the simplified LangGraph conversation flow with HITL and memory integration
     
     Flow:
-    START → unified_analysis → [if rag_enabled: rag_retriever → response_generator] → 
-    [if not rag_enabled: human_response_handler] → conversation_memory_updater → END
+    START → load_memory → simple_analysis → hitl_check → direct_search → contextual_response → update_memory → END
+    
+    This extends the simple 3-node system to 5 nodes with HITL and memory integration.
     """
     
     # Initialize nodes
-    unified_analysis = UnifiedAnalysisNode()
-    rag_retriever = RAGRetrieverNode()
-    response_generator = ResponseGeneratorNode()
-    conversation_memory_updater = ConversationMemoryUpdaterNode()
+    from .nodes.conversation_memory_node import ConversationMemoryNode
+    from .nodes.hitl_node import HITLNode
+    from .nodes.simple_analysis_node import SimpleAnalysisNode
+    from .nodes.direct_search_node import DirectSearchNode
+    from .nodes.contextual_response_node import ContextualResponseNode
+    
+    load_memory = ConversationMemoryNode()
+    simple_analysis = SimpleAnalysisNode()
+    hitl_check = HITLNode()
+    direct_search = DirectSearchNode()
+    contextual_response = ContextualResponseNode()
     
     # Create state graph
-    workflow = StateGraph(SimplifiedStateSchema)
+    workflow = StateGraph(SimpleStateSchema)
     
     # Add nodes
-    workflow.add_node("unified_analysis", unified_analysis.process)
-    workflow.add_node("rag_retriever", rag_retriever.process)
-    workflow.add_node("response_generator", response_generator.process)
-    workflow.add_node("conversation_memory_updater", conversation_memory_updater.process)
+    workflow.add_node("load_memory", load_memory.process)
+    workflow.add_node("simple_analysis", simple_analysis.process)
+    workflow.add_node("hitl_check", hitl_check.check_escalation)
+    workflow.add_node("direct_search", direct_search.process)
+    workflow.add_node("contextual_response", contextual_response.process)
+    workflow.add_node("update_memory", load_memory.update_memory)
     
-    # Define edges
-    workflow.add_edge(START, "unified_analysis")
-    workflow.add_edge("unified_analysis", "rag_retriever")
-    workflow.add_edge("rag_retriever", "response_generator")
-    workflow.add_edge("response_generator", "conversation_memory_updater")
-    workflow.add_edge("conversation_memory_updater", END)
+    # Define flow with conditional routing
+    workflow.set_entry_point("load_memory")
+    workflow.add_edge("load_memory", "simple_analysis")
+    workflow.add_edge("simple_analysis", "hitl_check")
     
-    # Set entry point
-    workflow.set_entry_point("unified_analysis")
+    # Conditional routing based on HITL decision
+    def should_escalate(state: Dict[str, Any]) -> str:
+        """Determine next step based on HITL decision"""
+        if state.get("requires_human", False):
+            return "contextual_response"  # Go to contextual response for escalated conversations
+        return "direct_search"  # Continue with normal flow
     
-    logger.info("simplified_langgraph_conversation_flow_created")
+    workflow.add_conditional_edges("hitl_check", should_escalate, {
+        "direct_search": "direct_search",
+        "contextual_response": "contextual_response"
+    })
+    
+    workflow.add_edge("direct_search", "contextual_response")
+    workflow.add_edge("contextual_response", "update_memory")
+    workflow.set_finish_point("update_memory")
+    
+    logger.info("simplified_conversation_graph_with_hitl_created")
     
     return workflow
 
@@ -183,7 +125,7 @@ def create_simplified_initial_state(
     user_id: str,
     conversation_id: str,
     platform: str = "messenger"
-) -> SimplifiedStateSchema:
+) -> SimpleStateSchema:
     """
     Create initial state for simplified conversation flow
     
@@ -191,93 +133,74 @@ def create_simplified_initial_state(
         user_message: User's input message
         user_id: User identifier
         conversation_id: Conversation identifier
-        platform: Platform (messenger, streamlit, etc.)
+        platform: Platform (streamlit, messenger)
         
     Returns:
-        Initial state dictionary with loaded conversation history
+        Initial state for simplified workflow
     """
-    # Load conversation history
-    conversation_history = []
-    try:
-        from src.services.conversation_memory_service import get_conversation_memory_service
-        memory_service = get_conversation_memory_service()
-        conversation_history = memory_service.load_conversation_history(conversation_id, user_id, limit=10)
-        
-        logger.info("conversation_history_loaded_for_simplified_state", 
-                   conversation_id=conversation_id,
-                   history_length=len(conversation_history))
-    except Exception as e:
-        logger.error("failed_to_load_conversation_history_for_simplified_state", 
-                    conversation_id=conversation_id,
-                    error=str(e))
+    from datetime import datetime
     
-    return SimplifiedStateSchema(
+    initial_state = {
         # User input
-        user_message=user_message,
-        user_id=user_id,
-        conversation_id=conversation_id,
+        "user_message": user_message,
+        "user_id": user_id,
+        "conversation_id": conversation_id,
         
-        # Language detection (will be set by unified analysis)
-        detected_language="",
+        # Analysis results (will be populated by simple_analysis)
+        "analysis_result": {},
+        "user_language": "en",
+        "search_terms": [],
+        "search_namespace": None,
+        "response_strategy": "polite_fallback",
+        "analysis_confidence": 0.0,
         
-        # Unified analysis (will be set by unified analysis node)
-        detected_intent="",
-        intent_confidence=0.0,
-        intent_reasoning="",
-        secondary_intents=[],
-        target_namespace="",
-        namespace_confidence=0.0,
-        fallback_namespaces=[],
-        cross_domain_detected=False,
-        routing_reasoning="",
-        requires_human=False,
-        escalation_confidence=0.0,
-        escalation_reason="",
-        escalation_urgency="",
-        escalation_triggers=[],
-        hitl_reasoning="",
-        cultural_context={},
-        cultural_confidence=0.0,
-        cultural_reasoning="",
-        entity_extraction={},
-        extraction_confidence=0.0,
-        entity_reasoning="",
-        response_guidance={},
-        guidance_confidence=0.0,
-        guidance_reasoning="",
-        analysis_confidence=0.0,
-        quality_score=0.0,
-        fallback_required=False,
-        fallback_reason="",
-        processing_time_estimate="",
-        recommendations=[],
+        # Search results (will be populated by direct_search)
+        "search_results": [],
+        "data_found": False,
+        "search_performed": False,
+        "search_namespace_used": None,
+        "search_terms_used": [],
         
-        # RAG processing (will be set by RAG retriever)
-        rag_results=[],
-        relevance_score=0.0,
-        rag_enabled=True,
-        human_handling=False,
+        # Response (will be populated by contextual_response)
+        "response": "",
+        "response_language": "en",
+        "response_generated": False,
+        "response_quality": "pending",
         
-        # Response generation (will be set by response generator)
-        response="",
-        response_generated=False,
-        response_quality="",
+        # HITL (Human-in-the-Loop) integration
+        "requires_human": False,
+        "human_handling": False,
+        "escalation_reason": None,
+        "escalation_blocked": False,
         
-        # Conversation management
-        conversation_history=conversation_history,
-        conversation_state="active",
-        memory_updated=False,
+        # Conversation memory integration
+        "conversation_history": [],
+        "conversation_state": "active",
+        "memory_loaded": False,
+        "memory_updated": False,
         
         # Metadata
-        response_time=0,
-        platform=platform,
-        metadata={}
-    )
+        "response_time": 0,
+        "platform": platform,
+        "metadata": {
+            "created_at": datetime.now().isoformat(),
+            "workflow_version": "simplified_v2_with_hitl",
+            "node_count": 5
+        }
+    }
+    
+    logger.info("simplified_initial_state_created",
+               user_id=user_id,
+               conversation_id=conversation_id,
+               platform=platform,
+               message_length=len(user_message))
+    
+    return initial_state
 
 
 def validate_simplified_state(state: Dict[str, Any]) -> bool:
     """
-    Validate simplified state structure and required fields
+    Validate simplified state structure
     
     Args:
         state: State dictionary to validate
@@ -286,14 +209,32 @@ def validate_simplified_state(state: Dict[str, Any]) -> bool:
         True if valid, False otherwise
     """
     required_fields = [
-        "user_message", "user_id", "conversation_id", 
-        "detected_language", "rag_enabled", "human_handling"
+        "user_message", "user_id", "conversation_id",
+        "analysis_result", "user_language", "search_terms", "search_namespace", "response_strategy",
+        "search_results", "data_found", "search_performed",
+        "response", "response_language", "response_generated",
+        "requires_human", "human_handling", "escalation_reason", "escalation_blocked",
+        "conversation_history", "conversation_state", "memory_loaded", "memory_updated",
+        "response_time", "platform", "metadata"
     ]
     
     for field in required_fields:
         if field not in state:
             logger.error("missing_required_field_in_simplified_state", field=field)
             return False
+    
+    # Validate data types
+    if not isinstance(state.get("user_message"), str):
+        logger.error("invalid_user_message_type")
+        return False
+    
+    if not isinstance(state.get("search_terms"), list):
+        logger.error("invalid_search_terms_type")
+        return False
+    
+    if not isinstance(state.get("search_results"), list):
+        logger.error("invalid_search_results_type")
+        return False
     
     return True
 
@@ -304,21 +245,40 @@ def log_simplified_state_transition(
     state: Dict[str, Any]
 ) -> None:
     """
-    Log simplified state transition for debugging
+    Log state transition in simplified workflow
     
     Args:
         from_node: Source node name
         to_node: Target node name
         state: Current state
     """
-    logger.info(
-        "simplified_state_transition",
-        from_node=from_node,
-        to_node=to_node,
-        user_id=state.get("user_id"),
-        conversation_id=state.get("conversation_id"),
-        detected_language=state.get("detected_language"),
-        detected_intent=state.get("detected_intent"),
-        rag_enabled=state.get("rag_enabled"),
-        human_handling=state.get("human_handling")
-    )
+    user_message = state.get("user_message", "")[:50]
+    user_language = state.get("user_language", "unknown")
+    response_strategy = state.get("response_strategy", "unknown")
+    data_found = state.get("data_found", False)
+    
+    logger.info("simplified_state_transition",
+               from_node=from_node,
+               to_node=to_node,
+               user_message=user_message,
+               user_language=user_language,
+               response_strategy=response_strategy,
+               data_found=data_found)
+
+
+def get_simplified_workflow_stats() -> Dict[str, Any]:
+    """
+    Get statistics about the simplified workflow
+    
+    Returns:
+        Workflow statistics
+    """
+    return {
+        "workflow_type": "simplified_with_hitl",
+        "node_count": 5,
+        "nodes": ["load_memory", "simple_analysis", "hitl_check", "direct_search", "contextual_response", "update_memory"],
+        "flow_type": "conditional_linear",
+        "complexity": "simplified_with_integration",
+        "version": "2.0.0",
+        "description": "Simplified 5-node workflow with HITL and conversation memory integration"
+    }

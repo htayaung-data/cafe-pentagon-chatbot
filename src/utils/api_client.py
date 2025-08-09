@@ -107,6 +107,10 @@ class OpenAIAPIClient:
         Make chat completion request with retry logic
         """
         try:
+            # Ensure default model is centralized (use settings if not passed)
+            if "model" not in kwargs or not kwargs["model"]:
+                kwargs["model"] = self.settings.openai_model
+
             return self.chat_circuit_breaker.call(
                 self.client.chat.completions.create,
                 messages=messages,
@@ -164,9 +168,14 @@ class FallbackManager:
         self.cache = {}
         self.logger = get_logger("fallback_manager")
     
-    async def get_cached_response(self, key: str) -> Optional[Dict[str, Any]]:
-        """Get cached response if available"""
-        return self.cache.get(key)
+    async def get_cached_response(self, key: str) -> Optional[Any]:
+        """Get cached response payload if available and valid"""
+        entry = self.cache.get(key)
+        if not entry:
+            return None
+        if not self.is_cache_valid(key):
+            return None
+        return entry.get("data")
     
     async def cache_response(self, key: str, response: Dict[str, Any], ttl: int = 3600):
         """Cache response with TTL"""
@@ -182,7 +191,32 @@ class FallbackManager:
             return False
         
         cached_data = self.cache[key]
-        return time.time() - cached_data["timestamp"] < cached_data["ttl"]
+        
+        # Check TTL
+        if time.time() - cached_data["timestamp"] >= cached_data["ttl"]:
+            return False
+        
+        # Validate cached data structure
+        data = cached_data.get("data", {})
+        if not isinstance(data, dict):
+            return False
+        
+        # For analysis results, ensure required fields are present and valid
+        if "user_language" in data:
+            required_fields = ["user_language", "search_terms", "search_namespace", "response_strategy", "confidence"]
+            for field in required_fields:
+                if field not in data:
+                    return False
+                if data[field] is None:
+                    return False
+            
+            # Validate specific field types
+            if not isinstance(data.get("search_terms"), list):
+                return False
+            if not isinstance(data.get("confidence"), (int, float)):
+                return False
+        
+        return True
     
     def get_fallback_intent(self, message: str, language: str) -> Dict[str, Any]:
         """Get fallback intent classification - NO PATTERN MATCHING"""

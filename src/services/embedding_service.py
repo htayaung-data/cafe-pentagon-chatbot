@@ -29,7 +29,7 @@ class EmbeddingService:
         self.settings = get_settings()
         self.data_loader = get_data_loader()
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002",
+            model=self.settings.openai_embedding_model,
             api_key=self.settings.openai_api_key
         )
         
@@ -61,7 +61,7 @@ class EmbeddingService:
                 # Create index
                 pc.create_index(
                     name=self.settings.pinecone_index_name,
-                    dimension=1536,  # OpenAI ada-002 embedding dimension
+                    dimension=1536,  # text-embedding-3-small/large uses 1536 or 3072; default small
                     metric="cosine",
                     spec=ServerlessSpec(
                         cloud="aws",
@@ -118,9 +118,9 @@ class EmbeddingService:
                 # Prepare metadata
                 metadata = {
                     "id": str(item_dict.get("id")),
-                    "name": item_dict.get("english_name", ""),
+                    "english_name": item_dict.get("english_name", ""),
                     "myanmar_name": item_dict.get("myanmar_name", ""),
-                    "description": item_dict.get("description_en", ""),
+                    "description_en": item_dict.get("description_en", ""),
                     "description_mm": item_dict.get("description_mm", ""),
                     "price": item_dict.get("price", 0),
                     "currency": item_dict.get("currency", "MMK"),
@@ -199,9 +199,9 @@ class EmbeddingService:
                 # Prepare metadata
                 metadata = {
                     "id": str(item_dict.get("id")),
-                    "question": item_dict.get("question_en", ""),
+                    "question_en": item_dict.get("question_en", ""),
                     "question_mm": item_dict.get("question_mm", ""),
-                    "answer": item_dict.get("answer_en", ""),
+                    "answer_en": item_dict.get("answer_en", ""),
                     "answer_mm": item_dict.get("answer_mm", ""),
                     "category": item_dict.get("category", ""),
                     "tags": json.dumps(item_dict.get("tags", [])),
@@ -276,14 +276,14 @@ class EmbeddingService:
                 # Prepare metadata
                 metadata = {
                     "id": str(item_dict.get("event_id")),
-                    "title": item_dict.get("title_en", ""),
+                    "title_en": item_dict.get("title_en", ""),
                     "title_mm": item_dict.get("title_mm", ""),
-                    "description": item_dict.get("description_en", ""),
+                    "description_en": item_dict.get("description_en", ""),
                     "description_mm": item_dict.get("description_mm", ""),
                     "event_type": str(item_dict.get("type", "")),
                     "date": item_dict.get("date", ""),
                     "time": item_dict.get("time", ""),
-                    "artist": item_dict.get("artist_en", ""),
+                    "artist_en": item_dict.get("artist_en", ""),
                     "artist_mm": item_dict.get("artist_mm", ""),
                     "special_menu": json.dumps(item_dict.get("special_menu", [])),
                     "promotion_code": item_dict.get("promotion_code", ""),

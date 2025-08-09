@@ -9,6 +9,7 @@ import hmac
 import json
 import asyncio
 from typing import Dict, Any, List, Optional
+import os
 from datetime import datetime
 import aiohttp
 from fastapi import HTTPException, Request
@@ -54,24 +55,17 @@ class FacebookMessengerService:
             return None
 
     async def verify_signature(self, request: Request, body: bytes) -> bool:
-        """Verify webhook signature for security - TEMPORARILY DISABLED"""
+        """Verify webhook signature using X-Hub-Signature-256 and app secret"""
         try:
-            # TEMPORARY: Skip signature verification for now
-            logger.warning("signature_verification_skipped_for_testing")
-            return True
-            
-            # Original code (commented out):
-            # signature = request.headers.get("x-hub-signature-256", "")
-            # if not signature.startswith("sha256="):
-            #     return False
-            # 
-            # expected_signature = "sha256=" + hmac.new(
-            #     self.page_access_token.encode(),
-            #     body,
-            #     hashlib.sha256
-            # ).hexdigest()
-            # 
-            # return hmac.compare_digest(signature, expected_signature)
+            signature = request.headers.get("x-hub-signature-256", "")
+            if not signature.startswith("sha256="):
+                return False
+            app_secret = os.getenv("FACEBOOK_APP_SECRET") or self.settings.secret_key
+            if not app_secret:
+                logger.error("facebook_app_secret_not_configured")
+                return False
+            expected = "sha256=" + hmac.new(app_secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
+            return hmac.compare_digest(signature, expected)
         except Exception as e:
             logger.error("signature_verification_failed", error=str(e))
             return False
@@ -133,8 +127,9 @@ class FacebookMessengerService:
             facebook_profile = await self.get_user_info(sender_id)
             user_profile = await self.user_manager.get_or_create_user(sender_id, facebook_profile)
             
-            # Create conversation ID (same as Streamlit approach)
-            conversation_id = f"fb_{sender_id}_{int(datetime.now().timestamp())}"
+            # Get or create a stable conversation for this user (persist memory across messages)
+            conversation = self.conversation_tracking.get_or_create_conversation(user_id=sender_id, platform="facebook")
+            conversation_id = conversation.get("id") if conversation else f"fb_{sender_id}_{int(datetime.now().timestamp())}"
             
             # Process message with LangGraph workflow (EXACTLY like Streamlit)
             # Use the same create_initial_state function as Streamlit
@@ -151,36 +146,85 @@ class FacebookMessengerService:
                 "platform": "facebook",
                 "facebook_profile": facebook_profile
             }
+
+            # Entry guard: if admin has locked the conversation, save message and do not reply
+            try:
+                # Force-refresh to avoid stale cache when admin just locked
+                status = self.conversation_tracking.force_refresh_conversation_status(conversation_id)
+                is_locked = False
+                if status:
+                    is_locked = bool(status.get("human_handling", False)) or not bool(status.get("rag_enabled", True)) or status.get("status") == "escalated"
+                if is_locked:
+                    # Save user message with requires_human for admin visibility
+                    self.conversation_tracking.save_message(
+                        conversation_id=conversation_id,
+                        content=message_text,
+                        sender_type="user",
+                        metadata={"requires_human": True, "platform": "facebook"}
+                    )
+                    logger.info("conversation_locked_no_bot_reply", conversation_id=conversation_id)
+                    return {
+                        "sender_id": sender_id,
+                        "message_type": message_type,
+                        "strategy": "hitl_locked",
+                        "status": "skipped_due_to_human_handling",
+                        "image_sent": False,
+                        "conversation_id": conversation_id,
+                        "data_found": False,
+                        "response_quality": "blocked"
+                    }
+            except Exception as guard_err:
+                logger.warning("pre_graph_lock_guard_failed", error=str(guard_err))
             
-            # Run the conversation graph (EXACTLY like Streamlit)
-            compiled_workflow = self.conversation_graph.compile()
-            final_state = await compiled_workflow.ainvoke(initial_state)
+            # Run the conversation graph (reuse compiled instance)
+            if not hasattr(self, "compiled_graph"):
+                self.compiled_graph = self.conversation_graph.compile()
+            final_state = await self.compiled_graph.ainvoke(initial_state)
             
             # Extract response from final state (same as Streamlit)
             response = final_state.get("response", "I'm sorry, I couldn't process your message.")
-            detected_intent = final_state.get("primary_intent", "unknown")
-            intent_confidence = final_state.get("intent_confidence", 0.0)
-            detected_language = final_state.get("detected_language", "en")
-            rag_enabled = final_state.get("rag_enabled", True)
-            human_handling = final_state.get("human_handling", False)
-            requires_human = final_state.get("requires_human", False)
-            rag_results_count = len(final_state.get("rag_results", []))
-            relevance_score = final_state.get("relevance_score", 0.0)
+            user_language = final_state.get("user_language", "en")
+            response_strategy = final_state.get("response_strategy", "polite_fallback")
+            analysis_confidence = final_state.get("analysis_confidence", 0.0)
+            data_found = final_state.get("data_found", False)
+            search_performed = final_state.get("search_performed", False)
+            search_namespace = final_state.get("search_namespace_used", "")
+            response_quality = final_state.get("response_quality", "fallback")
             
             # Log the processing results (same as Streamlit)
-            logger.info("langgraph_processing_completed",
+            logger.info("simplified_processing_completed",
                        user_id=sender_id,
                        conversation_id=conversation_id,
-                       detected_intent=detected_intent,
-                       intent_confidence=intent_confidence,
-                       detected_language=detected_language,
-                       rag_enabled=rag_enabled,
-                       human_handling=human_handling,
-                       requires_human=requires_human,
-                       rag_results_count=rag_results_count,
-                       relevance_score=relevance_score)
+                       user_language=user_language,
+                       response_strategy=response_strategy,
+                       analysis_confidence=analysis_confidence,
+                       data_found=data_found,
+                       search_performed=search_performed,
+                       search_namespace=search_namespace,
+                       response_quality=response_quality)
             
-            # Check if we need to send an image first
+            # Re-check lock state BEFORE sending any media or text
+            try:
+                status_after = self.conversation_tracking.force_refresh_conversation_status(conversation_id)
+                locked_after = False
+                if status_after:
+                    locked_after = bool(status_after.get("human_handling", False)) or not bool(status_after.get("rag_enabled", True)) or status_after.get("status") == "escalated"
+                if locked_after:
+                    logger.info("post_graph_lock_detected_skip_all_sending", conversation_id=conversation_id)
+                    return {
+                        "sender_id": sender_id,
+                        "message_type": message_type,
+                        "strategy": response_strategy,
+                        "status": "locked_after_processing",
+                        "image_sent": False,
+                        "conversation_id": conversation_id,
+                        "data_found": data_found,
+                        "response_quality": response_quality
+                    }
+            except Exception as post_guard_err:
+                logger.warning("post_graph_lock_guard_failed", error=str(post_guard_err))
+
+            # Check if we need to send an image first (only if not locked)
             image_info = final_state.get("image_info")
             if image_info:
                 logger.info("image_info_found", 
@@ -204,34 +248,47 @@ class FacebookMessengerService:
                 logger.info("no_image_info_in_response", 
                            sender_id=sender_id,
                            response_keys=list(final_state.keys()))
-            
+
             # Send text response after image (or immediately if no image)
-            await self.send_message(sender_id, response)
+            if response and response.strip():
+                await self.send_message(sender_id, response)
+            else:
+                logger.info("empty_response_skipped_sending", conversation_id=conversation_id)
+                return {
+                    "sender_id": sender_id,
+                    "message_type": message_type,
+                    "strategy": response_strategy,
+                    "status": "empty_response_skipped",
+                    "image_sent": bool(image_info),
+                    "conversation_id": conversation_id,
+                    "data_found": data_found,
+                    "response_quality": response_quality
+                }
             
             # Update user profile with language preference (same as Streamlit)
-            if detected_language and detected_language != user_profile.preferences.preferred_language.value:
+            if user_language and user_language != user_profile.preferences.preferred_language.value:
                 await self.user_manager.update_user_preferences(sender_id, {
-                    "preferred_language": detected_language
+                    "preferred_language": user_language
                 })
             
             logger.info("message_processed", 
                        sender_id=sender_id,
                        message_type=message_type,
-                       intent=detected_intent,
+                       strategy=response_strategy,
                        image_sent=bool(image_info),
                        conversation_id=conversation_id,
-                       human_handling=human_handling,
-                       requires_human=requires_human)
+                       data_found=data_found,
+                       response_quality=response_quality)
             
             return {
                 "sender_id": sender_id,
                 "message_type": message_type,
-                "intent": detected_intent,
+                "strategy": response_strategy,
                 "status": "processed",
                 "image_sent": bool(image_info),
                 "conversation_id": conversation_id,
-                "human_handling": human_handling,
-                "requires_human": requires_human
+                "data_found": data_found,
+                "response_quality": response_quality
             }
             
         except Exception as e:

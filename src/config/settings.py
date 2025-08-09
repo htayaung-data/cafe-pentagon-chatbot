@@ -19,7 +19,11 @@ class Settings(BaseSettings):
     
     # OpenAI Configuration
     openai_api_key: str = Field(..., env="OPENAI_API_KEY")
-    openai_model: str = Field(default="gpt-4", env="OPENAI_MODEL")
+    # Central chat model used across analysis/response/HITL (override via OPENAI_MODEL)
+    # Use a valid default model
+    openai_model: str = Field(default="gpt-4o-mini", env="OPENAI_MODEL")
+    # Embedding model used for Pinecone vector operations
+    openai_embedding_model: str = Field(default="text-embedding-3-small", env="OPENAI_EMBEDDING_MODEL")
     openai_temperature: float = Field(default=0.7, env="OPENAI_TEMPERATURE")
     openai_max_tokens: int = Field(default=1000, env="OPENAI_MAX_TOKENS")
     
@@ -88,6 +92,9 @@ class Settings(BaseSettings):
     # Admin Panel Authentication Configuration
     admin_api_key: Optional[str] = Field(default=None, env="ADMIN_API_KEY")
     admin_user_id: Optional[str] = Field(default=None, env="ADMIN_USER_ID")
+
+    # Test mode (mocks LLM calls in nodes to enable deterministic tests)
+    test_mode: bool = Field(default=False, env="TEST_MODE")
     
     @property
     def supported_languages_list(self) -> List[str]:
