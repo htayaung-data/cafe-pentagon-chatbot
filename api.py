@@ -201,24 +201,46 @@ async def send_image_endpoint(request: Request):
             }
         
         # Use the existing Facebook service that the chatbot uses
-        success = await facebook_service.send_image(recipient_id, image_url, caption)
-        
-        if success:
-            logger.info("image_sent_successfully", 
-                       recipient_id=recipient_id,
-                       image_url=image_url)
-        else:
-            logger.warning("image_send_failed", 
-                          recipient_id=recipient_id,
-                          image_url=image_url)
-        
-        return {
-            "success": success,
-            "recipient_id": recipient_id,
-            "image_url": image_url,
-            "caption": caption,
-            "timestamp": datetime.now().isoformat()
-        }
+        try:
+            success = await facebook_service.send_image(recipient_id, image_url, caption)
+            
+            if success:
+                logger.info("image_sent_successfully", 
+                           recipient_id=recipient_id,
+                           image_url=image_url)
+                return {
+                    "success": True,
+                    "recipient_id": recipient_id,
+                    "image_url": image_url,
+                    "caption": caption,
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                logger.warning("image_send_failed", 
+                              recipient_id=recipient_id,
+                              image_url=image_url)
+                return {
+                    "success": False,
+                    "error": "Facebook API returned false - check backend logs for details",
+                    "recipient_id": recipient_id,
+                    "image_url": image_url,
+                    "caption": caption,
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as facebook_error:
+            logger.error("facebook_service_error", 
+                        error=str(facebook_error),
+                        recipient_id=recipient_id,
+                        image_url=image_url)
+            return {
+                "success": False,
+                "error": f"Facebook service error: {str(facebook_error)}",
+                "recipient_id": recipient_id,
+                "image_url": image_url,
+                "caption": caption,
+                "timestamp": datetime.now().isoformat()
+            }
     except json.JSONDecodeError as e:
         logger.error("invalid_json_in_request", error=str(e))
         return {
