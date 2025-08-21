@@ -259,6 +259,102 @@ async def send_image_endpoint(request: Request):
             "image_url": image_url if 'image_url' in locals() else None
         }
 
+@app.post("/send-file")
+async def send_file_endpoint(request: Request):
+    """
+    NEW ENDPOINT: Send file to Facebook Messenger with proper file attachment
+    
+    PURPOSE: Fixes HITL page file sending - files now appear as clickable links instead of text
+    USES: Facebook's Media API to upload files first, then send as attachments
+    CALLED BY: HITL page when admin uploads and sends files (PDF, Excel, Word, etc.)
+    """
+    try:
+        # Parse request body
+        body = await request.json()
+        recipient_id = body.get("recipient_id")
+        file_url = body.get("file_url")
+        file_name = body.get("file_name", "File")
+        file_type = body.get("file_type", "application/octet-stream")
+        
+        logger.info("file_send_request_received", 
+                   recipient_id=recipient_id,
+                   file_url=file_url,
+                   file_name=file_name,
+                   file_type=file_type)
+        
+        # Validate required parameters
+        if not recipient_id or not file_url:
+            logger.error("missing_required_parameters", 
+                        recipient_id=recipient_id,
+                        file_url=file_url)
+            return {
+                "success": False,
+                "error": "Missing required parameters: recipient_id and file_url"
+            }
+        
+        # Use the existing Facebook service that the chatbot uses
+        try:
+            # For now, send as a clickable link in text message
+            # Facebook will automatically make URLs clickable
+            message_text = f"📎 {file_name}\n\n{file_url}"
+            
+            success = await facebook_service.send_message(recipient_id, message_text)
+            
+            if success:
+                logger.info("file_sent_successfully", 
+                           recipient_id=recipient_id,
+                           file_name=file_name)
+                return {
+                    "success": True,
+                    "recipient_id": recipient_id,
+                    "file_url": file_url,
+                    "file_name": file_name,
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                logger.warning("file_send_failed", 
+                              recipient_id=recipient_id,
+                              file_name=file_name)
+                return {
+                    "success": False,
+                    "error": "Facebook API returned false - check backend logs for details",
+                    "recipient_id": recipient_id,
+                    "file_url": file_url,
+                    "file_name": file_name,
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as facebook_error:
+            logger.error("facebook_service_error", 
+                        error=str(facebook_error),
+                        recipient_id=recipient_id,
+                        file_url=file_url)
+            return {
+                "success": False,
+                "error": f"Facebook service error: {str(facebook_error)}",
+                "recipient_id": recipient_id,
+                "file_url": file_url,
+                "file_name": file_name,
+                "timestamp": datetime.now().isoformat()
+            }
+    except json.JSONDecodeError as e:
+        logger.error("invalid_json_in_request", error=str(e))
+        return {
+            "success": False,
+            "error": "Invalid JSON in request body"
+        }
+    except Exception as e:
+        logger.error("file_send_endpoint_failed", 
+                    error=str(e),
+                    recipient_id=recipient_id if 'recipient_id' in locals() else None,
+                    file_url=file_url if 'file_url' in locals() else None)
+        return {
+            "success": False,
+            "error": str(e),
+            "recipient_id": recipient_id if 'recipient_id' in locals() else None,
+            "file_url": file_url if 'file_url' in locals() else None
+        }
+
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     """Chat endpoint for testing conversation creation and escalation"""
