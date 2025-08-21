@@ -14,7 +14,6 @@ from src.services.conversation_tracking_service import get_conversation_tracking
 from src.utils.logger import get_logger
 from src.config.settings import get_settings
 from src.api.admin_routes import admin_router
-from datetime import datetime
 
 # Setup logging
 logger = get_logger("api")
@@ -146,68 +145,6 @@ async def test_message(recipient_id: str, message: str = "Hello from Cafe Pentag
         return {
             "success": False,
             "error": str(e)
-        }
-
-@app.post("/send-image")
-async def send_image_endpoint(request: Request):
-    """Send image to Facebook Messenger with proper preview"""
-    try:
-        # Parse request body
-        body = await request.json()
-        recipient_id = body.get("recipient_id")
-        image_url = body.get("image_url")
-        caption = body.get("caption", "")
-        
-        logger.info("image_send_request_received", 
-                   recipient_id=recipient_id,
-                   image_url=image_url,
-                   caption_length=len(caption))
-        
-        # Validate required parameters
-        if not recipient_id or not image_url:
-            logger.error("missing_required_parameters", 
-                        recipient_id=recipient_id,
-                        image_url=image_url)
-            return {
-                "success": False,
-                "error": "Missing required parameters: recipient_id and image_url"
-            }
-        
-        # Use the existing Facebook service that the chatbot uses
-        success = await facebook_service.send_image(recipient_id, image_url, caption)
-        
-        if success:
-            logger.info("image_sent_successfully", 
-                       recipient_id=recipient_id,
-                       image_url=image_url)
-        else:
-            logger.warning("image_send_failed", 
-                          recipient_id=recipient_id,
-                          image_url=image_url)
-        
-        return {
-            "success": success,
-            "recipient_id": recipient_id,
-            "image_url": image_url,
-            "caption": caption,
-            "timestamp": datetime.now().isoformat()
-        }
-    except json.JSONDecodeError as e:
-        logger.error("invalid_json_in_request", error=str(e))
-        return {
-            "success": False,
-            "error": "Invalid JSON in request body"
-        }
-    except Exception as e:
-        logger.error("image_send_endpoint_failed", 
-                    error=str(e),
-                    recipient_id=recipient_id if 'recipient_id' in locals() else None,
-                    image_url=image_url if 'image_url' in locals() else None)
-        return {
-            "success": False,
-            "error": str(e),
-            "recipient_id": recipient_id if 'recipient_id' in locals() else None,
-            "image_url": image_url if 'image_url' in locals() else None
         }
 
 @app.post("/chat")
