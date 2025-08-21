@@ -2,13 +2,19 @@
 FastAPI application for Cafe Pentagon Chatbot
 Handles Facebook Messenger webhooks and API endpoints
 
-Last updated: Added admin panel webhook endpoints for conversation management
+CHANGES MADE FOR HITL IMAGE SENDING:
+1. Added /send-image endpoint - sends images to Facebook with proper previews
+2. Added CORS middleware - fixes cross-origin request blocking
+3. Uses existing FacebookMessengerService.send_image() method
+
+Last updated: Added /send-image endpoint for HITL image sending + CORS support
 """
 
 import json
 from typing import Dict, Any
 from fastapi import FastAPI, Request, HTTPException, Query
 from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
 from src.services.facebook_messenger import FacebookMessengerService
 from src.services.conversation_tracking_service import get_conversation_tracking_service
 from src.utils.logger import get_logger
@@ -24,6 +30,21 @@ app = FastAPI(
     title="Cafe Pentagon Chatbot API",
     description="API for Cafe Pentagon Facebook Messenger Chatbot",
     version="1.0.0"
+)
+
+# CORS middleware - allows frontend to call backend from different origins
+# CRITICAL: This fixes the CORS policy error blocking HITL image sending
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",      # Development frontend
+        "http://localhost:3001",      # Alternative dev port
+        "https://your-production-domain.com",  # Production frontend (update this)
+        "*"                           # Allow all origins (for development - remove in production)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include admin routes
@@ -150,7 +171,13 @@ async def test_message(recipient_id: str, message: str = "Hello from Cafe Pentag
 
 @app.post("/send-image")
 async def send_image_endpoint(request: Request):
-    """Send image to Facebook Messenger with proper preview"""
+    """
+    NEW ENDPOINT: Send image to Facebook Messenger with proper preview
+    
+    PURPOSE: Fixes HITL page image sending - images now appear as previews instead of text URLs
+    USES: Existing FacebookMessengerService.send_image() method (same as working chatbot)
+    CALLED BY: HITL page when admin uploads and sends images
+    """
     try:
         # Parse request body
         body = await request.json()
