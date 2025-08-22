@@ -2,12 +2,14 @@
 FastAPI application for Cafe Pentagon Chatbot
 Handles Facebook Messenger webhooks and API endpoints
 
-CHANGES MADE FOR HITL IMAGE SENDING:
+CHANGES MADE FOR HITL FILE SENDING:
 1. Added /send-image endpoint - sends images to Facebook with proper previews
-2. Added CORS middleware - fixes cross-origin request blocking
-3. Uses existing FacebookMessengerService.send_image() method
+2. Added /send-file endpoint - sends files as formatted text with clickable links
+3. Added CORS middleware - fixes cross-origin request blocking
+4. Uses existing FacebookMessengerService.send_image() method for images
+5. Simplified file handling - no complex attachments, just formatted text links
 
-Last updated: Added /send-image endpoint for HITL image sending + CORS support
+Last updated: Simplified file handling approach - files sent as formatted text with clickable links
 """
 
 import json
@@ -262,11 +264,13 @@ async def send_image_endpoint(request: Request):
 @app.post("/send-file")
 async def send_file_endpoint(request: Request):
     """
-    NEW ENDPOINT: Send file to Facebook Messenger with proper file attachment
+    SIMPLIFIED ENDPOINT: Send file to Facebook Messenger as formatted text with clickable link
     
-    PURPOSE: Fixes HITL page file sending - files now appear as clickable links instead of text
-    USES: Facebook's Media API to upload files first, then send as attachments
+    PURPOSE: Fixes HITL page file sending - files now appear as clickable links instead of raw URLs
+    APPROACH: Send as formatted text message that Facebook automatically makes clickable
     CALLED BY: HITL page when admin uploads and sends files (PDF, Excel, Word, etc.)
+    
+    EXAMPLE OUTPUT: "📎 Document.pdf\n\nClick here to view: [file_url]"
     """
     try:
         # Parse request body
@@ -292,23 +296,31 @@ async def send_file_endpoint(request: Request):
                 "error": "Missing required parameters: recipient_id and file_url"
             }
         
-        # Use the existing Facebook service that the chatbot uses
+        # SIMPLIFIED APPROACH: Format file as clickable link in text message
+        # Facebook automatically makes URLs clickable, so we just need to format nicely
         try:
-            # For now, send as a clickable link in text message
-            # Facebook will automatically make URLs clickable
-            message_text = f"📎 {file_name}\n\n{file_url}"
+            # Create a user-friendly message with the file link
+            # Use appropriate emoji based on file type
+            file_emoji = get_file_emoji(file_type)
             
+            # Format the message for better readability
+            message_text = f"{file_emoji} {file_name}\n\nClick here to view: {file_url}"
+            
+            # Send using the existing Facebook service
             success = await facebook_service.send_message(recipient_id, message_text)
             
             if success:
                 logger.info("file_sent_successfully", 
                            recipient_id=recipient_id,
-                           file_name=file_name)
+                           file_name=file_name,
+                           file_type=file_type)
                 return {
                     "success": True,
                     "recipient_id": recipient_id,
                     "file_url": file_url,
                     "file_name": file_name,
+                    "file_type": file_type,
+                    "message_sent": message_text,
                     "timestamp": datetime.now().isoformat()
                 }
             else:
@@ -354,6 +366,129 @@ async def send_file_endpoint(request: Request):
             "recipient_id": recipient_id if 'recipient_id' in locals() else None,
             "file_url": file_url if 'file_url' in locals() else None
         }
+
+@app.post("/send-multiple-files")
+async def send_multiple_files_endpoint(request: Request):
+    """
+    NEW ENDPOINT: Send multiple files to Facebook Messenger as formatted text with clickable links
+    
+    PURPOSE: Efficiently send multiple files from HITL page in a single request
+    APPROACH: Combine all files into one formatted message with multiple clickable links
+    CALLED BY: HITL page when admin uploads and sends multiple files
+    
+    EXAMPLE OUTPUT: "📎 Files attached:\n\n📄 Document1.pdf\nClick here to view: [url1]\n\n📝 Document2.docx\nClick here to view: [url2]"
+    """
+    try:
+        # Parse request body
+        body = await request.json()
+        recipient_id = body.get("recipient_id")
+        files = body.get("files", [])  # Array of {file_url, file_name, file_type}
+        
+        logger.info("multiple_files_send_request_received", 
+                   recipient_id=recipient_id,
+                   files_count=len(files))
+        
+        # Validate required parameters
+        if not recipient_id or not files or len(files) == 0:
+            logger.error("missing_required_parameters", 
+                        recipient_id=recipient_id,
+                        files_count=len(files) if files else 0)
+            return {
+                "success": False,
+                "error": "Missing required parameters: recipient_id and files array"
+            }
+        
+        # SIMPLIFIED APPROACH: Format all files into one message with clickable links
+        try:
+            # Build the combined message
+            if len(files) == 1:
+                # Single file - use the same format as /send-file
+                file = files[0]
+                file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
+                message_text = f"{file_emoji} {file.get('file_name', 'File')}\n\nClick here to view: {file.get('file_url')}"
+            else:
+                # Multiple files - create a list format
+                message_text = f"📎 {len(files)} files attached:\n\n"
+                for i, file in enumerate(files):
+                    file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
+                    file_name = file.get("file_name", f"File {i+1}")
+                    file_url = file.get("file_url")
+                    message_text += f"{file_emoji} {file_name}\nClick here to view: {file_url}\n\n"
+                message_text = message_text.strip()  # Remove trailing newlines
+            
+            # Send using the existing Facebook service
+            success = await facebook_service.send_message(recipient_id, message_text)
+            
+            if success:
+                logger.info("multiple_files_sent_successfully", 
+                           recipient_id=recipient_id,
+                           files_count=len(files))
+                return {
+                    "success": True,
+                    "recipient_id": recipient_id,
+                    "files_count": len(files),
+                    "message_sent": message_text,
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                logger.warning("multiple_files_send_failed", 
+                              recipient_id=recipient_id,
+                              files_count=len(files))
+                return {
+                    "success": False,
+                    "error": "Facebook API returned false - check backend logs for details",
+                    "recipient_id": recipient_id,
+                    "files_count": len(files),
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+        except Exception as facebook_error:
+            logger.error("facebook_service_error", 
+                        error=str(facebook_error),
+                        recipient_id=recipient_id,
+                        files_count=len(files))
+            return {
+                "success": False,
+                "error": f"Facebook service error: {str(facebook_error)}",
+                "recipient_id": recipient_id,
+                "files_count": len(files),
+                "timestamp": datetime.now().isoformat()
+            }
+    except json.JSONDecodeError as e:
+        logger.error("invalid_json_in_request", error=str(e))
+        return {
+            "success": False,
+            "error": "Invalid JSON in request body"
+        }
+    except Exception as e:
+        logger.error("multiple_files_send_endpoint_failed", 
+                    error=str(e),
+                    recipient_id=recipient_id if 'recipient_id' in locals() else None,
+                    files_count=len(files) if 'files' in locals() else 0)
+        return {
+            "success": False,
+            "error": str(e),
+            "recipient_id": recipient_id if 'recipient_id' in locals() else None,
+            "files_count": len(files) if 'files' in locals() else 0
+        }
+
+# Helper function to get appropriate emoji for file type
+def get_file_emoji(file_type: str) -> str:
+    """Get appropriate emoji based on file type"""
+    if file_type.startswith("image/"):
+        return "🖼️"
+    elif "pdf" in file_type:
+        return "📄"
+    elif "word" in file_type or "document" in file_type:
+        return "📝"
+    elif "excel" in file_type or "spreadsheet" in file_type:
+        return "📊"
+    elif "powerpoint" in file_type or "presentation" in file_type:
+        return "📊"
+    elif "zip" in file_type or "rar" in file_type:
+        return "📦"
+    else:
+        return "📎"  # Default paperclip
 
 @app.post("/chat")
 async def chat_endpoint(request: Request):
