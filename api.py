@@ -264,13 +264,13 @@ async def send_image_endpoint(request: Request):
 @app.post("/send-file")
 async def send_file_endpoint(request: Request):
     """
-    SIMPLIFIED ENDPOINT: Send file to Facebook Messenger as formatted text with clickable link
+    CLEAN ENDPOINT: Send file to Facebook Messenger as clean filename with hidden clickable URL
     
-    PURPOSE: Fixes HITL page file sending - files now appear as clickable links instead of raw URLs
-    APPROACH: Send as formatted text message that Facebook automatically makes clickable
+    PURPOSE: Fixes HITL page file sending - files now appear as clean filenames instead of ugly text
+    APPROACH: Send as clean filename + hidden URL that Facebook automatically makes clickable
     CALLED BY: HITL page when admin uploads and sends files (PDF, Excel, Word, etc.)
     
-    EXAMPLE OUTPUT: "📎 Document.pdf\n\nClick here to view: [file_url]"
+    EXAMPLE OUTPUT: "📎 Document.pdf\n[file_url]" - Facebook shows clean filename, hides URL
     """
     try:
         # Parse request body
@@ -296,15 +296,16 @@ async def send_file_endpoint(request: Request):
                 "error": "Missing required parameters: recipient_id and file_url"
             }
         
-        # SIMPLIFIED APPROACH: Format file as clickable link in text message
-        # Facebook automatically makes URLs clickable, so we just need to format nicely
+        # CLEAN APPROACH: Format file as clean filename with hidden clickable URL
+        # Facebook automatically makes URLs clickable, so we show clean filename + hidden URL
         try:
-            # Create a user-friendly message with the file link
+            # Create a clean message with just filename and hidden URL
             # Use appropriate emoji based on file type
             file_emoji = get_file_emoji(file_type)
             
-            # Format the message for better readability
-            message_text = f"{file_emoji} {file_name}\n\nClick here to view: {file_url}"
+            # Format: Show filename with emoji, then URL on next line (Facebook will make it clickable)
+            # Facebook automatically makes URLs clickable, so the filename appears clean
+            message_text = f"{file_emoji} {file_name}\n{file_url}"
             
             # Send using the existing Facebook service
             success = await facebook_service.send_message(recipient_id, message_text)
@@ -370,13 +371,13 @@ async def send_file_endpoint(request: Request):
 @app.post("/send-multiple-files")
 async def send_multiple_files_endpoint(request: Request):
     """
-    NEW ENDPOINT: Send multiple files to Facebook Messenger as formatted text with clickable links
+    CLEAN ENDPOINT: Send multiple files to Facebook Messenger as clean filenames with hidden clickable URLs
     
     PURPOSE: Efficiently send multiple files from HITL page in a single request
-    APPROACH: Combine all files into one formatted message with multiple clickable links
+    APPROACH: Combine all files into one clean message with filenames and hidden URLs
     CALLED BY: HITL page when admin uploads and sends multiple files
     
-    EXAMPLE OUTPUT: "📎 Files attached:\n\n📄 Document1.pdf\nClick here to view: [url1]\n\n📝 Document2.docx\nClick here to view: [url2]"
+    EXAMPLE OUTPUT: "📎 Files attached:\n\n📄 Document1.pdf\n[url1]\n\n📝 Document2.docx\n[url2]" - Facebook shows clean filenames
     """
     try:
         # Parse request body
@@ -402,18 +403,18 @@ async def send_multiple_files_endpoint(request: Request):
         try:
             # Build the combined message
             if len(files) == 1:
-                # Single file - use the same format as /send-file
+                # Single file - use the same clean format as /send-file
                 file = files[0]
                 file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
-                message_text = f"{file_emoji} {file.get('file_name', 'File')}\n\nClick here to view: {file.get('file_url')}"
+                message_text = f"{file_emoji} {file.get('file_name', 'File')}\n{file.get('file_url')}"
             else:
-                # Multiple files - create a list format
+                # Multiple files - create a clean list format
                 message_text = f"📎 {len(files)} files attached:\n\n"
                 for i, file in enumerate(files):
                     file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
                     file_name = file.get("file_name", f"File {i+1}")
                     file_url = file.get("file_url")
-                    message_text += f"{file_emoji} {file_name}\nClick here to view: {file_url}\n\n"
+                    message_text += f"{file_emoji} {file_name}\n{file_url}\n\n"
                 message_text = message_text.strip()  # Remove trailing newlines
             
             # Send using the existing Facebook service
