@@ -264,13 +264,13 @@ async def send_image_endpoint(request: Request):
 @app.post("/send-file")
 async def send_file_endpoint(request: Request):
     """
-    CLEAN ENDPOINT: Send file to Facebook Messenger as clean filename with hidden clickable URL
+    CLEAN ENDPOINT: Send file to Facebook Messenger as clickable filename
     
-    PURPOSE: Fixes HITL page file sending - files now appear as clean filenames instead of ugly text
-    APPROACH: Send as clean filename + hidden URL that Facebook automatically makes clickable
+    PURPOSE: Fixes HITL page file sending - files now appear as clean, clickable filenames
+    APPROACH: Use Markdown-style links [filename](url) to make filename clickable
     CALLED BY: HITL page when admin uploads and sends files (PDF, Excel, Word, etc.)
     
-    EXAMPLE OUTPUT: "📎 Document.pdf\n[file_url]" - Facebook shows clean filename, hides URL
+    EXAMPLE OUTPUT: "📎 [Document.pdf](file_url)" - Facebook shows clickable filename, hides URL
     """
     try:
         # Parse request body
@@ -303,9 +303,9 @@ async def send_file_endpoint(request: Request):
             # Use appropriate emoji based on file type
             file_emoji = get_file_emoji(file_type)
             
-            # Format: Show filename with emoji, then URL on next line (Facebook will make it clickable)
-            # Facebook automatically makes URLs clickable, so the filename appears clean
-            message_text = f"{file_emoji} {file_name}\n{file_url}"
+            # Format: Make filename itself clickable using Markdown-style links
+            # Facebook should render [filename](url) as a clickable filename
+            message_text = f"{file_emoji} [{file_name}]({file_url})"
             
             # Send using the existing Facebook service
             success = await facebook_service.send_message(recipient_id, message_text)
@@ -371,13 +371,13 @@ async def send_file_endpoint(request: Request):
 @app.post("/send-multiple-files")
 async def send_multiple_files_endpoint(request: Request):
     """
-    CLEAN ENDPOINT: Send multiple files to Facebook Messenger as clean filenames with hidden clickable URLs
+    CLEAN ENDPOINT: Send multiple files to Facebook Messenger as clickable filenames
     
     PURPOSE: Efficiently send multiple files from HITL page in a single request
-    APPROACH: Combine all files into one clean message with filenames and hidden URLs
+    APPROACH: Combine all files into one clean message with clickable filenames using Markdown links
     CALLED BY: HITL page when admin uploads and sends multiple files
     
-    EXAMPLE OUTPUT: "📎 Files attached:\n\n📄 Document1.pdf\n[url1]\n\n📝 Document2.docx\n[url2]" - Facebook shows clean filenames
+    EXAMPLE OUTPUT: "📎 Files attached:\n\n📄 [Document1.pdf](url1)\n\n📝 [Document2.docx](url2)" - Facebook shows clickable filenames
     """
     try:
         # Parse request body
@@ -406,7 +406,7 @@ async def send_multiple_files_endpoint(request: Request):
                 # Single file - use the same clean format as /send-file
                 file = files[0]
                 file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
-                message_text = f"{file_emoji} {file.get('file_name', 'File')}\n{file.get('file_url')}"
+                message_text = f"{file_emoji} [{file.get('file_name', 'File')}]({file.get('file_url')})"
             else:
                 # Multiple files - create a clean list format
                 message_text = f"📎 {len(files)} files attached:\n\n"
@@ -414,7 +414,7 @@ async def send_multiple_files_endpoint(request: Request):
                     file_emoji = get_file_emoji(file.get("file_type", "application/octet-stream"))
                     file_name = file.get("file_name", f"File {i+1}")
                     file_url = file.get("file_url")
-                    message_text += f"{file_emoji} {file_name}\n{file_url}\n\n"
+                    message_text += f"{file_emoji} [{file_name}]({file_url})\n\n"
                 message_text = message_text.strip()  # Remove trailing newlines
             
             # Send using the existing Facebook service
