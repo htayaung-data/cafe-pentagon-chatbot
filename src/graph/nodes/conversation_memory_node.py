@@ -111,14 +111,22 @@ class ConversationMemoryNode:
             return state
         
         try:
-            # Add user message to history
-            user_metadata = {
+            # Add user message to history - preserve original metadata (including attachments)
+            user_metadata = {}
+            
+            # Start with original state metadata (includes attachment data from Facebook)
+            original_metadata = state.get("metadata", {})
+            if original_metadata:
+                user_metadata.update(original_metadata)
+            
+            # Add/override LangGraph-specific fields
+            user_metadata.update({
                 "intent": response_strategy,  # Use response strategy as intent
                 "language": user_language,
                 "conversation_state": "active",
                 "confidence": analysis_confidence,
                 "requires_human": requires_human
-            }
+            })
             
             self.memory_service.add_message_to_history(
                 conversation_id=conversation_id,

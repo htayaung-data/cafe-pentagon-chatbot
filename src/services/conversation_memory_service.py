@@ -108,14 +108,21 @@ class ConversationMemoryService:
             # Map role to sender_type for Supabase
             sender_type = "user" if role == "user" else "bot"
             
-            # Prepare metadata for Supabase
-            supabase_metadata = {
+            # Prepare metadata for Supabase - preserve all original metadata
+            supabase_metadata = {}
+            
+            # Start with original metadata if provided
+            if metadata:
+                supabase_metadata.update(metadata)
+            
+            # Add/override specific LangGraph fields
+            supabase_metadata.update({
                 "intent": metadata.get("intent", "unknown") if metadata else "unknown",
                 "user_language": metadata.get("language", "en") if metadata else "en",
                 "conversation_state": metadata.get("conversation_state", "active") if metadata else "active",
                 "requires_human": metadata.get("requires_human", False) if metadata else False,
                 "langgraph_processing": True
-            }
+            })
             
             # Save message to Supabase
             saved_message = self.conversation_tracking.save_message(
