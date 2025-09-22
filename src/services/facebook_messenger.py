@@ -110,13 +110,15 @@ class FacebookMessengerService:
             sender_id = event["sender"]["id"]
             message_data = event["message"]
             
-            # Extract message content
+            # Extract message content and attachment data
+            attachment_metadata = None
             if "text" in message_data:
                 message_text = message_data["text"]
                 message_type = "text"
             elif "attachments" in message_data:
-                # Handle attachments (images, etc.)
+                # Handle attachments (images, files, etc.)
                 attachments = message_data["attachments"]
+                attachment_metadata = self._extract_attachment_metadata(sender_id, attachments)
                 message_text = f"[Attachment: {attachments[0].get('type', 'unknown')}]"
                 message_type = "attachment"
             else:
@@ -146,6 +148,10 @@ class FacebookMessengerService:
                 "platform": "facebook",
                 "facebook_profile": facebook_profile
             }
+            
+            # Add attachment metadata if present
+            if attachment_metadata:
+                initial_state["metadata"].update(attachment_metadata)
 
             # Entry guard: if admin has locked the conversation, save message and do not reply
             try:
@@ -707,6 +713,137 @@ class FacebookMessengerService:
         """Handle reservation-related postback actions"""
         # TODO: Implement reservation logic
         await self.send_message(sender_id, "Reservation feature coming soon!")
+
+    def _extract_attachment_metadata(self, facebook_user_id: str, attachments: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """
+        Extract attachment metadata from Facebook webhook data
+        Formats according to admin panel team specifications
+        
+        Args:
+            facebook_user_id: Facebook user ID
+            attachments: List of attachment objects from Facebook webhook
+            
+        Returns:
+            Structured metadata for database storage or None if no valid attachments
+        """
+        try:
+            if not attachments or len(attachments) == 0:
+                return None
+            
+            # Get the first attachment (Facebook typically sends one at a time)
+            attachment = attachments[0]
+            attachment_type = attachment.get("type", "unknown")
+            attachment_url = attachment.get("payload", {}).get("url", "")
+            attachment_title = attachment.get("title", attachment_type.title())
+            
+            if not attachment_url:
+                logger.warning("attachment_url_missing", attachment_type=attachment_type)
+                return None
+            
+            # Base metadata structure
+            metadata = {
+                "facebook_user_id": facebook_user_id,
+                "platform": "messenger",
+                "message_type": attachment_type,
+                "attachment_data": {
+                    "type": attachment_type,
+                    "url": attachment_url,
+                    "title": attachment_title,
+                    "metadata": {
+                        "type": attachment_type,
+                        "payload": {
+                            "url": attachment_url
+                        }
+                    }
+                }
+            }
+            
+            # Add type-specific metadata
+            if attachment_type == "image":
+                metadata.update({
+                    "image_url": attachment_url,
+                    "image_info": {
+                        "image_url": attachment_url,
+                        "title": attachment_title
+                    }
+                })
+                logger.info("image_attachment_metadata_extracted", 
+                           facebook_user_id=facebook_user_id,
+                           image_url=attachment_url)
+                           
+            elif attachment_type == "file":
+                # Determine file type from URL or title
+                file_type = self._determine_file_type(attachment_url, attachment_title)
+                metadata.update({
+                    "file_url": attachment_url,
+                    "file_info": {
+                        "file_url": attachment_url,
+                        "title": attachment_title,
+                        "file_type": file_type
+                    }
+                })
+                logger.info("file_attachment_metadata_extracted", 
+                           facebook_user_id=facebook_user_id,
+                           file_url=attachment_url,
+                           file_type=file_type)
+                           
+            else:
+                # Handle other attachment types (video, audio, etc.)
+                metadata.update({
+                    "media_url": attachment_url,
+                    "media_info": {
+                        "media_url": attachment_url,
+                        "title": attachment_title,
+                        "media_type": attachment_type
+                    }
+                })
+                logger.info("media_attachment_metadata_extracted", 
+                           facebook_user_id=facebook_user_id,
+                           media_url=attachment_url,
+                           media_type=attachment_type)
+            
+            return metadata
+            
+        except Exception as e:
+            logger.error("attachment_metadata_extraction_failed", 
+                       facebook_user_id=facebook_user_id,
+                       error=str(e))
+            return None
+
+    def _determine_file_type(self, url: str, title: str) -> str:
+        """
+        Determine file type from URL or filename
+        
+        Args:
+            url: Attachment URL
+            title: Attachment title/filename
+            
+        Returns:
+            File type string (pdf, excel, word, etc.)
+        """
+        try:
+            # Check filename extension first
+            filename = title.lower() if title else ""
+            url_lower = url.lower()
+            
+            if ".pdf" in filename or ".pdf" in url_lower:
+                return "pdf"
+            elif any(ext in filename for ext in [".doc", ".docx"]) or any(ext in url_lower for ext in [".doc", ".docx"]):
+                return "word"
+            elif any(ext in filename for ext in [".xls", ".xlsx"]) or any(ext in url_lower for ext in [".xls", ".xlsx"]):
+                return "excel"
+            elif any(ext in filename for ext in [".ppt", ".pptx"]) or any(ext in url_lower for ext in [".ppt", ".pptx"]):
+                return "powerpoint"
+            elif any(ext in filename for ext in [".zip", ".rar", ".7z"]) or any(ext in url_lower for ext in [".zip", ".rar", ".7z"]):
+                return "archive"
+            elif any(ext in filename for ext in [".txt", ".rtf"]) or any(ext in url_lower for ext in [".txt", ".rtf"]):
+                return "text"
+            else:
+                return "unknown"
+                
+        except Exception as e:
+            logger.error("file_type_determination_failed", url=url, title=title, error=str(e))
+            return "unknown"
 
     async def get_user_info(self, facebook_id: str) -> Optional[Dict[str, Any]]:
         """Get user information from Facebook"""

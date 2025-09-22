@@ -1,84 +1,120 @@
-# Backend Team Request: Facebook Messenger Image Preview Implementation
+# RAG Integration Request for Backend Team
 
-## 🎯 **What We Need**
-We need to understand **exactly how the chatbot successfully sends images with previews** to Facebook Messenger, so we can implement the same method in our HITL (Human-in-the-Loop) admin panel.
+## Overview
+We need to integrate RAG (Retrieval-Augmented Generation) capabilities into our HITL (Human-in-the-Loop) admin panel system. This document outlines our requirements and requests information about your existing RAG infrastructure.
 
-## 🔍 **Current Situation**
+## Current System Architecture
 
-### ✅ **What Works (Chatbot)**
-- **Conversation page**: Chatbot can send images to Facebook Messenger with **image previews** (not just links)
-- **Backend service**: `https://cafe-pentagon.up.railway.app` successfully processes image attachments
-- **Result**: Users see actual image previews in Facebook Messenger
+### Admin Panel (Frontend)
+- **Technology**: Next.js, TypeScript, Tailwind CSS
+- **Purpose**: HITL management interface for human agents
+- **Current Status**: Basic HITL functionality implemented, RAG integration needed
 
-### ❌ **What Doesn't Work (HITL Admin Panel)**
-- **HITL page**: Admin users can upload images but they only send as **text links**
-- **Same backend service**: We're calling the same `cafe-pentagon.up.railway.app` service
-- **Result**: Users see raw Cloudinary URLs instead of image previews
+### Backend RAG Service
+- **Technology**: LangGraph, Pinecone, Supabase, Railway, Node.js
+- **Purpose**: Full RAG implementation for chatbot responses
+- **Current Status**: Active and serving conversation page
 
-## 🚨 **The Problem**
-Both systems use the same backend service, but **only the chatbot achieves image previews**. This suggests there's a **different method, endpoint, or data format** that we're missing.
-
-## 📋 **What We Need From You**
-
-### 1. **Chatbot Image Sending Code**
-Please share the **exact code** that the chatbot uses to send images to Facebook Messenger, specifically:
-
-- **Which endpoint** does the chatbot call? (e.g., `/send-media`, `/send-image`, etc.)
-- **What HTTP method** does it use? (GET, POST, PUT?)
-- **What data format** does it send? (JSON body, form data, query params?)
-- **How does it handle file attachments** vs. just URLs?
-
-### 2. **Facebook Messenger API Integration**
-- **Which Facebook API method** does the chatbot use? (Send Media, Send Message with Attachment, etc.)
-- **How does it convert files** to Facebook's expected format?
-- **What's the exact request structure** that Facebook receives?
-
-### 3. **File Processing Details**
-- **Does the chatbot upload files first** to your backend, then send to Facebook?
-- **Or does it send files directly** to Facebook's Media API?
-- **What's the difference** between sending a file URL vs. sending actual file data?
-
-## 🔧 **Our Current Implementation**
-
-### **What We're Doing Now**
-```typescript
-// We're calling this endpoint:
-const response = await fetch(`${backendUrl}/test-message?${queryParams}`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' }
-})
-
-// With this data:
-const queryParams = new URLSearchParams({
-  recipient_id: recipient_id,
-  message: messageContent // Contains Cloudinary URLs
-})
+### Database Schema
+```sql
+-- Key fields in conversations table
+rag_enabled boolean not null default true
+human_handling boolean not null default false
 ```
 
-### **What We Think Might Be Wrong**
-1. **Wrong endpoint** - maybe we should use `/send-media` instead of `/test-message`
-2. **Wrong data format** - maybe we need to send actual file data, not just URLs
-3. **Wrong API method** - maybe we need to use Facebook's Media API, not Message API
+## Our Vision: RAG as Knowledge Assistant in HITL
 
-## 🎯 **Expected Outcome**
-Once we understand the chatbot's method, we can:
-1. **Copy the exact same approach** to our HITL page
-2. **Use identical endpoints and data formats**
-3. **Achieve the same image preview results**
+### Current Flow (Conversation Page)
+```
+FB User Question → RAG Chatbot → Direct Response to User
+Conditions: human_handling = FALSE, rag_enabled = TRUE
+```
 
-## 📞 **Contact Information**
-- **Project**: RAG Chatbot Admin Panel
-- **Issue**: Facebook Messenger image previews not working in HITL page
-- **Priority**: High - affects admin user experience
-- **Timeline**: ASAP to complete the feature
+### Desired Flow (HITL Page)
+```
+FB User Question → RAG Service → Quick Reply Suggestions → Admin Panel → Human Selects/Edits → Human Sends
+Conditions: human_handling = TRUE, rag_enabled = TRUE
+```
 
-## 🔍 **Files to Check**
-Please look at these files in your chatbot codebase:
-- **Facebook integration module** (where images are sent to Messenger)
-- **File upload handling** (how images are processed before sending)
-- **API endpoint definitions** (which endpoints handle media vs. text)
-- **Facebook API wrapper** (how you communicate with Facebook's Graph API)
+### Alternative Flow (HITL Page - No RAG)
+```
+FB User Question → No RAG → Human Responds Manually
+Conditions: human_handling = TRUE, rag_enabled = FALSE
+```
+
+## Key Requirements
+
+### 1. Conditional RAG Behavior
+- **When** `human_handling = FALSE` AND `rag_enabled = TRUE`: RAG responds directly to user
+- **When** `human_handling = TRUE` AND `rag_enabled = TRUE`: RAG generates suggestions for admin panel (NOT sent to user)
+- **When** `human_handling = TRUE` AND `rag_enabled = FALSE`: No RAG assistance
+
+### 2. RAG Suggestions Format
+- **Quick Reply Options**: 2-3 contextually relevant response suggestions
+- **Knowledge Documents**: Relevant policies, FAQs, documents
+- **Key Facts**: Extracted information points
+- **Suggested Response**: Complete response template for human editing
+
+### 3. Integration Points
+- **Real-time Updates**: RAG suggestions when new FB messages arrive in HITL
+- **API Endpoint**: New endpoint for HITL RAG assistance
+- **Authentication**: Secure communication between admin panel and RAG service
+
+## Questions for Backend Team
+
+### System Design Questions
+1. **Current RAG Architecture**: How is your RAG service currently structured? What components handle document retrieval, embedding, and response generation?
+
+2. **Existing Endpoints**: What RAG-related API endpoints do you currently have? Can they be extended for HITL use?
+
+3. **Conversation Context**: How does your RAG service currently access conversation history and user context?
+
+4. **Document Storage**: How are documents stored and indexed? What's the retrieval mechanism?
+
+### Integration Approach Questions
+1. **Flag Checking**: How can we implement the conditional logic (`human_handling` + `rag_enabled`) in your system?
+
+2. **New Endpoint Design**: What would be the optimal API design for the HITL RAG assistance endpoint?
+
+3. **Real-time Communication**: How do you recommend handling real-time updates between RAG service and admin panel?
+
+4. **Performance Considerations**: What are the performance implications of adding HITL RAG assistance?
+
+### Technical Questions
+1. **Authentication**: How should we handle authentication between admin panel and RAG service?
+
+2. **Error Handling**: What error handling and fallback mechanisms should we implement?
+
+3. **Rate Limiting**: Are there any rate limiting considerations for HAG requests?
+
+4. **Monitoring**: How can we monitor and track RAG usage in HITL mode?
+
+## Requested Deliverables
+
+Please provide a `.md` file that includes:
+
+1. **System Architecture Overview**: High-level design of your RAG service
+2. **Current API Structure**: Existing endpoints and their purposes
+3. **Integration Recommendations**: How to implement the conditional RAG behavior
+4. **New Endpoint Design**: Proposed API design for HITL RAG assistance
+5. **Implementation Steps**: Recommended approach and timeline
+6. **Technical Considerations**: Performance, security, and scalability factors
+
+## Important Notes
+
+- **No Code Required**: We only need system design and approach documentation
+- **Focus on Integration**: How to connect existing RAG service with HITL requirements
+- **Scalability**: Consider future enhancements and additional HITL features
+- **Performance**: Ensure RAG suggestions are generated quickly for human agents
+
+## Timeline
+- **Documentation Request**: ASAP
+- **Review & Discussion**: After receiving your response
+- **Implementation Planning**: Based on your recommendations
+
+## Contact
+Please provide your response as a `.md` file. We can schedule a follow-up discussion to clarify any questions or discuss implementation details.
 
 ---
 
-**Thank you for your help!** This will save us hours of trial-and-error and get the image previews working quickly. 🚀
+**Goal**: Enable human agents in HITL to leverage RAG as a knowledge assistant while maintaining full human control over responses.
