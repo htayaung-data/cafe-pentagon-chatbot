@@ -118,7 +118,24 @@ class FacebookMessengerService:
             elif "attachments" in message_data:
                 # Handle attachments (images, files, etc.)
                 attachments = message_data["attachments"]
+                logger.info("facebook_attachment_detected", 
+                           sender_id=sender_id,
+                           attachment_count=len(attachments),
+                           attachment_types=[att.get("type", "unknown") for att in attachments])
+                
                 attachment_metadata = self._extract_attachment_metadata(sender_id, attachments)
+                
+                if attachment_metadata:
+                    logger.info("attachment_metadata_extracted_successfully",
+                               sender_id=sender_id,
+                               message_type=attachment_metadata.get("message_type"),
+                               has_image_url="image_url" in attachment_metadata,
+                               has_file_url="file_url" in attachment_metadata)
+                else:
+                    logger.warning("attachment_metadata_extraction_failed",
+                                 sender_id=sender_id,
+                                 attachments=attachments)
+                
                 message_text = f"[Attachment: {attachments[0].get('type', 'unknown')}]"
                 message_type = "attachment"
             else:
@@ -162,11 +179,22 @@ class FacebookMessengerService:
                     is_locked = bool(status.get("human_handling", False)) or not bool(status.get("rag_enabled", True)) or status.get("status") == "escalated"
                 if is_locked:
                     # Save user message with requires_human for admin visibility
+                    # Preserve attachment metadata even when conversation is locked
+                    locked_metadata = {"requires_human": True, "platform": "facebook"}
+                    if attachment_metadata:
+                        locked_metadata.update(attachment_metadata)
+                        logger.info("conversation_locked_preserving_attachment_metadata",
+                                   conversation_id=conversation_id,
+                                   attachment_metadata_keys=list(attachment_metadata.keys()))
+                    else:
+                        logger.info("conversation_locked_no_attachment_metadata",
+                                   conversation_id=conversation_id)
+                    
                     self.conversation_tracking.save_message(
                         conversation_id=conversation_id,
                         content=message_text,
                         sender_type="user",
-                        metadata={"requires_human": True, "platform": "facebook"}
+                        metadata=locked_metadata
                     )
                     logger.info("conversation_locked_no_bot_reply", conversation_id=conversation_id)
                     return {
